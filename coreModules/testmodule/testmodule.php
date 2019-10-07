@@ -25,8 +25,7 @@ $this->setUrlPatternsFromArray(
     '#^cousa/crear$#' => 'view:Cousadmin::crea',
     '#^lista_plana$#' => 'view:Cousadmin::lista_plana',
     '#^cousa_tabla$#' => 'view:Cousadmin::cousa_tabla',
-    '#^testmodule#' => 'view:TestmoduleView::inicio'
-  )
+
 );
 */
 __('traduceme esto se tes valor');
