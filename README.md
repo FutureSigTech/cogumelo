@@ -1,4 +1,4 @@
-## COGUMELO 1.0a
+## COGUMELO 2
 Is a simple PHP5 framework created by <http://www.innoto.es> on GPL v3. It`s under alpha version. 
 This page will serve to post the essential and aditional needs of this framework.
 
