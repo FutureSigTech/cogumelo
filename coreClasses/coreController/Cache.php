@@ -74,6 +74,7 @@ class Cache {
    */
   public function flush() {
     $result = null;
+    Cogumelo::debug( __METHOD__ );
 
     if( $this->cacheCtrl ) {
       $result = $this->cacheCtrl->flush();
