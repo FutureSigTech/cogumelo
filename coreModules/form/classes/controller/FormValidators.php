@@ -315,6 +315,7 @@ class FormValidators extends FormValidatorsExtender {
 
   // http://jqueryvalidation.org/maxlength-method/
   public function val_maxlength( $value, $param ) {
+    $value = str_replace( "\r\n", "\n", $value );
     return mb_strlen( $value ) <= $param;
   }
 
