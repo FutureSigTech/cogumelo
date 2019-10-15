@@ -52,6 +52,8 @@ class FormController implements Serializable {
   private $keepAlive = false;
   private $enterSubmit = null;
   private $formMarginTop = 0;
+  private $htmlPrepend = '';
+  private $htmlAppend = '';
   private $fields = [];
   private $rules = [];
   private $groups = [];
@@ -316,6 +318,42 @@ class FormController implements Serializable {
 
 
   /**
+   * Establece un html antes del form
+   *
+   * @param integer $htmlPrepend Desplazamiento en pixels
+   */
+  public function setHtmlPrepend( $htmlPrepend = '' ) {
+    $this->htmlPrepend = $htmlPrepend;
+  }
+
+  public function addHtmlPrepend( $htmlPrepend = '' ) {
+    $this->htmlPrepend .= $htmlPrepend;
+  }
+
+  public function getHtmlPrepend() {
+    return $this->htmlPrepend;
+  }
+
+
+  /**
+   * Establece un html despues del form
+   *
+   * @param string $htmlAppend Desplazamiento en pixels
+   */
+  public function setHtmlAppend( $htmlAppend = '' ) {
+    $this->htmlAppend = $htmlAppend;
+  }
+
+  public function addHtmlAppend( $htmlAppend = '' ) {
+    $this->htmlAppend .= $htmlAppend;
+  }
+
+  public function getHtmlAppend() {
+    return $this->htmlAppend;
+  }
+
+
+  /**
    * Establece un margen superior para el posicionamiento en caso de error
    *
    * @param integer $formMarginTop Desplazamiento en pixels
@@ -362,6 +400,8 @@ class FormController implements Serializable {
     $data[ 'keepAlive' ] = $this->keepAlive;
     $data[ 'enterSubmit' ] = $this->enterSubmit;
     $data[ 'formMarginTop' ] = $this->formMarginTop;
+    $data[ 'htmlPrepend' ] = $this->htmlPrepend;
+    $data[ 'htmlAppend' ] = $this->htmlAppend;
     $data[ 'fields' ] = $fieldsInfo;
     $data[ 'rules' ] = $this->rules;
     $data[ 'groups' ] = $this->groups;
@@ -391,6 +431,8 @@ class FormController implements Serializable {
     $this->keepAlive = $data[ 'keepAlive' ];
     $this->enterSubmit = $data[ 'enterSubmit' ];
     $this->formMarginTop = $data[ 'formMarginTop' ];
+    $this->htmlPrepend = $data[ 'htmlPrepend' ];
+    $this->htmlAppend = $data[ 'htmlAppend' ];
     $this->fields = $data[ 'fields' ];
     $this->rules = $data[ 'rules' ];
     $this->groups = $data[ 'groups' ];
@@ -2365,6 +2407,11 @@ class FormController implements Serializable {
   public function getHtmlOpen() {
     $html='';
 
+    $htmlPrepend = $this->getHtmlPrepend();
+    if( !empty($htmlPrepend) ) {
+      $html .= "\n<!-- formPrepend -->\n".$htmlPrepend."\n<!-- /formPrepend -->\n";
+    }
+
     $html .= '<form name="'.$this->getName().'" id="'.$this->id.'" data-token_id="'.$this->getTokenId().'" ';
     $html .= ' class="'.$this->cssPrefix.' '.$this->cssPrefix.'-form-'.$this->getName().'" ';
     $html .= ' action="javascript:void(0);"';
@@ -2818,6 +2865,11 @@ class FormController implements Serializable {
   public function getHtmlClose() {
     $html = '</form><!-- '.$this->getName().' -->';
 
+    $htmlAppend = $this->getHtmlAppend();
+    if( !empty($htmlAppend) ) {
+      $html .= "\n<!-- formAppend -->\n".$htmlAppend."\n<!-- /formAppend -->\n";
+    }
+
     return $html;
   }
 
@@ -2834,6 +2886,11 @@ class FormController implements Serializable {
 
     $scRules = ( count( $this->rules ) > 0 ) ? json_encode( $this->rules ) : 'false';
     $scMsgs = ( count( $this->messages ) > 0 ) ? json_encode( $this->messages ) : 'false';
+
+
+    // $scRules = '{"rExtAppSolicitud_fiscalnumberfamily":{"maxlength":2,"digits":true} }';
+    // $scRules = '{"content_es":{"maxlength":"32"} }';
+    // $scRules = '{"rExtAppSolicitud_name":{"maxlength":"10"} }';
 
     $opt = [];
     if( $this->getKeepAlive() ) {
@@ -3243,11 +3300,6 @@ class FormController implements Serializable {
     // Tienen que existir los validadores y los valores del form
     if( $this->issetValidationObj() ) {
 
-      if( $this->captchaEnable() && !$this->captchaValidate() ) {
-        $this->addFormError( 'Captcha no válido' ); // , $msgClass );
-        error_log('FormController: Captcha no válido' );
-      }
-
       foreach( $this->rules as $fieldName => $fieldRules ) {
         if( $this->getFieldInternal( $fieldName, 'groupCloneRoot' ) !== true ) {
           // Procesamos los campos que no son raiz de campos agrupados
@@ -3256,6 +3308,12 @@ class FormController implements Serializable {
           $formValidated = $formValidated && $fieldValidated;
         }
       } // foreach( $this->rules as $fieldName => $fieldRules )
+
+      if( $this->captchaEnable() && !$this->existErrors() && !$this->captchaValidate() ) {
+        $this->addFormError( 'Captcha no válido' ); // , $msgClass );
+        error_log('FormController: Captcha no válido' );
+      }
+
     } // if( $this->issetValidationObj() )
     else {
       $formValidated = false;
