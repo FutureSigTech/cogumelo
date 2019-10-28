@@ -14,8 +14,7 @@ $COGUMELO_INSTANCED_MODULES = [];
 
 require_once( COGUMELO_LOCATION . "/coreClasses/coreController/RequestController.php" );
 
-class ModuleController
-{
+class ModuleController {
 
   var $url_path;
   var $module_paths = array();
@@ -69,7 +68,7 @@ class ModuleController
     else {
       $this->request = new RequestController( $COGUMELO_INSTANCED_MODULES[$module_name]->getUrlPatternsToArray(), $this->url_path, $this->module_paths[$module_name] );
       $this->url_path = $this->request->getLeftoeverUrl();
-      Cogumelo::debug("Reading UrlPatterns from: ".$module_name);
+      // Cogumelo::debug("Reading UrlPatterns from: ".$module_name);
     }
   }
 
