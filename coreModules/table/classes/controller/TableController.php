@@ -785,7 +785,7 @@ class TableController{
             }
           }
           else {
-            $row[$colDefKey] = $rowVO->getter($colDefKey);
+            $row[$colDefKey] = htmlspecialchars($rowVO->getter($colDefKey));
           }
 
         }
