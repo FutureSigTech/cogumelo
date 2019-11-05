@@ -78,6 +78,7 @@ class MysqlConnection extends Connection
    * @return void
    */
   public function transactionCommit() {
+    Cogumelo::debug("DB TRANSACTION COMMIT");
     mysqli_query($this->db ,"COMMIT;");
   }
 
@@ -87,6 +88,7 @@ class MysqlConnection extends Connection
    * @return void
    */
   public function transactionRollback() {
+    Cogumelo::debug("DB TRANSACTION ROLLBACK");
     mysqli_query($this->db ,"ROLLBACK;");
   }
 
