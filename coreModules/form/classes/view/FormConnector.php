@@ -51,12 +51,16 @@ class FormConnector extends View {
           $this->getGroupElement();
           break;
         default:
-          error_log('FormConnector: ERROR - FormConnector::execCommand - Comando no soportado: '.$_POST['execute'] );
+          $msg = ' ERROR: Comando no soportado: '.$_POST['execute'];
+          Cogumelo::log(__METHOD__.$msg, 'Form');
+          error_log(__METHOD__.$msg);
           break;
       }
     }
     else {
-      error_log('FormConnector: ERROR - FormConnector::execCommand - Datos erroneos' );
+      $msg = ' ERROR: Comando no indicado';
+      Cogumelo::log(__METHOD__.$msg, 'Form');
+      error_log(__METHOD__.$msg);
     }
   }
 
@@ -78,7 +82,7 @@ class FormConnector extends View {
 
 
   public function keepAlive() {
-    cogumelo::debug('FormConnector: (Notice) FormConnector::keepAlive' );
+    Cogumelo::log(__METHOD__, 'Form');
 
     $form = new FormController();
 
@@ -86,7 +90,9 @@ class FormConnector extends View {
       $form->saveToSession();
     }
     else { // no parece haber fichero
-      $form->addFormError( 'No existe el form' );
+      $msg = 'No existe el form';
+      $form->addFormError($msg);
+      Cogumelo::log(__METHOD__.$msg, 'Form');
     }
 
     $moreInfo = array(

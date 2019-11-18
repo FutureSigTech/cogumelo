@@ -21,7 +21,7 @@
 class FormConnectorFiles {
 
   public function uploadFormFile( $post, $phpFiles ) {
-    Cogumelo::debug(__METHOD__);
+    Cogumelo::log(__METHOD__, 'Form');
     // error_log(__METHOD__);
 
     // error_log('FormConnector: FILES:' ); error_log( print_r( $phpFiles, true ) );
@@ -39,7 +39,7 @@ class FormConnectorFiles {
       $moreInfo['cgIntFrmId'] = $cgIntFrmId;
       $moreInfo['fieldName'] = $fieldName;
 
-      Cogumelo::debug(__METHOD__.': FILES:'.$phpFiles['ajaxFileUpload']['name'] );
+      Cogumelo::log(__METHOD__.' FILES:'.$phpFiles['ajaxFileUpload']['name'], 'Form');
       // error_log(__METHOD__.': FILES:'.$phpFiles['ajaxFileUpload']['name'] );
       $fich = [
         'tmpLoc'  => $phpFiles['ajaxFileUpload']['tmp_name'], // File in the PHP tmp folder
@@ -58,10 +58,14 @@ class FormConnectorFiles {
     }
     else { // no parece haber fichero
       if( !empty( $fieldName ) ) {
-        $form->addFieldRuleError( $fieldName, 'cogumelo', 'La subida del fichero ha fallado. (IS)' );
+        $msg = 'La subida del fichero ha fallado. (IS)';
+        $form->addFieldRuleError( $fieldName, 'cogumelo', $msg );
+        Cogumelo::log(__METHOD__.' Falta cgIntFrmId ou ajaxFileUpload. '.$msg, 'Form');
       }
       else {
-        $form->addFormError( 'La subida del fichero ha fallado. (IS2)', 'formError' );
+        $msg = 'La subida del fichero ha fallado. (IS2)';
+        $form->addFormError( $msg, 'formError' );
+        Cogumelo::log(__METHOD__.' Falta fieldname. '.$msg, 'Form');
       }
     }
 
@@ -84,24 +88,32 @@ class FormConnectorFiles {
   } // function uploadFormFile() {
 
   public function uploadFormFilePhpValidate( $form, $fieldName, $fich ) {
-    Cogumelo::debug(__METHOD__);
+    Cogumelo::log(__METHOD__, 'Form');
     // error_log(__METHOD__);
 
     // Aviso de error PHP
     if( $fich['errorId'] !== UPLOAD_ERR_OK ) {
-      $form->addFieldRuleError( $fieldName, 'cogumelo', 'La subida del fichero ha fallado. (SF-'.$fich['errorId'].')' );
+      $msg = 'La subida del fichero ha fallado. (SF-'.$fich['errorId'].')';
+      $form->addFieldRuleError( $fieldName, 'cogumelo', $msg );
+      Cogumelo::log(__METHOD__.' ERROR: PHP UPLOAD_ERR. '.$msg, 'Form');
     }
 
     // Verificando la existencia y tamaño del fichero intermedio
     if( !$form->existErrors() ) {
       if( $fich['size'] < 1 ) {
-        $form->addFieldRuleError( $fieldName, 'cogumelo', 'La subida del fichero ha fallado. (T0)' );
+        $msg = 'La subida del fichero ha fallado. (T0)';
+        $form->addFieldRuleError( $fieldName, 'cogumelo', $msg );
+        Cogumelo::log(__METHOD__.' ERROR: Tamaño 0. '.$msg, 'Form');
       }
       elseif( !is_uploaded_file( $fich['tmpLoc'] ) ) {
-        $form->addFieldRuleError( $fieldName, 'cogumelo', 'La subida del fichero ha fallado. (T1)' );
+        $msg = 'La subida del fichero ha fallado. (T1)';
+        $form->addFieldRuleError( $fieldName, 'cogumelo', $msg );
+        Cogumelo::log(__METHOD__.' ERROR: Falta el temporal. '.$msg, 'Form');
       }
       elseif( filesize( $fich['tmpLoc'] ) !== $fich['size'] ) {
-        $form->addFieldRuleError( $fieldName, 'cogumelo', 'La subida del fichero ha fallado. (T2)' );
+        $msg = 'La subida del fichero ha fallado. (T2)';
+        $form->addFieldRuleError( $fieldName, 'cogumelo', $msg );
+        Cogumelo::log(__METHOD__.' ERROR: Tamaño incorrecto. '.$msg, 'Form');
       }
     }
 
@@ -111,20 +123,23 @@ class FormConnectorFiles {
       $fileTypePhp = finfo_file( $finfo, $fich['tmpLoc'] );
       if( $fileTypePhp !== false ) {
         if( $fich['type'] !== $fileTypePhp ) {
-          error_log('FormConnector: ALERTA: Los MIME_TYPE reportados por el navegador y PHP difieren: '.
-            $fich['type'].' != '.$fileTypePhp );
-          error_log('FormConnector: ALERTA: Damos preferencia a PHP. Puede variar la validación JS/PHP' );
           $fich['type'] = $fileTypePhp;
+
+          $msg = ' ALERTA: MIME_TYPE de navegador y PHP difieren: '.$fich['type'].' != '.$fileTypePhp.' Usamos PHP.';
+          error_log(__METHOD__.$msg );
+          Cogumelo::log(__METHOD__.$msg, 'Form');
         }
       }
       else {
-        error_log('FormConnector: ALERTA: MIME_TYPE PHP del fichero desconocido. Navegador: '.$fich['type'] );
+        $msg = ' ALERTA: MIME_TYPE PHP del fichero desconocido. Usamos el de Navegador: '.$fich['type'];
+        error_log(__METHOD__.$msg );
+        Cogumelo::log(__METHOD__.$msg, 'Form');
       }
     }
   } // uploadFormFilePhpValidate( $form, $fieldName, $fich )
 
   public function uploadFormFileProcess( $form, $fieldName, $fich, $cgIntFrmId ) {
-    Cogumelo::debug(__METHOD__);
+    Cogumelo::log(__METHOD__, 'Form');
     // error_log(__METHOD__);
 
     $newFileFieldValue = false;
@@ -149,33 +164,35 @@ class FormConnectorFiles {
         $newFileFieldValue = $this->uploadFormFileSave( $form, $fieldName, $fich, $fileFieldValuePrev );
       }
       else {
-        Cogumelo::debug('FormConnector: FU: NON Valida o ficheiro subido...' );
+        Cogumelo::log(__METHOD__.' NON Valida o ficheiro subido...', 'Form');
       }
     }
     else {
-      $form->addFieldRuleError( $fieldName, 'cogumelo', 'La subida del fichero ha fallado. (FO)' );
+      $msg = 'La subida del fichero ha fallado. (FO)';
+      $form->addFieldRuleError( $fieldName, 'cogumelo', $msg );
+      Cogumelo::log(__METHOD__.' Form o tipo de campo errorneo. '.$msg, 'Form');
     }
 
     return $newFileFieldValue;
   } // uploadFormFileProcess( $form, $fieldName, $fich, $cgIntFrmId )
 
   public function uploadFormFileSave( $form, $fieldName, $fich, $fileFieldValuePrev ) {
-    Cogumelo::debug(__METHOD__);
+    Cogumelo::log(__METHOD__, 'Form');
     // error_log(__METHOD__);
 
     $newFileFieldValue = false;
 
-    Cogumelo::debug('FormConnector: FU: Validado. Vamos a moverlo...' );
+    Cogumelo::log(__METHOD__.' Validado. Vamos a moverlo...', 'Form');
     $tmpCgmlFileLocation = $form->tmpPhpFile2tmpFormFile( $fich['tmpLoc'], $fich['name'], $fieldName );
 
     if( $tmpCgmlFileLocation === false ) {
-      Cogumelo::debug('FormConnector: FU: Fallo de move_uploaded_file movendo '.$fieldName.': ('.$fich['tmpLoc'].')' );
-      $form->addFieldRuleError( $fieldName, 'cogumelo',
-        'La subida del fichero ha fallado. (MU)' );
+      $msg = 'La subida del fichero ha fallado. (MU)';
+      $form->addFieldRuleError( $fieldName, 'cogumelo', $msg );
+      Cogumelo::log(__METHOD__.' Fallo move_uploaded_file movendo '.$fieldName.': ('.$fich['tmpLoc'].') '.$msg, 'Form');
     }
     else {
       // El fichero subido ha pasado todos los controles. Vamos a registrarlo según proceda
-      Cogumelo::debug('FormConnector: FU: Validado y movido. Paso final...' );
+      Cogumelo::log(__METHOD__.' Validado y movido. Paso final...', 'Form');
 
       $newFileFieldValue = [
         'status' => 'LOAD',
@@ -192,25 +209,25 @@ class FormConnectorFiles {
         // Basic: only one file
         if( isset( $fileFieldValuePrev['status'] ) && $fileFieldValuePrev['status'] !== false ) {
           if( $fileFieldValuePrev['status'] === 'DELETE' ) {
-            Cogumelo::debug('FormConnector: FU: Todo OK. Estado REPLACE...' );
+            Cogumelo::log(__METHOD__.' Todo OK. Estado REPLACE...', 'Form');
 
             $newFileFieldValue['status'] = 'REPLACE';
             $fileFieldValuePrev = $newFileFieldValue;
           }
           else {
-            Cogumelo::debug('FormConnector: FU: Validado pero status erroneo: ' . $fileFieldValuePrev['status'] );
-            $form->addFieldRuleError( $fieldName, 'cogumelo', 'La subida del fichero ha fallado. (FE)' );
+            $msg = 'La subida del fichero ha fallado. (FE)';
+            $form->addFieldRuleError( $fieldName, 'cogumelo', $msg );
+            Cogumelo::log(__METHOD__.' Validado pero status erroneo: '.$fileFieldValuePrev['status'].' '.$msg, 'Form');
           }
         }
         else {
-          Cogumelo::debug('FormConnector: FU: Todo OK. Estado LOAD...' );
-
+          Cogumelo::log(__METHOD__.' Todo OK. Estado LOAD...', 'Form');
           $fileFieldValuePrev = $newFileFieldValue;
         }
       }
       else {
         // Multiple: add files
-        Cogumelo::debug('FormConnector: FU: Todo OK. Multifile LOAD...' );
+        Cogumelo::log(__METHOD__.' Todo OK. Multifile LOAD...', 'Form');
         if( !isset( $fileFieldValuePrev['multiple'] ) ) {
           $fileFieldValuePrev['multiple'] = [];
           if( isset( $fileFieldValuePrev['status'] ) ) {
@@ -226,7 +243,7 @@ class FormConnectorFiles {
       }
 
       if( !$form->existErrors() ) {
-        Cogumelo::debug('FormConnector: FU: OK con el ficheiro subido... Se persiste...' );
+        Cogumelo::log(__METHOD__.' OK con el ficheiro subido... Se persiste...', 'Form');
         // error_log(__METHOD__.' OK con el ficheiro subido... Se persiste...');
         // error_log('FormConnector: GUARDAMOS File Field: '.print_r($fileFieldValuePrev,true) );
         $form->setFieldValue( $fieldName, $fileFieldValuePrev );
@@ -234,8 +251,9 @@ class FormConnectorFiles {
         $form->saveToSession();
       }
       else {
-        Cogumelo::debug('FormConnector: FU: Como ha fallado, eliminamos: ' . $tmpCgmlFileLocation );
-        error_log(__METHOD__.' Como ha fallado, eliminamos: ' . $tmpCgmlFileLocation );
+        $msg = ' ERROR: Como ha fallado, eliminamos: '.$tmpCgmlFileLocation;
+        Cogumelo::log(__METHOD__.$msg, 'Form');
+        error_log(__METHOD__.$msg);
         unlink( $tmpCgmlFileLocation );
       }
     } // else - if( !$tmpCgmlFileLocation )
@@ -257,7 +275,7 @@ class FormConnectorFiles {
 
 
   public function deleteFormFile( $post ) {
-    Cogumelo::debug(__METHOD__);
+    Cogumelo::log(__METHOD__, 'Form');
     // error_log(__METHOD__);
 
     // error_log('FormConnector: POST:' );
@@ -281,10 +299,14 @@ class FormConnectorFiles {
     }
     else { // no parece haber fichero
       if( !empty( $fieldName ) ) {
-        $form->addFieldRuleError( $fieldName, 'cogumelo', 'No han llegado los datos o lo ha hecho con errores. (ISE)' );
+        $msg = 'No han llegado los datos o lo ha hecho con errores. (ISE)';
+        $form->addFieldRuleError( $fieldName, 'cogumelo', $msg );
+        Cogumelo::log(__METHOD__.' Falta cgIntFrmId. '.$msg, 'Form');
       }
       else {
-        $form->addFormError( 'No han llegado los datos o lo ha hecho con errores. (ISE2)', 'formError' );
+        $msg = 'No han llegado los datos o lo ha hecho con errores. (ISE2)';
+        $form->addFormError( $msg, 'formError' );
+        Cogumelo::log(__METHOD__.' Falta fieldName. '.$msg, 'Form');
       }
     }
 
@@ -293,7 +315,7 @@ class FormConnectorFiles {
   } // function deleteFormFile() {
 
   public function deleteFormFileProcess( $form, $fieldName, $fich, $cgIntFrmId ) {
-    Cogumelo::debug(__METHOD__);
+    Cogumelo::log(__METHOD__, 'Form');
     // error_log(__METHOD__);
 
     // Recuperamos formObj y validamos el fichero temporal
@@ -335,7 +357,7 @@ class FormConnectorFiles {
       }
 
 
-      Cogumelo::debug('FormConnector: LEEMOS File Field para BORRAR: '.json_encode( $fieldPrev ) );
+      Cogumelo::log(__METHOD__.' LEEMOS File Field para BORRAR: '.json_encode( $fieldPrev ), 'Form');
 
 
       if( isset( $fieldPrev['status'] ) && $fieldPrev['status'] !== false ) {
@@ -358,14 +380,18 @@ class FormConnectorFiles {
             $fieldPrev['temp'] = null;
             break;
           default:
-            error_log('FormConnector: FDelete: Error intentando borrar con status erroneo: (STB) '.$fieldName.' '.$fieldPrev['status'] );
-            $form->addFieldRuleError( $fieldName, 'cogumelo', 'Intento de sobreescribir un fichero existente (STB)' );
+            $msg = 'Intento de sobreescribir un fichero existente (STB)';
+            $form->addFieldRuleError( $fieldName, 'cogumelo', $msg );
+            Cogumelo::log(__METHOD__.' ERROR: Estatus erroneo '.$fieldPrev['status'].' en '.$fieldName.'. '.$msg, 'Form');
+            error_log(__METHOD__.' ERROR: Estatus erroneo '.$fieldPrev['status'].' en '.$fieldName.'. '.$msg );
             break;
         }
       }
       else {
-        error_log('FormConnector: FDelete: Error intentando eliminar un fichero sin estado: (STN) '.$fieldName );
-        $form->addFieldRuleError( $fieldName, 'cogumelo', 'Intento de borrar un fichero inexistente (STN)' );
+        $msg = 'Intento de borrar un fichero inexistente (STN)';
+        $form->addFieldRuleError( $fieldName, 'cogumelo', $msg );
+        Cogumelo::log(__METHOD__.' ERROR: '.$msg.' '.$fieldName, 'Form');
+        error_log(__METHOD__.' ERROR: '.$msg.' '.$fieldName );
       }
 
       if( !$form->existErrors() ) {
@@ -381,19 +407,23 @@ class FormConnectorFiles {
           }
         }
 
-        Cogumelo::debug('FormConnector: GUARDAMOS File Field: '.$fieldName );
+        Cogumelo::log('FormConnector: GUARDAMOS File Field: '.$fieldName, 'Form');
 
         $form->setFieldValue( $fieldName, $fieldPrev );
         // Persistimos formObj para cuando se envíe el formulario completo
         $form->saveToSession();
       }
       else {
-        error_log('FormConnector: FDelete: Error, el borrado ha fallado. Se mantiene el estado: '.$fieldName );
+        $msg = ' ERROR: El borrado ha fallado. Se mantiene el estado: '.$fieldName;
+        Cogumelo::log(__METHOD__.$msg, 'Form');
+        error_log(__METHOD__.$msg );
       }
     } // if( $form->loadFromSession( $cgIntFrmId ) && $form->getFieldType( $fieldName ) === 'file' )
     else {
-      error_log('FormConnector: FDelete: Error, intento de borrado incorrecto: (FRM) '.$fieldName );
-      $form->addFieldRuleError( $fieldName, 'cogumelo', 'Intento de borrado incorrecto. (FRM)' );
+      $msg = 'Intento de borrado incorrecto. (FRM)';
+      $form->addFieldRuleError( $fieldName, 'cogumelo', $msg );
+      Cogumelo::log(__METHOD__.' ERROR: '.$msg.' '.$fieldName, 'Form');
+      error_log(__METHOD__.' ERROR: '.$msg.' '.$fieldName );
     }
   }
 }
