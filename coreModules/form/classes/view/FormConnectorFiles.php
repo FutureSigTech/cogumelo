@@ -380,18 +380,18 @@ class FormConnectorFiles {
             $fieldPrev['temp'] = null;
             break;
           default:
-            $msg = 'Intento de sobreescribir un fichero existente (STB)';
+            $msg = 'Intento de borrado erroneo (STB)';
             $form->addFieldRuleError( $fieldName, 'cogumelo', $msg );
-            Cogumelo::log(__METHOD__.' ERROR: Estatus erroneo '.$fieldPrev['status'].' en '.$fieldName.'. '.$msg, 'Form');
-            error_log(__METHOD__.' ERROR: Estatus erroneo '.$fieldPrev['status'].' en '.$fieldName.'. '.$msg );
+            error_log(__METHOD__.' ERROR: Campo '.$fieldName.' con estado '.$fieldPrev['status'].' erroneo. '.$msg );
+            Cogumelo::log(__METHOD__.' ERROR: Campo '.$fieldName.' con estado '.$fieldPrev['status'].' erroneo. '.$msg, 'Form' );
             break;
         }
       }
       else {
-        $msg = 'Intento de borrar un fichero inexistente (STN)';
+        $msg = 'Intento de borrado erroneo (STN)';
         $form->addFieldRuleError( $fieldName, 'cogumelo', $msg );
-        Cogumelo::log(__METHOD__.' ERROR: '.$msg.' '.$fieldName, 'Form');
-        error_log(__METHOD__.' ERROR: '.$msg.' '.$fieldName );
+        error_log(__METHOD__.' ERROR: Campo '.$fieldName.' sin estado. '.$msg );
+        Cogumelo::log(__METHOD__.' ERROR: Campo '.$fieldName.' sin estado. '.$msg, 'Form' );
       }
 
       if( !$form->existErrors() ) {
@@ -407,7 +407,7 @@ class FormConnectorFiles {
           }
         }
 
-        Cogumelo::log('FormConnector: GUARDAMOS File Field: '.$fieldName, 'Form');
+        Cogumelo::log(__METHOD__.' GUARDAMOS File Field: '.$fieldName, 'Form');
 
         $form->setFieldValue( $fieldName, $fieldPrev );
         // Persistimos formObj para cuando se envíe el formulario completo
@@ -420,10 +420,10 @@ class FormConnectorFiles {
       }
     } // if( $form->loadFromSession( $cgIntFrmId ) && $form->getFieldType( $fieldName ) === 'file' )
     else {
-      $msg = 'Intento de borrado incorrecto. (FRM)';
+      $msg = 'Intento de borrado erroneo. (FRM)';
       $form->addFieldRuleError( $fieldName, 'cogumelo', $msg );
-      Cogumelo::log(__METHOD__.' ERROR: '.$msg.' '.$fieldName, 'Form');
-      error_log(__METHOD__.' ERROR: '.$msg.' '.$fieldName );
+      Cogumelo::log(__METHOD__.' ERROR: Falta cgIntFrmId o '.$fieldName.' no es file. '.$msg, 'Form' );
+      error_log(__METHOD__.' ERROR: Falta cgIntFrmId o '.$fieldName.' no es file. '.$msg );
     }
   }
 }
