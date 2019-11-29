@@ -368,7 +368,7 @@ class TableController{
   * @return void
   */
   function setExtraFilter( $key,  $type, $title, $options, $defaultValue ) {
-    if($defaultValue !== '*' && !isset($that->extraFilters[$key]) ) {
+    if( $defaultValue !== '*' && !isset($this->clientData['filters'][$key] ) ) {
       $this->clientData['filters'][$key] = $defaultValue;
     }
     $this->extraFilters[$key] = array( 'type' => $type, 'title' => $title, 'options' => $options, 'default' => $defaultValue );
