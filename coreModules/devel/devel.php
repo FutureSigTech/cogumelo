@@ -20,7 +20,7 @@ class devel extends Module {
 
    array(
     "id" => "bootstrap",
-    "params" => array("bootstrap#v3.3"),
+    "params" => array("bootstrap#v3.4"),
     "installer" => "bower",
     "includes" => array("dist/js/bootstrap.min.js")
    ),

@@ -62,7 +62,7 @@ class CogumeloClass extends Singleton {
      ),
      array(
       "id" => "bootstrap",
-      "params" => array("bootstrap#v3.3"),
+      "params" => array("bootstrap#v3.4"),
       "installer" => "bower",
       //"includes" => array("dist/js/bootstrap.min.js")  //{"url":"/media/jsLog.js?ref=/vendor/bower/bootstrap/dist/js/bootstrap.min.js","expire":1}
      ),
