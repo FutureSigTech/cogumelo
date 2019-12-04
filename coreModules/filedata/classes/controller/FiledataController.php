@@ -450,7 +450,7 @@ class FiledataController {
       }
     }
     Cogumelo::debug( __METHOD__.' - unlink '.$serverFile.' ('.$unlinkStatus.')' );
-    error_log( __METHOD__.' - BORRAR '.$serverFilePlain.' ('.$unlinkStatus.')' );
+    // error_log( __METHOD__.' - BORRAR '.$serverFilePlain.' ('.$unlinkStatus.')' );
   } // function removeServerFiles( $voFile )
 
 
