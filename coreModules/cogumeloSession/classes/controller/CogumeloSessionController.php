@@ -98,21 +98,34 @@ class CogumeloSessionController {
         }
 
         if( $sessionOk && isset( $_SESSION[ 'cogumeloSessionNew' ] ) ) {
-          Cogumelo::debug( __METHOD__.' Session OK' );
+          // Cogumelo::debug( __METHOD__.' Session OK' );
           $this->tokenSessionID = session_id();
           $_SESSION[ 'cogumeloSessionNew' ] = false;
           $_SESSION[ 'cogumeloSessionTimePrev' ] = ( $_SESSION[ 'cogumeloSessionTimeLast' ] ) ?
             $_SESSION[ 'cogumeloSessionTimeLast' ] : $_SESSION[ 'cogumeloSessionTimeCreate' ];
           $_SESSION[ 'cogumeloSessionTimeLast' ] = time();
+
+          // Cogumelo::debug(__METHOD__.' '.$_SESSION['cogumeloSessionRemoteAddr'].' --- '.$remoteAddr);
           if( $_SESSION[ 'cogumeloSessionRemoteAddr' ] !== $remoteAddr ) {
-            $_SESSION[ 'cogumeloSessionRemoteAddrPrev' ] = $_SESSION[ 'cogumeloSessionRemoteAddr' ];
-            $_SESSION[ 'cogumeloSessionRemoteAddrChange' ] = true;
-            $_SESSION[ 'cogumeloSessionRemoteAddr' ] = $remoteAddr;
+            $ipBlocked = Cogumelo::getSetupValue('cogumelo:session:ipBlocked');
+            if( empty($ipBlocked) ) {
+              // Admitimos cambio de IP en la sesion y dejamos que la App decida
+              Cogumelo::debug(__METHOD__.' Alerta: Cambia IP de '.$_SESSION[ 'cogumeloSessionRemoteAddr' ].' a '.$remoteAddr);
+              $_SESSION[ 'cogumeloSessionRemoteAddrPrev' ] = $_SESSION[ 'cogumeloSessionRemoteAddr' ];
+              $_SESSION[ 'cogumeloSessionRemoteAddrChange' ] = true;
+              $_SESSION[ 'cogumeloSessionRemoteAddr' ] = $remoteAddr;
+            }
+            else {
+              // NO admitimos el cambio de la IP en la sesion
+              error_log(__METHOD__.' ERROR: Cambia IP de '.$_SESSION[ 'cogumeloSessionRemoteAddr' ].' a '.$remoteAddr);
+              Cogumelo::debug(__METHOD__.' ERROR: Cambia IP de '.$_SESSION[ 'cogumeloSessionRemoteAddr' ].' a '.$remoteAddr);
+              $sessionOk = false;
+            }
           }
         }
-        else {
-          Cogumelo::debug( 'CogumeloSessionController: ## Invalid TokenSessionID' );
-          Cogumelo::debug( 'CogumeloSessionController: ## $_SESSION = '.json_encode($_SESSION) );
+
+        if( !$sessionOk || !isset( $_SESSION[ 'cogumeloSessionNew' ] ) ) {
+          Cogumelo::debug(__METHOD__.' Destroy. $_SESSION = '.json_encode($_SESSION) );
           session_unset();
           session_destroy();
           $tkSID = false;
@@ -134,6 +147,7 @@ class CogumeloSessionController {
         $_SESSION[ 'cogumeloSessionRemoteAddr' ] = $remoteAddr;
         $_SESSION[ 'cogumeloSessionRemoteAddrPrev' ] = false;
         $_SESSION[ 'cogumeloSessionRemoteAddrChange' ] = false;
+        Cogumelo::debug(__METHOD__.' Inicializamos $_SESSION = '.json_encode($_SESSION) );
       }
     } // if( !== 'cli' )
 
