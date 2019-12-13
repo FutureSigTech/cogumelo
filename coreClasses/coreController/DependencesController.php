@@ -370,9 +370,9 @@ Class DependencesController {
                 if($installer == 'manual') {
                   require_once( Cogumelo::getSetupValue( 'dependences:manualPath' ).'/'.$include_folder.'/'.$includeFile );
                 }
-                else {
+                /*else {
                   require_once( Cogumelo::getSetupValue( 'dependences:composerPath' ).'/'.$include_folder.'/'.$includeFile );
-                }
+                }*/
 
 
                 break;
@@ -386,6 +386,7 @@ Class DependencesController {
           }
         }
       }
+      require_once( Cogumelo::getSetupValue( 'dependences:composerPath' ).'/autoload.php');
     }
   }
 
