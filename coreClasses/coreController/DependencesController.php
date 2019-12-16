@@ -386,7 +386,11 @@ Class DependencesController {
           }
         }
       }
-      require_once( Cogumelo::getSetupValue( 'dependences:composerPath' ).'/autoload.php');
+
+      $composerAutoloadPath = Cogumelo::getSetupValue( 'dependences:composerPath' ).'/autoload.php';
+      if(file_exists($composerAutoloadPath)){
+        require_once( $composerAutoloadPath );
+      }
     }
   }
 
