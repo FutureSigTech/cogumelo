@@ -1,15 +1,11 @@
 <?php
-
-
 /**
  * CacheRedis Class
  *
  * This class encapsulates the Redis library
+ *
+ * @author: jmpmato, pablinhob
  */
-
-
-
-
 class CacheRedis {
 
   private $cacheCtrl = null;
@@ -19,47 +15,80 @@ class CacheRedis {
 
 
   public function __construct( $setup ) {
+    $status = false;
 
     $this->cacheSetup = $setup;
 
     if( !empty( $this->cacheSetup['host'] ) && class_exists('Redis') ) {
-      $this->cacheCtrl = new Redis();
+      $status = $this->prepareCotroller();
+    }
 
-      if( empty( $this->cacheSetup['port'] ) ) {
-        $this->cacheSetup['port'] = 6379; // port 6379 by default - same connection like before.
-      }
-      $status = $this->cacheCtrl->pconnect( $this->cacheSetup['host'], $this->cacheSetup['port'] );
-
-      if( $status && !empty( $this->cacheSetup['database'] ) ) {
-        $status = $this->cacheCtrl->select( $this->cacheSetup['database'] );  // switch to DB n
-      }
-
-      if( $status && !empty( $this->cacheSetup['auth'] ) ) {
-        $status = $this->cacheCtrl->auth( $this->cacheSetup['auth'] );
-      }
-
-      if( $status ) {
-        if( !empty( $this->cacheSetup['subPrefix'] ) ) {
-          $this->keyPrefix .= '_'.$this->cacheSetup['subPrefix'];
-        }
-        elseif( $prjIdName=Cogumelo::getSetupValue('project:idName') ) {
-          $this->keyPrefix .= '_'.$prjIdName;
-        }
-        elseif( $dbName=Cogumelo::getSetupValue('db:name') ) {
-          $this->keyPrefix .= '_'.$dbName;
-        }
-
-        if( isset( $this->cacheSetup['expirationTime'] ) ) {
-          $this->expirationTime = intval( $this->cacheSetup['expirationTime'] );
-        }
-      }
-      else {
-        unset( $this->cacheCtrl );
-        $this->cacheCtrl = false;
-      }
+    if( $status ) {
+      $this->prepareVars();
+    }
+    else {
+      unset( $this->cacheCtrl );
+      $this->cacheCtrl = null;
     }
   }
 
+  private function prepareCotroller() {
+    $status = false;
+
+    if( empty( $this->cacheSetup['port'] ) ) {
+      $this->cacheSetup['port'] = 6379; // port 6379 by default - same connection like before.
+    }
+
+    $this->cacheCtrl = new Redis();
+    $status = $this->cacheCtrl->pconnect( $this->cacheSetup['host'], $this->cacheSetup['port'] );
+
+    if( $status && !empty( $this->cacheSetup['database'] ) ) {
+      $status = $this->cacheCtrl->select( $this->cacheSetup['database'] );  // switch to DB n
+    }
+
+    if( $status && !empty( $this->cacheSetup['auth'] ) ) {
+      $status = $this->cacheCtrl->auth( $this->cacheSetup['auth'] );
+    }
+
+    return $status;
+  }
+
+  private function prepareVars() {
+    if( !empty( $this->cacheSetup['subPrefix'] ) ) {
+      $this->keyPrefix .= '_'.$this->cacheSetup['subPrefix'];
+    }
+    elseif( $prjIdName=Cogumelo::getSetupValue('project:idName') ) {
+      $this->keyPrefix .= '_'.$prjIdName;
+    }
+    elseif( $dbName=Cogumelo::getSetupValue('db:name') ) {
+      $this->keyPrefix .= '_'.$dbName;
+    }
+
+    if( isset( $this->cacheSetup['expirationTime'] ) ) {
+      $this->expirationTime = intval( $this->cacheSetup['expirationTime'] );
+    }
+  }
+
+
+  public function __toString() {
+    return json_encode($this->getInfo());
+  }
+
+
+  public function getInfo() {
+    return([
+      'type'=>'Redis',
+      'status'=>$this->isValid(),
+      'keyPrefix'=>$this->keyPrefix,
+      'defExpirationTime'=>$this->expirationTime,
+      'cacheSetup'=>$this->cacheSetup,
+    ]);
+  }
+
+
+  public function isValid() {
+    return( is_object( $this->cacheCtrl ) );
+  }
 
 
   /**
@@ -120,15 +149,15 @@ class CacheRedis {
 
 
   /**
-   * Borra todos nuestros contenidos cache
+   * Borra nuestros contenidos cache
    */
   public function flush() {
-    Cogumelo::log( __METHOD__, 'cache' );
+    Cogumelo::log(__METHOD__, 'cache');
     $result = null;
 
     if( $this->cacheCtrl ) {
       $cacheKeys = $this->cacheCtrl->keys( $this->keyPrefix .':*' );
-      Cogumelo::log( __METHOD__.' - cacheKeys: '.json_encode( $cacheKeys ), 'cache' );
+      Cogumelo::log(__METHOD__.' - cacheKeys: '.json_encode( $cacheKeys ), 'cache');
       if( $this->cacheCtrl->delete( $cacheKeys ) ) {
         $result = true;
       }

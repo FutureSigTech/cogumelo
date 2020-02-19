@@ -1,15 +1,11 @@
 <?php
-
-
 /**
  * CacheMemcached Class
  *
  * This class encapsulates the Memcached library
  *
- * @author: pablinhob
+ * @author: pablinhob, jmpmato
  */
-
-
 class CacheMemcached {
 
   private $cacheCtrl = null;
@@ -19,42 +15,68 @@ class CacheMemcached {
 
 
   public function __construct( $setup ) {
+    $status = false;
 
     $this->cacheSetup = $setup;
 
     if( !empty( $this->cacheSetup['hostArray'] ) && class_exists('Memcached') ) {
-      $this->cacheCtrl = new Memcached();
+      $status = $this->prepareCotroller();
+    }
 
-
-      $status = $this->cacheCtrl->addServers( $this->cacheSetup['hostArray'] );
-      // $status = false;
-      // foreach( $this->cacheSetup['hostArray'] as $host ) {
-      //   $status = $status || $this->cacheCtrl->addServer( $host['host'], $host['port'] );
-      // }
-
-
-      if( $status ) {
-        if( !empty( $this->cacheSetup['subPrefix'] ) ) {
-          $this->keyPrefix .= '_'.$this->cacheSetup['subPrefix'];
-        }
-        elseif( $prjIdName=Cogumelo::getSetupValue('project:idName') ) {
-          $this->keyPrefix .= '_'.$prjIdName;
-        }
-        elseif( $dbName=Cogumelo::getSetupValue('db:name') ) {
-          $this->keyPrefix .= '_'.$dbName;
-        }
-
-        if( isset( $this->cacheSetup['expirationTime'] ) ) {
-          $this->expirationTime = intval( $this->cacheSetup['expirationTime'] );
-        }
-      }
-      else {
-        unset( $this->cacheCtrl );
-        $this->cacheCtrl = false;
-      }
+    if( $status ) {
+      $this->prepareVars();
+    }
+    else {
+      unset( $this->cacheCtrl );
+      $this->cacheCtrl = null;
     }
   }
 
+  private function prepareCotroller() {
+    $status = false;
+
+    $this->cacheCtrl = new Memcached();
+    $status = $this->cacheCtrl->addServers( $this->cacheSetup['hostArray'] );
+
+    return $status;
+  }
+
+  private function prepareVars() {
+    if( !empty( $this->cacheSetup['subPrefix'] ) ) {
+      $this->keyPrefix .= '_'.$this->cacheSetup['subPrefix'];
+    }
+    elseif( $prjIdName=Cogumelo::getSetupValue('project:idName') ) {
+      $this->keyPrefix .= '_'.$prjIdName;
+    }
+    elseif( $dbName=Cogumelo::getSetupValue('db:name') ) {
+      $this->keyPrefix .= '_'.$dbName;
+    }
+
+    if( isset( $this->cacheSetup['expirationTime'] ) ) {
+      $this->expirationTime = intval( $this->cacheSetup['expirationTime'] );
+    }
+  }
+
+
+  public function __toString() {
+    return json_encode($this->getInfo());
+  }
+
+
+  public function getInfo() {
+    return([
+      'type'=>'Memcached',
+      'status'=>$this->isValid(),
+      'keyPrefix'=>$this->keyPrefix,
+      'defExpirationTime'=>$this->expirationTime,
+      'cacheSetup'=>$this->cacheSetup,
+    ]);
+  }
+
+
+  public function isValid() {
+    return( is_object( $this->cacheCtrl ) );
+  }
 
 
   /**
@@ -114,17 +136,17 @@ class CacheMemcached {
 
 
   /**
-   * Borra todos nuestros contenidos cache
+   * Borra todos/nuestros contenidos cache
    */
   public function flush() {
-    Cogumelo::log(__METHOD__, 'cache' );
+    Cogumelo::log(__METHOD__, 'cache');
     $result = null;
 
     if( $this->cacheCtrl ) {
 
       // $allKeys = $this->cacheCtrl->getAllKeys();
       // if( $this->cacheCtrl->getResultCode() === Memcached::RES_SUCCESS ) {
-      //   Cogumelo::log(__METHOD__.' F1', 'cache' );
+      //   Cogumelo::log(__METHOD__.' F1 Borrando entradas propias', 'cache' );
       //   $cacheKeys = !empty( $allKeys ) ? array_filter( $allKeys, "SELF::isCacheKey" ) : false;
       //   if( !empty( $cacheKeys ) ) {
       //     // Cogumelo::log( __METHOD__.' - cacheKeys: '.json_encode( $cacheKeys ), 'cache' );
@@ -133,20 +155,20 @@ class CacheMemcached {
       //   }
       // }
       // else {
-      //   Cogumelo::log(__METHOD__.' F2', 'cache' );
+      //   Cogumelo::log(__METHOD__.' F2 Borrando TODO', 'cache' );
       //   // Si no es posible el borrado parcial se realiza un borrado total
       //   $this->cacheCtrl->flush();
       // }
 
 
       // TODO: TEMPORAL !!!
-      Cogumelo::log(__METHOD__.' F2 TEMPORAL ! ! !', 'cache' );
+      Cogumelo::log(__METHOD__.' F2 Borrando TODO', 'cache');
       // Si no es posible el borrado parcial se realiza un borrado total
       $this->cacheCtrl->flush();
 
 
       if( $this->cacheCtrl->getResultCode() === Memcached::RES_SUCCESS ) {
-        Cogumelo::log(__METHOD__.' F3', 'cache' );
+        Cogumelo::log(__METHOD__.' Borrado de cache OK', 'cache');
         $result = true;
       }
     }
@@ -154,9 +176,8 @@ class CacheMemcached {
     return $result;
   }
 
-  private function isCacheKey( $keyName ) {
-    // Cogumelo::log(__METHOD__.' Key:'.$keyName, 'cache' );
-
-    return( strpos( $keyName, $this->keyPrefix .':') === 0 );
-  }
+  // private function isCacheKey( $keyName ) {
+  //   // Cogumelo::log(__METHOD__.' Key:'.$keyName, 'cache' );
+  //   return( strpos( $keyName, $this->keyPrefix .':') === 0 );
+  // }
 }
