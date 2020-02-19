@@ -139,7 +139,11 @@ function cogumeloTable( tableId, tableUrl ) {
         clientCurrentPage: that.currentPage,
         selectAllPages: that.selectAllPagesValue
       },
+      error:function (xhr, ajaxOptions, thrownError){
+        window.location = window.location;
+      },
       success: function(tableData) {
+
         that.tableData = tableData;
 
         that.clearData();
@@ -598,7 +602,7 @@ function cogumeloTable( tableId, tableUrl ) {
 
   that.setElementsEachPage = function( number ) {
     that.tableData.rowsEachPage = number;
-    that.setPager(1);        
+    that.setPager(1);
     that.load();
   };
 
