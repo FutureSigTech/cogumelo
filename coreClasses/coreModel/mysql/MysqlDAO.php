@@ -201,6 +201,9 @@ class MysqlDAO extends DAO {
    * @return object
    */
   public function listItems( &$connectionControl, $filters, $range, $order, $fields, $joinType, $resolveDependences = false, $groupBy = false, $cacheParam = false ) {
+
+    // $tempo = microtime(true);
+
     // SQL Query
     $VO = new $this->VO();
     // joins
@@ -295,6 +298,10 @@ class MysqlDAO extends DAO {
         $daoresult = COGUMELO_ERROR;
       }
     }
+
+    // $tempo2 = microtime(true);
+    // Cogumelo::log( __METHOD__.' TEMPO: '.sprintf( "%.3f ", $tempo2-$tempo).$_SERVER["REQUEST_URI"].' '.$strSQL, 'Tempos' );
+
     return $daoresult;
   }
   /**
