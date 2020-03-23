@@ -11,7 +11,7 @@
 * @author: pablinhob
 */
 
-class TableController {
+class TableController{
 
   var $isFirstTime = false;
   var $control = false;
@@ -111,7 +111,6 @@ class TableController {
     if( isset($this->RAWClientData['rowsEachPage']) ) {
       $this->rowsEachPage = $this->RAWClientData['rowsEachPage'];
     }
-
 
     // set ranges
     if(
@@ -660,7 +659,6 @@ class TableController {
   }
 
 
-
   /**
   * clearCaches
   * @return void
@@ -669,7 +667,6 @@ class TableController {
     $cacheCtrl = new Cache();
     $cacheCtrl->flush();
   }
-
 
 
   /**
@@ -789,6 +786,7 @@ class TableController {
           }
           else {
             $row[$colDefKey] = htmlspecialchars($rowVO->getter($colDefKey));
+          }
 
         }
 
@@ -821,6 +819,6 @@ class TableController {
     echo "]}";
   }
 
- }
+
 
 }
