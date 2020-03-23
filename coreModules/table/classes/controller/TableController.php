@@ -11,7 +11,7 @@
 * @author: pablinhob
 */
 
-class TableController{
+class TableController {
 
   var $isFirstTime = false;
   var $control = false;
@@ -821,6 +821,6 @@ class TableController{
     echo "]}";
   }
 
-
+ }
 
 }
