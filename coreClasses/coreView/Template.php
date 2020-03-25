@@ -522,6 +522,7 @@ class Template extends Smarty {
 
       $mainClientIncludes = "\n";
       // Basic includes and includers
+      $mainClientIncludes .= '<script>function __(m) { return m; }</script>' . "\n";
       $mainClientIncludes .= '<script src="'.$this->cgmMediaserverHost.'vendor/yarn/jquery/dist/jquery.min.js"></script>' . "\n";
       $mainClientIncludes .= '<script defer src="'.$this->cgmMediaserverHost.'vendor/yarn/popper.js/dist/umd/popper.min.js"></script>' . "\n";
       $mainClientIncludes .= '<script defer src="'.$this->cgmMediaserverHost.'vendor/yarn/bootstrap/dist/js/bootstrap.min.js"></script>' . "\n";
