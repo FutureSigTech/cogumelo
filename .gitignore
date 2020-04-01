@@ -5,3 +5,4 @@
 # Devel
 /.phan/
 /0-backups/
+/test/

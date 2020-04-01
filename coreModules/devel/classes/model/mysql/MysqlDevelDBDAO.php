@@ -33,37 +33,49 @@ class MysqlDevelDBDAO extends MysqlDAO {
   );
 
   public function createSchemaDB( $connection ) {
-    $resultado =  array();
+    $resultado = [];
 
-    $strSQL0 = "DROP DATABASE IF EXISTS ". Cogumelo::getSetupValue( 'db:name' ) ;
+    $confDB = $this->getDBConfiguration();
 
-    $strSQL1 = "CREATE DATABASE ". Cogumelo::getSetupValue( 'db:name' ).
-      ' DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci';
+    $dropSQL = "DROP DATABASE IF EXISTS ".$confDB['name'];
+    $resultado[] = $this->execSQL( $connection, $dropSQL, [] );
 
-    $strSQL2 = "GRANT ".
-        "SELECT, ".
-        "INSERT, ".
-        "UPDATE, ".
-        "DELETE, ".
-        "INDEX, ".
-        "LOCK TABLES, ".
-        "ALTER,".
-        "ALTER ROUTINE,".
-        "CREATE, ".
-        "DROP, ".
-        "SHOW VIEW, ".
-        "CREATE VIEW ".
-      "ON ". Cogumelo::getSetupValue( 'db:name' ) .".* ".
-      "TO '". Cogumelo::getSetupValue( 'db:user' ) ."'@'localhost' IDENTIFIED BY '". Cogumelo::getSetupValue( 'db:password' ) ."' ";
+    $createSQL = "CREATE DATABASE ".$confDB['name'].' DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci';
+    $resultado[] = $this->execSQL( $connection, $createSQL, [] );
 
-    $resultado[] = $this->execSQL( $connection, $strSQL0, array() );
-    $resultado[] = $this->execSQL( $connection, $strSQL1, array() );
-    $resultado[] = $this->execSQL( $connection, $strSQL2, array() );
+
+    $perms = " SELECT,INSERT,UPDATE,DELETE,INDEX,LOCK TABLES,ALTER,ALTER ROUTINE,CREATE,DROP,SHOW VIEW,CREATE VIEW ";
+
+    $grantHosts = [ $confDB['hostname'], 'localhost' ];
+    if( !empty($confDB['moreGrantHosts']) ) {
+      $grantHosts = array_merge( $grantHosts, (array)$confDB['moreGrantHosts'] );
+    }
+
+    foreach( $grantHosts as $grantHost ) {
+      $grantSQL = "GRANT ".$perms." ON ".$confDB['name'].".* ".
+        " TO '".$confDB['user']."'@'".$grantHost."' IDENTIFIED BY '".$confDB['password']."' ";
+      $resultado[] = $this->execSQL( $connection, $grantSQL, [] );
+    }
 
     return $resultado;
   }
 
-  public function aditionalExec( $connection, $strSQL, $noExecute = true   ) {
+  private function getDBConfiguration() {
+    $confDB = Cogumelo::getSetupValue('db');
+
+    if( !empty($confDB) ) {
+      if( empty( $confDB['hostname'] ) || $confDB['hostname'] === 'localhost' ) {
+        $confDB['hostname'] = '127.0.0.1';
+      }
+      if( empty( $confDB['port'] ) ) {
+        $confDB['port'] = 3306;
+      }
+    }
+
+    return $confDB;
+  }
+
+  public function aditionalExec( $connection, $strSQL, $noExecute = true ) {
     $ret = false;
 
 
@@ -78,16 +90,17 @@ class MysqlDevelDBDAO extends MysqlDAO {
     return $ret;
   }
 
-
-  public function safeExecSQL(  $connection, $strSQL, $noExecute = true ) {
+  public function safeExecSQL( $connection, $strSQL, $noExecute = true ) {
     $retSQL = false;
-    if( $noExecute === false) {
-      $this->execSQL( $connection, $strSQL0, array() );
-    }
-    else {
-      echo $retSQL;
-    }
 
+    if( $noExecute === false) {
+      $retSQL = $this->execSQL( $connection, $strSQL, [] );
+    }
+    // else {
+    //   echo $retSQL;
+    // }
+
+    return $retSQL;
   }
 
   public function checkTableExist( $connection, $vo_obj ) {
@@ -98,7 +111,7 @@ class MysqlDevelDBDAO extends MysqlDAO {
     return $this->aditionalExec($connection, 'DESCRIBE `'.$tableName.'`;', false);
   }
 
-  public function dropTable( $connection, $vo_name, $noExecute = true  ) {
+  public function dropTable( $connection, $vo_name, $noExecute = true ) {
     $ret = false;
 
     if( $noExecute === false ) {
@@ -113,7 +126,6 @@ class MysqlDevelDBDAO extends MysqlDAO {
     return $ret;
   }
 
-
   public function createTable( $connection, $vo_name, $noExecute = true ) {
     $ret = false;
 
@@ -127,7 +139,6 @@ class MysqlDevelDBDAO extends MysqlDAO {
     return $ret;
   }
 
-
   public function insertTableValues( $connection, $vo_name ){
     $res = $this->getInsertTableSQL( $connection, $vo_name );
     if( !empty($res) ) {
@@ -136,7 +147,6 @@ class MysqlDevelDBDAO extends MysqlDAO {
       }
     }
   }
-
 
 
   // Sql generation methods
@@ -200,7 +210,6 @@ class MysqlDevelDBDAO extends MysqlDAO {
     return $strSQL;
   }
 
-
   public function multilangCols( $colkey, $col, $primarykeys, $uniques, $lines ) {
 
     $extrapkey = "";
@@ -254,9 +263,6 @@ class MysqlDevelDBDAO extends MysqlDAO {
     );
   }
 
-
-
-
   public function getInsertTableSQL( $connection, $vo_name, $vo_route = false ) {
     $VO = new $vo_name();
     $primarykey = $VO->getFirstPrimarykeyId();
@@ -289,5 +295,4 @@ class MysqlDevelDBDAO extends MysqlDAO {
     }
     return $res;
   }
-
 }

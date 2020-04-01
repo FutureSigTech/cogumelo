@@ -174,26 +174,29 @@ class i18nScriptController {
   /*
   * Check if already exists a translation file PO in App
   **/
-  public function checkAppTranslations( $l ) {
+  public function checkAppTranslations( $path ) {
     $exist = false;
+
     $transFile = $this->textdomain.'_app.po';
-    if (is_dir($l)){
-      $handle = opendir($l);
-      while ($file = readdir($handle)) {
-        if ($file==$transFile){
+    if( is_dir($path) ) {
+      $handle = opendir($path);
+      while( $file = readdir($handle) ) {
+        if( $file==$transFile ) {
           $exist = true;
         }
       }
     }
+
     return $exist;
   }
 
   /*
   * Generate translations file PO for a given module
   **/
-  public function getAppModulePo($modulePath){
-
+  public function getAppModulePo( $modulePath ) {
+    $result = false;
     $module = false;
+
     if(is_dir($this->dir_modules.$modulePath)){ // app module
       $module = $this->dir_modules.$modulePath;
     }
@@ -206,13 +209,12 @@ class i18nScriptController {
           $module = $this->dir_modules_c.$modulePath;
         }
         else{
-          echo "No module coincidence! Try again.\n";
-          return false;
+          echo "No module coincidence ($module)! Try again.\n";
         }
       }
     }
 
-    if($module){
+    if( $module ) {
       $files = CacheUtilsController::listFolderFiles($module, array('php','js','tpl'), false);
 
       $filesModule = array();
@@ -244,8 +246,11 @@ class i18nScriptController {
       }
       // Now we have to combine each type PO's in one for each language
       $this->updateModulePo($module);
-      return true;
+
+      $result = true;
     }
+
+    return $result;
   }
 
   /*
