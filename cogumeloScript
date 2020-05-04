@@ -13,6 +13,9 @@
  * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
  **/
 
+echo "\n\nScript  user: ".get_current_user();
+echo "\n\nPHP run user: ".(posix_getpwuid(posix_geteuid()))['name']."\n\n";
+
 require_once( COGUMELO_LOCATION.'/coreClasses/CogumeloClass.php' );
 require_once( APP_BASE_PATH.'/Cogumelo.php' );
 
@@ -37,7 +40,8 @@ if( !defined('DOCKER_ENV') ) {
 
 
 if( empty( $_SERVER['DOCUMENT_ROOT'] ) ) {
-  $_SERVER['DOCUMENT_ROOT'] = ( defined('WEB_BASE_PATH') ) ? WEB_BASE_PATH : getcwd().'/httpdocs';
+  $webBasePath = Cogumelo::getSetupValue( 'setup:webBasePath' );
+  $_SERVER['DOCUMENT_ROOT'] = !empty($webBasePath) ? $webBasePath : ( getcwd().'/httpdocs' );
   echo( "\n".'Forzando SERVER[DOCUMENT_ROOT] = '.$_SERVER['DOCUMENT_ROOT']."\n" );
 }
 
@@ -296,6 +300,27 @@ function printOptions(){
   \n\n";
 }
 
+function callCogumeloServer( $param ) {
+  $result = 'FAIL';
+
+  echo "\n".'callCogumeloServer '.$param.' ...'."\n";
+
+  $scriptCogumeloServerUrl = Cogumelo::getSetupValue( 'script:cogumeloServerUrl' );
+  if( !empty( $scriptCogumeloServerUrl ) ) {
+    // EVITAMOS CONTROLES HTTPS
+    $contextOptions = stream_context_create( [
+      "ssl" => [
+        "verify_peer" => false,
+        "verify_peer_name" => false,
+      ],
+    ] );
+    $result = file_get_contents( $scriptCogumeloServerUrl . '?q='.$param, false, $contextOptions );
+  }
+
+  echo 'callCogumeloServer '.$param.': '.$result."\n";
+  return $result;
+}
+
 function actionPrecompileTranslations() {
   Cogumelo::load('coreController/i18nScriptController.php');
   $i18nscriptController = new i18nScriptController();
@@ -395,16 +420,7 @@ function actionFlush() {
   $scriptCogumeloServerUrl = Cogumelo::getSetupValue( 'script:cogumeloServerUrl' );
   if( !empty( $scriptCogumeloServerUrl ) ) {
     echo ' - Cogumelo PHP cache flush...'."\n";
-
-    // TODO: EVITAMOS CONTROLES HTTPS
-    $contextOptions = stream_context_create( [
-      "ssl" => [
-        "verify_peer" => false,
-        "verify_peer_name" => false,
-      ],
-    ] );
-    echo $scriptCogumeloServerUrl . '?q=flush';
-    echo file_get_contents( $scriptCogumeloServerUrl . '?q=flush', false, $contextOptions );
+    callCogumeloServer('flush');
   }
   else {
     echo ' - Cogumelo PHP cache flush... Descartado.'."\n";
@@ -517,13 +533,19 @@ function createDB(){
 }
 
 function makeAppPaths() {
-  global $lc;
-  $md = array( APP_TMP_PATH,
+  echo "makeAppPaths\n";
+
+  $prepareDirs = array( APP_TMP_PATH,
     Cogumelo::getSetupValue( 'smarty:configPath' ), Cogumelo::getSetupValue( 'smarty:compilePath' ),
     Cogumelo::getSetupValue( 'smarty:cachePath' ), Cogumelo::getSetupValue( 'smarty:tmpPath' ),
     Cogumelo::getSetupValue( 'mod:mediaserver:tmpCachePath' ),
-    // WEB_BASE_PATH.'/'.Cogumelo::getSetupValue( 'mod:mediaserver:path' ),
-    WEB_BASE_PATH.'/'.Cogumelo::getSetupValue( 'mod:mediaserver:cachePath' ),
+    Cogumelo::getSetupValue( 'setup:webBasePath' ).'/'.Cogumelo::getSetupValue( 'mod:mediaserver:cachePath' ),
+
+    // Dependences
+    Cogumelo::getSetupValue( 'setup:webBasePath' ).'/vendor',
+    Cogumelo::getSetupValue( 'dependences:bowerPath' ), Cogumelo::getSetupValue( 'dependences:yarnPath' ),
+    Cogumelo::getSetupValue( 'dependences:composerPath' ), Cogumelo::getSetupValue( 'dependences:manualPath' ),
+
     Cogumelo::getSetupValue( 'logs:path' ),
     Cogumelo::getSetupValue( 'session:savePath' ),
     Cogumelo::getSetupValue( 'mod:form:tmpPath' ),
@@ -534,26 +556,36 @@ function makeAppPaths() {
   );
 
   foreach( Cogumelo::getSetupValue( 'lang:available' ) as $lang ) {
-    $md[] = Cogumelo::getSetupValue( 'i18n:localePath' ).'/'.$lang['i18n'].'/LC_MESSAGES';
+    $prepareDirs[] = Cogumelo::getSetupValue( 'i18n:localePath' ).'/'.$lang['i18n'].'/LC_MESSAGES';
   }
 
-  foreach( $md as $dir ) {
+  $sessionSavePath = Cogumelo::getSetupValue('session:savePath');
+  if( !empty( $sessionSavePath ) ) {
+    $prepareDirs[] = $sessionSavePath;
+  }
+
+  foreach( $prepareDirs as $dir ) {
     if( $dir && $dir !== '' && !is_dir( $dir ) ) {
       if( !mkdir( $dir, 0777, true ) ) {
         echo 'ERROR: Imposible crear el dirirectorio: '.$dir."\n";
       }
     }
   }
+  echo "makeAppPaths DONE.\n";
 }
 
 function setPermissions( $devel = false ) {
   makeAppPaths();
 
-  # DOCKER_ENV
-
   $extPerms = $devel ? ',ugo+rX' : '';
   $sudo = 'sudo ';
-  $sudoAllowed = Cogumelo::getSetupValue('script:sudoAllowed');
+
+  $sudoAllowed = true;
+  if( Cogumelo::issetSetupValue('script:sudoAllowed') ) {
+    $sudoAllowed = Cogumelo::getSetupValue('script:sudoAllowed');
+  }
+  // $sudoAllowed = Cogumelo::getSetupValue('script:sudoAllowed');
+
   $prjLivePath = Cogumelo::getSetupValue('setup:prjLivePath');
 
   if( DOCKER_ENV ) {
@@ -570,7 +602,12 @@ function setPermissions( $devel = false ) {
 
     // Cogumelo mediaserver
     Cogumelo::getSetupValue( 'mod:mediaserver:tmpCachePath' ).' '.
-    WEB_BASE_PATH.'/'.Cogumelo::getSetupValue( 'mod:mediaserver:cachePath' ).' '.
+    Cogumelo::getSetupValue( 'setup:webBasePath' ).'/'.Cogumelo::getSetupValue( 'mod:mediaserver:cachePath' ).' '.
+
+    // Dependences
+    Cogumelo::getSetupValue( 'setup:webBasePath' ).'/vendor'.' '.
+    Cogumelo::getSetupValue( 'dependences:bowerPath' ).' '.Cogumelo::getSetupValue( 'dependences:yarnPath' ).' '.
+    Cogumelo::getSetupValue( 'dependences:composerPath' ).' '.Cogumelo::getSetupValue( 'dependences:manualPath' ).' '.
 
     // Form y Filedata
     Cogumelo::getSetupValue( 'mod:filedata:cachePath' ).' '. // cgmlImg
@@ -582,48 +619,46 @@ function setPermissions( $devel = false ) {
     Cogumelo::getSetupValue( 'i18n:path' ).' '.Cogumelo::getSetupValue( 'i18n:localePath' ).' '.
   '';
 
-  $dirsReadString = WEB_BASE_PATH.' '.APP_BASE_PATH.' '.$dirsWriteString;
+  $dirsReadString = Cogumelo::getSetupValue( 'setup:webBasePath' ).' '.
+    Cogumelo::getSetupValue('setup:appBasePath').' '.$dirsWriteString;
 
   // exec( 'sudo chown -R $USER:www-data '.$dirsReadString );
-  exec( 'chmod -R go-rwx,g+rX'.$extPerms.' '.$dirsReadString );
-  exec( 'chmod -R ug+rwX'.$extPerms.' '.$dirsWriteString ); // Path que necesitan escritura Apache
 
   if( IS_DEVEL_ENV || $sudoAllowed ) {
-    echo( " - Executamos chgrp dirsReadString \n" );
+    echo( " - Executamos ${sudo}chgrp -R www-data dirsReadString \n" );
     if( $prjLivePath ) {
-      echo( " - - Executamos chmod prjLivePath\n" );
+      echo( " - - Executamos ${sudo}chgrp www-data prjLivePath\n" );
       exec( $sudo.'chgrp www-data '.$prjLivePath );
     }
     $fai = 'chgrp -R www-data '.$dirsReadString;
     exec( $sudo.$fai );
   }
   else {
-    echo( " - NON se executa chgrp dirsReadString \n" );
+    echo( " - NON se executa ${sudo}chgrp-R www-data dirsReadString \n" );
   }
 
   if( IS_DEVEL_ENV || $sudoAllowed ) {
+    echo( " - Executamos ${sudo}chmod -R go-rwx,g+rX$extPerms dirsReadString\n" );
     $fai = 'chmod -R go-rwx,g+rX'.$extPerms.' '.$dirsReadString;
-    echo( " - Executamos chmod dirsReadString\n" );
     exec( $sudo.$fai );
   }
   else {
-    echo( " - NON se executa chmod dirsReadString\n" );
+    echo( " - NON se executa ${sudo}chmod -R go-rwx,g+rX$extPerms dirsReadString\n" );
   }
 
   if( IS_DEVEL_ENV || $sudoAllowed ) {
     // Path que necesitan escritura Apache
-    $fai = 'chmod -R ug+rwX'.$extPerms.' '.$dirsWriteString;
-    echo( " - Executamos chmod dirsWriteString\n" );
+    echo( " - Executamos ${sudo}chmod -R ug+rwX$extPerms dirsWriteString\n" );
     if( $prjLivePath ) {
-      echo( " - - Executamos chmod prjLivePath\n" );
+      echo( " - - Executamos ${sudo}chmod ug+rwX$extPerms prjLivePath\n" );
       exec( $sudo.'chmod ug+rwX'.$extPerms.' '.$prjLivePath );
     }
+    $fai = 'chmod -R ug+rwX'.$extPerms.' '.$dirsWriteString;
     exec( $sudo.$fai );
   }
   else {
-    echo( " - NON se executa chmod dirsWriteString\n" );
+    echo( " - NON se executa ${sudo}chmod ug+rwX$extPerms dirsWriteString\n" );
   }
-
 
   if( IS_DEVEL_ENV || $sudoAllowed ) {
     echo( " - Preparando [session:savePath] e [script:backupPath]\n" );
@@ -631,10 +666,10 @@ function setPermissions( $devel = false ) {
     $sessionSavePath = Cogumelo::getSetupValue( 'session:savePath' );
     if( !empty($sessionSavePath) ) {
       $fai = 'chgrp -R www-data '.$sessionSavePath;
-      echo( "  - Executamos $fai\n" );
+      echo( " - Executamos ${sudo}$fai\n" );
       exec( $sudo.$fai );
       $fai = 'chmod -R ug+rwX'.$extPerms.' '.$sessionSavePath;
-      echo( "  - Executamos $fai\n" );
+      echo( " - Executamos ${sudo}$fai\n" );
       exec( $sudo.$fai );
     }
 
@@ -642,7 +677,7 @@ function setPermissions( $devel = false ) {
     $backupPath = Cogumelo::getSetupValue( 'script:backupPath' );
     if( !empty($backupPath) ) {
       $fai = 'chmod -R go-rwx '.$backupPath;
-      echo( "  - Executamos $fai\n" );
+      echo( " - Executamos ${sudo}$fai\n" );
       exec( $sudo.$fai );
     }
   }
@@ -650,7 +685,20 @@ function setPermissions( $devel = false ) {
     echo( " - NON se preparan [session:savePath] e [script:backupPath]\n" );
   }
 
-  echo "Permissions ready!\n";
+  if( IS_DEVEL_ENV || $sudoAllowed ) {
+    // Script executables para i18n
+    $i18nScripts = COGUMELO_LOCATION.'/coreModules/i18nGetLang/classes/cgml-msgcat.sh '.
+      COGUMELO_LOCATION.'/coreModules/i18nServer/classes/po2json.php '.
+      Cogumelo::getSetupValue( 'dependences:manualPath' ).'/smarty-gettext/tsmarty2c.php';
+    $fai = 'chmod ug+rx'.$extPerms.' '.$i18nScripts;
+    echo( " - Executamos ${sudo}chmod ug+rx$extPerms i18nScripts\n" );
+    exec( $sudo.$fai );
+  }
+  else {
+    echo( " - NON se executa ${sudo}chmod ug+rx$extPerms i18nScripts\n" );
+  }
+
+  echo( "setPermissions ".($devel ? 'DEVEL' : '')." DONE.\n" );
 }
 
 function setPermissionsDevel() {
