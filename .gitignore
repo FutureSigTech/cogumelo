@@ -1,5 +1,8 @@
-*.log
 
-/0-backups/
+# PHP Documentor info
 /phpdoc/
+
+# Devel
 /.phan/
+/0-backups/
+/test/
