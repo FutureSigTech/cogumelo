@@ -234,20 +234,22 @@ if( $argc > 1 ) {
     //   break;
 
     case 'generateClientCaches':
+      ( IS_DEVEL_ENV ) ? setPermissionsDevel() : setPermissions();
       actionGenerateClientCaches();
-      break;
+      ( IS_DEVEL_ENV ) ? setPermissionsDevel() : setPermissions();
+    break;
 
     case 'garbageCollection':
       garbageCollection();
       break;
 
     case 'loopCompileScss':
-      setPermissions(true);
+      setPermissionsDevel();
       loopCompileScss();
       break;
 
     case 'loopCompileScssDist':
-      setPermissions(true);
+      setPermissionsDevel();
       loopCompileScssDist();
       break;
 
