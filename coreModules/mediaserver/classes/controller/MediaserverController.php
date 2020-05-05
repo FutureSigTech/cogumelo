@@ -176,7 +176,7 @@ class MediaserverController {
     $dirname = dirname($path);
 
     if( !is_dir ( $dirname ) ) {
-      mkdir( dirname($path ), 0744, true );
+      mkdir( dirname($path ), 0755, true );
     }
   }
 
