@@ -391,12 +391,14 @@ function flushAll() {
   // actionCompileTranslations();
 
   echo "\n --- actionGenerateClientCaches:\n";
-  if( Cogumelo::getSetupValue( 'mod:mediaserver:productionMode' ) ) {
-    actionGenerateClientCaches();
-  }
-  else {
-    echo "\nPasamos porque no estamos en PRODUCTION MODE\n";
-  }
+  actionGenerateClientCaches();
+
+  // if( Cogumelo::getSetupValue( 'mod:mediaserver:productionMode' ) ) {
+  //   actionGenerateClientCaches();
+  // }
+  // else {
+  //   echo "\nPasamos porque no estamos en PRODUCTION MODE\n";
+  // }
 
   echo "\n --- setPermissions:\n";
   ( IS_DEVEL_ENV ) ? setPermissionsDevel() : setPermissions();
