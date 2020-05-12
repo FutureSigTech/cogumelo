@@ -158,7 +158,7 @@ class CacheRedis {
     if( $this->cacheCtrl ) {
       $cacheKeys = $this->cacheCtrl->keys( $this->keyPrefix .':*' );
       Cogumelo::log(__METHOD__.' - cacheKeys: '.json_encode( $cacheKeys ), 'cache');
-      if( $this->cacheCtrl->delete( $cacheKeys ) ) {
+      if( $this->cacheCtrl->del( $cacheKeys ) ) {
         $result = true;
       }
     }
