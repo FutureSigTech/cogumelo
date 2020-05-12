@@ -390,15 +390,11 @@ function flushAll() {
   // echo "\n --- actionCompileTranslations:\n";
   // actionCompileTranslations();
 
+  /**
+   * IMPORTANTE: Desde V2 siempre hay que ejecutar GenerateClientCaches
+   */
   echo "\n --- actionGenerateClientCaches:\n";
   actionGenerateClientCaches();
-
-  // if( Cogumelo::getSetupValue( 'mod:mediaserver:productionMode' ) ) {
-  //   actionGenerateClientCaches();
-  // }
-  // else {
-  //   echo "\nPasamos porque no estamos en PRODUCTION MODE\n";
-  // }
 
   echo "\n --- setPermissions:\n";
   ( IS_DEVEL_ENV ) ? setPermissionsDevel() : setPermissions();
