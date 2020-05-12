@@ -1,9 +1,5 @@
 <?php
-
-//********************************************************************************************************************************************************************************
-
 // declare(strict_types=1);
-
 
 /**
  * PHPMD: Suppress all warnings from these rules.
@@ -36,8 +32,8 @@ Cogumelo::load('coreController/ModuleController.php');
 
 
 if( empty( $_SERVER['DOCUMENT_ROOT'] ) ) {
-  $_SERVER['DOCUMENT_ROOT'] = ( defined( 'WEB_BASE_PATH' ) ) ? WEB_BASE_PATH : getcwd().'/httpdocs';
-  echo( "\nSet SERVER[DOCUMENT_ROOT] = ".$_SERVER['DOCUMENT_ROOT']."\n" );
+  $_SERVER['DOCUMENT_ROOT'] = ( defined('WEB_BASE_PATH') ) ? WEB_BASE_PATH : getcwd().'/httpdocs';
+  echo( "\n".'Forzando SERVER[DOCUMENT_ROOT] = '.$_SERVER['DOCUMENT_ROOT']."\n" );
 }
 
 
@@ -51,6 +47,11 @@ if( $argc > 1 ) {
     case 'setPermissionsDevel': // set the files/folders permission
       setPermissionsDevel();
       break;
+
+    case 'makeAppPaths': // Prepare folders
+      makeAppPaths();
+      break;
+
 
     case 'createDB': // create database
       doBackup(Cogumelo::getSetupValue( 'db:name' ), Cogumelo::getSetupValue( 'db:user' ), Cogumelo::getSetupValue( 'db:password' ), false);
@@ -189,31 +190,32 @@ else{
 
 function printOptions(){
   echo "\n
- + Permissions and dependences
+  + Permissions and dependences
     * flush                   Remove temporary files
-    * generateClientCaches    Cache all js, css, compiled less and other client files
-    * setPermissions          Set the files/folders permission
-    * setPermissionsDevel     Set the files/folders permission
+      * setPermissions(Devel) Set the files/folders permission
+        * makeAppPaths        Prepare folders
+      * generateClientCaches  Cache all js, css, compiled less and other client files
     * installDependences      Exec prepareDependences and then exec updateDependences
-      * prepareDependences      Generate JSON's dependences
-      * updateDependences       Install all modules dependencies
+      * prepareDependences    Generate JSON's dependences
+      * updateDependences     Install all modules dependencies
 
 
- + Database
+  + Database
     * createDB                Create a database
 
     * generateModel           Initialize database
 
     * deploy                  Deploy
-    * simulateDeploy          simulate deploy SQL codes
+      * createRelSchemes      Create JSON Model Rel Schemes
+    * simulateDeploy          Simulate deploy SQL codes
 
     * resetModules
       - resetModuleVersions
 
-    * bckDB                   Do a DB backup (optional arg: filename)
+    * backupDB                Do a DB backup (optional arg: filename)
     * restoreDB               Restore a database
 
- + Internationalization
+  + Internationalization
     * generateFrameworkTranslations    Update text to translate in cogumelo and geozzy modules
     * generateAppTranslations    Get text to translate in the app
     * precompileTranslations     Generate the intermediate POs(geozzy, cogumelo and app)
@@ -356,30 +358,16 @@ function actionGenerateClientCaches() {
 
 
 function createDB(){
-
   echo "\nDatabase configuration\n";
 
-  $user = false;
-
-  $fileConnectionsInfo = APP_BASE_PATH.'/conf/inc/default-connections-info.php';
-  if( file_exists( $fileConnectionsInfo ) ) {
-    include $fileConnectionsInfo;
-    if( defined( 'DDBB_PRIV_USER' ) && defined( 'DDBB_PRIV_PASS' ) ) {
-      $user = DDBB_PRIV_USER;
-      $passwd = DDBB_PRIV_PASS;
-    }
-  }
-
-  if( !$user ) {
-    $user = ReadStdin( "Enter an user with privileges:\n", '' );
-    fwrite( STDOUT, "Enter the password:\n" );
-    $passwd = getPassword( true );
-    fwrite( STDOUT, "\n--\n" );
-  }
-
+  $user = readStdin( "Enter an user with privileges:\n" );
+  fwrite( STDOUT, "Enter the password:\n" );
+  $passwd = getPassword( true );
+  fwrite( STDOUT, "\n--\n" );
 
   $develdbcontrol = new DevelDBController( $user, $passwd );
   $develdbcontrol->createSchemaDB();
+
   echo "\nDatase created!\n";
 }
 
@@ -601,14 +589,14 @@ function restoreDB( $db, $user, $passwd, $file ) {
 /**
  * Get data from the shell.
  */
-function ReadStdin( $prompt, $validInputs, $default = '' ) {
-  while( !isset($input) || ( is_array($validInputs) && !in_array($input, $validInputs) ) || ( $validInputs === 'is_file' && !is_file($input) ) ) {
+function readStdin( $prompt ) {
+  $input = false;
+
+  while( empty($input) ) {
     echo $prompt;
-    $input = strtolower(trim(fgets(STDIN)));
-    if( empty($input) && !empty($default) ) {
-      $input = $default;
-    }
+    $input = strtolower( trim( fgets( STDIN ) ) );
   }
+
   return $input;
 }
 

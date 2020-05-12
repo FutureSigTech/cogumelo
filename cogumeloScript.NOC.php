@@ -1,9 +1,5 @@
 <?php
-
-//********************************************************************************************************************************************************************************
-
 // declare(strict_types=1);
-
 
 /**
  * PHPMD: Suppress all warnings from these rules.
@@ -112,7 +108,6 @@ if( $argc > 1 ) {
       }
       break;
 
-
     case 'bckDB': // do the backup of the db
     case 'backupDB': // do the backup of the db
       if( Cogumelo::getSetupValue('db:name') ) {
@@ -141,7 +136,6 @@ if( $argc > 1 ) {
       }
       break;
 
-
     case 'prepareDependences':
       Cogumelo::load('coreController/DependencesController.php');
       $dependencesControl = new DependencesController();
@@ -163,7 +157,6 @@ if( $argc > 1 ) {
       $dependencesControl = new DependencesController();
       $dependencesControl->installDependences();
       break;
-
 
     case 'generateFrameworkTranslations':
       Cogumelo::load('coreController/i18nScriptController.php');
@@ -202,7 +195,6 @@ if( $argc > 1 ) {
       echo "The files.json are ready to be used!\n";
       break;
 
-
     /* We execute this two actions from web as we need to operate with the apache permissions*/
     case 'flush': // delete temporary files
       flushAll();
@@ -236,7 +228,7 @@ else{
 
 function printOptions(){
   echo "\n
- + Permissions and dependences
+  + Permissions and dependences
     * flush                   Remove temporary files
       * setPermissions(Devel) Set the files/folders permission
         * makeAppPaths        Prepare folders
@@ -246,22 +238,22 @@ function printOptions(){
       * updateDependences     Install all modules dependencies
 
 
- + Database
+  + Database
     * createDB                Create a database
 
     * generateModel           Initialize database
 
     * deploy                  Deploy
       * createRelSchemes      Create JSON Model Rel Schemes
-    * simulateDeploy          simulate deploy SQL codes
-    
+    * simulateDeploy          Simulate deploy SQL codes
+
     * resetModules
       - resetModuleVersions
 
     * backupDB                Do a DB backup (optional arg: filename)
     * restoreDB               Restore a database
 
- + Internationalization
+  + Internationalization
     * generateFrameworkTranslations    Update text to translate in cogumelo and geozzy modules
     * generateAppTranslations    Get text to translate in the app
     * precompileTranslations     Generate the intermediate POs(geozzy, cogumelo and app)
@@ -340,7 +332,6 @@ function flushAll() {
   ( IS_DEVEL_ENV ) ? setPermissionsDevel() : setPermissions();
 }
 
-
 function actionFlush() {
 
   // Def: app/tmp/templates_c
@@ -379,59 +370,27 @@ function actionFlush() {
   echo "\nCogumelo caches deleted!\n\n";
 }
 
-
-// function actionRotateLogs() {
-//   echo file_get_contents( Cogumelo::getSetupValue( 'script:cogumeloServerUrl' ) . '?q=rotate_logs' );
-//   echo "\nRotate Logs DONE!\n\n";
-// }
-
-
 function actionGenerateClientCaches() {
-
-
   require_once( ModuleController::getRealFilePath( 'mediaserver.php', 'mediaserver' ) );
   mediaserver::autoIncludes();
   CacheUtilsController::generateAllCaches();
 
-
-  // $ctx = stream_context_create( ['http'=> ['timeout' => 1200 ] ] ); //1200 Seconds is 20 Minutes
-  // echo("Calling ".Cogumelo::getSetupValue( 'script:cogumeloServerUrl' ) . '?q=client_caches ... If you have any problem in less compilation, execute this url in browser');
-  // file_get_contents( Cogumelo::getSetupValue( 'script:cogumeloServerUrl' ) . '?q=client_caches', false, $ctx);
-
-
   echo "\nClient caches generated\n\n";
 }
 
-
 function createDB(){
-
   echo "\nDatabase configuration\n";
 
-  $user = false;
-
-  $fileConnectionsInfo = APP_BASE_PATH.'/conf/inc/default-connections-info.php';
-  if( file_exists( $fileConnectionsInfo ) ) {
-    include $fileConnectionsInfo;
-    if( defined( 'DDBB_PRIV_USER' ) && defined( 'DDBB_PRIV_PASS' ) ) {
-      $user = DDBB_PRIV_USER;
-      $passwd = DDBB_PRIV_PASS;
-    }
-  }
-
-  if( !$user ) {
-    $user = ReadStdin( "Enter an user with privileges:\n", '' );
-    fwrite( STDOUT, "Enter the password:\n" );
-    $passwd = getPassword( true );
-    fwrite( STDOUT, "\n--\n" );
-  }
-
+  $user = readStdin( "Enter an user with privileges:\n" );
+  fwrite( STDOUT, "Enter the password:\n" );
+  $passwd = getPassword( true );
+  fwrite( STDOUT, "\n--\n" );
 
   $develdbcontrol = new DevelDBController( $user, $passwd );
   $develdbcontrol->createSchemaDB();
+
   echo "\nDatase created!\n";
 }
-
-
 
 function makeAppPaths() {
   echo "makeAppPaths\n";
@@ -480,10 +439,9 @@ function setPermissions( $devel = false ) {
   $extPerms = $devel ? ',ugo+rX' : '';
   $sudo = 'sudo ';
   $sudoAllowed = Cogumelo::getSetupValue('script:sudoAllowed');
+  $prjLivePath = Cogumelo::getSetupValue('setup:prjLivePath');
 
   echo( "setPermissions ".($devel ? 'DEVEL' : '')."\n" );
-
-  $prjLivePath = Cogumelo::getSetupValue('setup:prjLivePath');
 
   if( IS_DEVEL_ENV || $sudoAllowed ) {
     $dirsString =
@@ -498,7 +456,6 @@ function setPermissions( $devel = false ) {
       Cogumelo::getSetupValue( 'i18n:path' ).' '.Cogumelo::getSetupValue( 'i18n:localePath' )
     ;
 
-
     echo( " - Executamos chgrp general \n" );
     if( $prjLivePath ) {
       exec( $sudo.' chgrp www-data '.$prjLivePath );
@@ -510,7 +467,6 @@ function setPermissions( $devel = false ) {
     echo( " - NON se executa chgrp general \n" );
   }
 
-
   if( IS_DEVEL_ENV || $sudoAllowed ) {
     $fai = 'chmod -R go-rwx,g+rX'.$extPerms.' '.WEB_BASE_PATH.' '.APP_BASE_PATH;
     echo( " - Executamos chmod WEB_BASE_PATH APP_BASE_PATH\n" );
@@ -519,7 +475,6 @@ function setPermissions( $devel = false ) {
   else {
     echo( " - NON se executa chmod WEB_BASE_PATH APP_BASE_PATH\n" );
   }
-
 
   if( IS_DEVEL_ENV || $sudoAllowed ) {
     // Path que necesitan escritura Apache
@@ -586,30 +541,21 @@ function setPermissionsDevel() {
   setPermissions( true );
 }
 
-
 function backupDB( $file = false ) {
-  doBackup(
-    Cogumelo::getSetupValue('db:name'),
-    Cogumelo::getSetupValue('db:user'),
-    Cogumelo::getSetupValue('db:password'),
-    $file,
-    Cogumelo::getSetupValue('db:hostname')
-  );
-}
 
-function doBackup( $dbName, $user, $passwd, $file, $dbHost ) {
+  $confDB = getDBConfiguration();
+
   if( empty( $file ) ) {
-    $file = date('Ymd-His').'-'.$dbName.'.sql';
+    $file = date('Ymd-His').'-'.$confDB['name'].'.sql';
   }
 
-  if( empty( $dbHost ) ) {
-    $dbHost = 'localhost';
-  }
+  $dir = Cogumelo::getSetupValue('script:backupPath');
 
-  $dir = Cogumelo::getSetupValue( 'script:backupPath' );
+  $params = '-h '.$confDB['hostname'].' -P '.$confDB['port'].' ';
+  $params .= '--hex-blob --complete-insert --skip-extended-insert ';
+  $params .= '-u '.$confDB['user'].' -p'.$confDB['password'].' ';
 
-  $cmdBackup = 'mysqldump --hex-blob --complete-insert --skip-extended-insert '.
-    '-h '.$dbHost.' -u '.$user.' -p'.$passwd.' '.$dbName.' > '.$dir.'/'.$file;
+  $cmdBackup = 'mysqldump '.$params.' '.$confDB['name'].' > '.$dir.'/'.$file;
 
   popen( $cmdBackup, 'r' );
   exec( 'gzip ' . $dir . '/' . $file );
@@ -617,46 +563,54 @@ function doBackup( $dbName, $user, $passwd, $file, $dbHost ) {
   echo "\nYour db was successfully saved!\n";
 }
 
-
 function restoreDB( $file = false ) {
 
-  $dbHost = Cogumelo::getSetupValue('db:hostname');
-  $dbName = Cogumelo::getSetupValue('db:name');
-  $user = Cogumelo::getSetupValue('db:user');
-  $passwd = Cogumelo::getSetupValue('db:password');
+  $confDB = getDBConfiguration();
 
-  doBackup( $dbName, $user, $passwd, false, $dbHost );
+  backupDB();
 
   $dir = Cogumelo::getSetupValue( 'script:backupPath' );
 
-  if( empty( $dbHost ) ) {
-    $dbHost = 'localhost';
-  }
-
-  // $file_parts = explode('.',$dir.$file);
   $fileExt = pathinfo( $dir.$file, PATHINFO_EXTENSION );
 
-  // if ($file_parts[2] == 'gz'){
+  $params = '-h '.$confDB['hostname'].' -P '.$confDB['port'].' ';
+  $params .= '-u '.$confDB['user'].' -p'.$confDB['password'].' ';
+
   if( $fileExt === 'gz' ) {
-    popen('gunzip -c '.$dir.$file.' | mysql -h '.$dbHost.' -u '.$user.' -p'.$passwd.' '.$dbName, 'r');
+    popen('gunzip -c '.$dir.$file.' | mysql '.$params.' '.$confDB['name'], 'r');
   }
   else {
-    popen('mysql -h '.$dbHost.' -u '.$user.' -p'.$passwd.' '.$dbName.'<' .$dir.$file, 'r');
+    popen('mysql '.$params.' '.$confDB['name'].'<' .$dir.$file, 'r');
   }
   echo "\nYour db was successfully restored!\n";
+}
+
+function getDBConfiguration() {
+  $confDB = Cogumelo::getSetupValue('db');
+
+  if( !empty($confDB) ) {
+    if( empty( $confDB['hostname'] ) || $confDB['hostname'] === 'localhost' ) {
+      $confDB['hostname'] = '127.0.0.1';
+    }
+    if( empty( $confDB['port'] ) ) {
+      $confDB['port'] = 3306;
+    }
+  }
+
+  return $confDB;
 }
 
 /**
  * Get data from the shell.
  */
-function ReadStdin( $prompt, $validInputs, $default = '' ) {
-  while( !isset($input) || ( is_array($validInputs) && !in_array($input, $validInputs) ) || ( $validInputs === 'is_file' && !is_file($input) ) ) {
+function readStdin( $prompt ) {
+  $input = false;
+
+  while( empty($input) ) {
     echo $prompt;
-    $input = strtolower(trim(fgets(STDIN)));
-    if( empty($input) && !empty($default) ) {
-      $input = $default;
-    }
+    $input = strtolower( trim( fgets( STDIN ) ) );
   }
+
   return $input;
 }
 
@@ -707,7 +661,6 @@ function getPassword( $stars = false ) {
   return $password;
 }
 
-
 function rmdirRec( $dir, $removeContainer = true ) {
   // error_log( "rmdirRec( $dir )" );
 
@@ -739,9 +692,6 @@ function rmdirRec( $dir, $removeContainer = true ) {
     }
   }
 }
-
-
-
 
 // garbageCollection
 function garbageCollection() {
