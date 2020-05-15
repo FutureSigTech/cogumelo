@@ -65,7 +65,7 @@ class MailSenderGmail {
     // If $adresses is an array of adresses include all into mail
     if( is_array($adresses) ) {
       foreach( $adresses as $adress ) {
-        $this->phpmailer->AddAddress($adress);
+        $this->phpmailer->addBCC($adress);
       }
     }
     else {
