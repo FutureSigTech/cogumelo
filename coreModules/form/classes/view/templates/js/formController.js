@@ -233,8 +233,10 @@ cogumelo.formControllerClass = cogumelo.formControllerClass || function( idFormP
     cogumelo.log( 'submitAction', that.submitActionName, that.submitActionValue );
     serializeFormObj[that.submitActionName]['value'] = that.submitActionValue;
 
-    $( form ).find( '[type="submit"]' ).attr('disabled', 'disabled');
-    $( form ).find( '.submitRun' ).show();
+    // $( form ).find( '[type="submit"]' ).attr('disabled', 'disabled');
+    // $( '[form="'+that.idForm+'"][type="submit"]' ).attr('disabled', 'disabled');
+    // $( form ).find( '.submitRun' ).show();
+    that.lockSubmitElements( form, true );
 
     $.ajax( {
       contentType: 'application/json', processData: false,
@@ -252,8 +254,10 @@ cogumelo.formControllerClass = cogumelo.formControllerClass || function( idFormP
         cogumelo.log( '* Form Done: ERROR', response );
         that.formDoneError( form, response );
       }
-      $( form ).find( '[type="submit"]' ).removeAttr('disabled');
-      $( form ).find( '.submitRun' ).hide();
+
+      // $( form ).find( '[type="submit"]' ).removeAttr('disabled');
+      // $( form ).find( '.submitRun' ).hide();
+      that.lockSubmitElements( form, false );
     } ); // /.done
 
     that.submitActionName = false;
@@ -266,6 +270,22 @@ cogumelo.formControllerClass = cogumelo.formControllerClass || function( idFormP
     }
   }; // that.sendValidatedForm
 
+  that.lockSubmitElements = function lockSubmitElements( form, lock ) {
+    cogumelo.log( '* lockSubmitElements', that.idForm, lock );
+
+    if( lock ) {
+      $( form ).find( '[type="submit"]' ).attr({disabled: 'disabled', lockSubmit: 1});
+      $( '[form="'+that.idForm+'"][type="submit"]' ).attr({disabled: 'disabled', lockSubmit: 1});
+      $( form ).find( '.submitRun' ).show();
+      $( '[form="'+that.idForm+'"].submitRun' ).show();
+    }
+    else {
+      $( form ).find( '[lockSubmit=1]' ).removeAttr({disabled, lockSubmit});
+      $( '[form="'+that.idForm+'"][lockSubmit=1]' ).removeAttr({disabled, lockSubmit});
+      $( form ).find( '.submitRun' ).hide();
+      $( '[form="'+that.idForm+'"].submitRun' ).hide();
+    }
+  };
 
   that.formDoneOk = function formDoneOk( form, response ) {
     cogumelo.log( '* formDoneOk', that.idForm, response );
@@ -1288,6 +1308,7 @@ cogumelo.formControllerClass = cogumelo.formControllerClass || function( idFormP
     that.removeFileFieldDropZone( fieldName );
   }; // that.fileFieldToOk
 
+  // eslint-disable-next-line complexity
   that.fileBox = function fileBox( fieldName, fileInfo, deleteFunc ) {
     cogumelo.log( '* fileBox: ', that.idForm, fieldName, fileInfo );
 
