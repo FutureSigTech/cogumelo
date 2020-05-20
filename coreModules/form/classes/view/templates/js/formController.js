@@ -280,8 +280,8 @@ cogumelo.formControllerClass = cogumelo.formControllerClass || function( idFormP
       $( '[form="'+that.idForm+'"].submitRun' ).show();
     }
     else {
-      $( form ).find( '[lockSubmit=1]' ).removeAttr({disabled, lockSubmit});
-      $( '[form="'+that.idForm+'"][lockSubmit=1]' ).removeAttr({disabled, lockSubmit});
+      $( form ).find( '[lockSubmit=1]' ).removeAttr('disabled lockSubmit');
+      $( '[form="'+that.idForm+'"][lockSubmit=1]' ).removeAttr('disabled lockSubmit');
       $( form ).find( '.submitRun' ).hide();
       $( '[form="'+that.idForm+'"].submitRun' ).hide();
     }
