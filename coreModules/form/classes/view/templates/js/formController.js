@@ -3,6 +3,7 @@
  */
 var cogumelo = cogumelo || {};
 
+/* eslint-disable no-prototype-builtins */
 
 
 cogumelo.formControllerInfo = cogumelo.formControllerInfo || new Object({

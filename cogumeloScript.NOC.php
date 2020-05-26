@@ -409,7 +409,7 @@ function makeAppPaths() {
     Cogumelo::getSetupValue( 'mod:filedata:filePath' ),
     Cogumelo::getSetupValue( 'mod:filedata:cachePath' ),
     Cogumelo::getSetupValue( 'script:backupPath' ),
-    Cogumelo::getSetupValue( 'i18n:path' ), Cogumelo::getSetupValue( 'i18n:localePath' )
+    Cogumelo::getSetupValue( 'i18n:localePath' )
   );
 
   foreach( Cogumelo::getSetupValue( 'lang:available' ) as $lang ) {
@@ -453,7 +453,7 @@ function setPermissions( $devel = false ) {
       Cogumelo::getSetupValue( 'logs:path' ).' '.
       Cogumelo::getSetupValue( 'mod:form:tmpPath' ).' '.
       Cogumelo::getSetupValue( 'mod:filedata:filePath' ).' '.
-      Cogumelo::getSetupValue( 'i18n:path' ).' '.Cogumelo::getSetupValue( 'i18n:localePath' )
+      Cogumelo::getSetupValue( 'i18n:localePath' )
     ;
 
     echo( " - Executamos chgrp general \n" );
@@ -495,7 +495,7 @@ function setPermissions( $devel = false ) {
       // Varios
       Cogumelo::getSetupValue( 'logs:path' ).' '.
       // Cogumelo::getSetupValue( 'session:savePath' ).' '.
-      // Cogumelo::getSetupValue( 'i18n:path' ).' '.Cogumelo::getSetupValue( 'i18n:localePath' ).' '.
+      // Cogumelo::getSetupValue( 'i18n:localePath' ).' '.
       ''
     ;
 

@@ -390,7 +390,7 @@ function makeAppPaths() {
     Cogumelo::getSetupValue( 'mod:filedata:filePath' ),
     Cogumelo::getSetupValue( 'mod:filedata:cachePath' ),
     Cogumelo::getSetupValue( 'script:backupPath' ),
-    Cogumelo::getSetupValue( 'i18n:path' ), Cogumelo::getSetupValue( 'i18n:localePath' )
+    Cogumelo::getSetupValue( 'i18n:localePath' )
   );
 
   foreach( Cogumelo::getSetupValue( 'lang:available' ) as $lang ) {
@@ -429,7 +429,7 @@ function setPermissions( $devel = false ) {
     Cogumelo::getSetupValue( 'logs:path' ).' '.
     Cogumelo::getSetupValue( 'mod:form:tmpPath' ).' '.
     Cogumelo::getSetupValue( 'mod:filedata:filePath' ).' '.
-    Cogumelo::getSetupValue( 'i18n:path' ).' '.Cogumelo::getSetupValue( 'i18n:localePath' )
+    Cogumelo::getSetupValue( 'i18n:localePath' )
   );
 
   exec( 'chmod -R go-rwx,g+rX'.$extPerms.' '.WEB_BASE_PATH );
@@ -448,7 +448,7 @@ function setPermissions( $devel = false ) {
     Cogumelo::getSetupValue( 'mod:form:tmpPath' ).' '.
     Cogumelo::getSetupValue( 'mod:filedata:filePath' ).' '.
     Cogumelo::getSetupValue( 'mod:filedata:cachePath' ).' '.
-    Cogumelo::getSetupValue( 'i18n:path' ).' '.Cogumelo::getSetupValue( 'i18n:localePath' )
+    Cogumelo::getSetupValue( 'i18n:localePath' )
   );
 
   // session:savePath tiene que mantener el usuario y grupo
