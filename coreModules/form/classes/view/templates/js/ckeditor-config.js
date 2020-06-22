@@ -24,6 +24,7 @@ CKEDITOR.editorConfig = function( config ) {
 
   // Set the most common block elements.
   config.format_tags = 'p;h1;h2;h3;h4;h5;pre';
+  config.entities = false;
 
   config.height = '150';
 };
@@ -33,11 +34,14 @@ CKEDITOR.editorConfig = function( config ) {
 //
 // Include this AFTER both bootstrap and ckeditor are loaded.
 $.fn.modal.Constructor.prototype.enforceFocus = function() {
-  modal_this = this;
+  var modalThis = this;
   $( document ).on( 'focusin.modal', function( e ) {
-    if (modal_this.$element[0] !== e.target && !modal_this.$element.has(e.target).length &&
-      !$(e.target.parentNode).hasClass('cke_dialog_ui_input_select') && !$(e.target.parentNode).hasClass('cke_dialog_ui_input_text')) {
-        modal_this.$element.focus();
+    if( modalThis.$element[0] !== e.target
+      && !modalThis.$element.has(e.target).length
+      && !$(e.target.parentNode).hasClass('cke_dialog_ui_input_select')
+      && !$(e.target.parentNode).hasClass('cke_dialog_ui_input_text') )
+    {
+      modalThis.$element.focus();
     }
   } );
 };
