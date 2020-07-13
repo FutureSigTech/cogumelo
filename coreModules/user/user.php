@@ -23,11 +23,12 @@ class user extends Module {
   public function __construct() {
     /*
     $this->addUrlPatterns( '#^'.MOD_USER_URL_DIR.'/loginform$#', 'view:UserView::loginForm' );
-    $this->addUrlPatterns( '#^'.MOD_USER_URL_DIR.'/sendloginform$#', 'view:UserView::sendLoginForm' );
     $this->addUrlPatterns( '#^'.MOD_USER_URL_DIR.'/registerform$#', 'view:UserView::userForm' );
-    $this->addUrlPatterns( '#^'.MOD_USER_URL_DIR.'/senduserform$#', 'view:UserView::sendUserForm' );
-    $this->addUrlPatterns( '#^'.MOD_USER_URL_DIR.'/sendchangepasswordform#', 'view:UserView::sendChangeUserPassword' );
     */
+    $this->addUrlPatterns( '#^'.MOD_USER_URL_DIR.'/senduserform$#', 'view:UserView::sendUserForm' );
+    $this->addUrlPatterns( '#^'.MOD_USER_URL_DIR.'/sendloginform$#', 'view:UserView::sendLoginForm' );
+    $this->addUrlPatterns( '#^'.MOD_USER_URL_DIR.'/sendchangepasswordform#', 'view:UserView::sendChangeUserPassword' );
+    
     //$this->addUrlPatterns( '#^()(.*)$#', 'noendview:UserView::setUserSetup' );
   }
 
