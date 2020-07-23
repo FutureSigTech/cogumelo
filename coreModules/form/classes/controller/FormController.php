@@ -124,7 +124,7 @@ class FormController implements Serializable {
       $this->langAvailable = array_keys( $langsConf );
     }
 
-    Cogumelo::log(__METHOD__.' - '.$this->getTokenId(), 'Form');
+    Cogumelo::log(__METHOD__.' - '.$this->getTokenId().json_encode(['name'=>$this->getName(),'action'=>$this->getAction()]), 'Form');
   }
 
 
