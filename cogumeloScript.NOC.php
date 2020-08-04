@@ -1,18 +1,6 @@
 <?php
 // declare(strict_types=1);
 
-/**
- * PHPMD: Suppress all warnings from these rules.
- * @SuppressWarnings(PHPMD.Superglobals)
- * @SuppressWarnings(PHPMD.ElseExpression)
- * @SuppressWarnings(PHPMD.StaticAccess)
- * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
- * @SuppressWarnings(PHPMD.CamelCaseVariableName)
- * @SuppressWarnings(PHPMD.CyclomaticComplexity)
- * @SuppressWarnings(PHPMD.NPathComplexity)
- * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
- **/
-
 require_once( COGUMELO_LOCATION.'/coreClasses/CogumeloClass.php' );
 require_once( APP_BASE_PATH.'/Cogumelo.php' );
 
@@ -125,7 +113,11 @@ if( $argc > 1 ) {
       if( Cogumelo::getSetupValue('db:name') ) {
         if( $argc > 2 ) {
           $file = $argv[2]; //name of the backup file
+
           restoreDB( $file );
+
+          createRelSchemes();
+          flushAll();
         }
         else {
           echo "You must specify the file to restore\n";
@@ -552,10 +544,13 @@ function backupDB( $file = false ) {
   $dir = Cogumelo::getSetupValue('script:backupPath');
 
   $params = '-h '.$confDB['hostname'].' -P '.$confDB['port'].' ';
-  $params .= '--hex-blob --complete-insert --skip-extended-insert ';
+  $params .= '--hex-blob ';
+  $params .= '--no-tablespaces ';
+  // $params .= '--complete-insert --skip-extended-insert ';
   $params .= '-u '.$confDB['user'].' -p'.$confDB['password'].' ';
+  $cmdBackup = 'mysqldump '.$params.' '.$confDB['name'].' --result-file='.$dir.'/'.$file;
 
-  $cmdBackup = 'mysqldump '.$params.' '.$confDB['name'].' > '.$dir.'/'.$file;
+  echo "\n\n$cmdBackup\n";
 
   popen( $cmdBackup, 'r' );
   exec( 'gzip ' . $dir . '/' . $file );

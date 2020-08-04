@@ -548,10 +548,16 @@ function doBackup( $db, $user, $passwd, $file ) {
 
   $dir = Cogumelo::getSetupValue( 'script:backupPath' );
 
-  // $cmdBackup = 'mysqldump --hex-blob --complete-insert --skip-extended-insert '.
-  //   '-h '.$dbHost.' -u '.$user.' -p'.$passwd.' '.$dbName.' > '.$dir.'/'.$file;
+  $params = '--hex-blob ';
+  $params .= '--no-tablespaces ';
+  // $params .= '--complete-insert --skip-extended-insert ';
+  $params .= '-u '.$user.' -p'.$passwd.' ';
+  $cmdBackup = 'mysqldump '.$params.' '.$db.' --result-file='.$dir.'/'.$file;
 
-  popen( 'mysqldump --hex-blob --complete-insert --skip-extended-insert -u ' . $user . ' -p' . $passwd .' '. $db . '> ' . $dir . '/' . $file, 'r' );
+  // echo "\n\n$cmdBackup\n";
+
+  popen( $cmdBackup, 'r' );
+  // popen( 'mysqldump --hex-blob --complete-insert --skip-extended-insert -u ' . $user . ' -p' . $passwd .' '. $db . '> ' . $dir . '/' . $file, 'r' );
   exec( 'gzip ' . $dir . '/' . $file );
   exec( 'chmod go-rwx ' . $dir . '/' . $file . '*' );
   echo "\nYour db was successfully saved!\n";
