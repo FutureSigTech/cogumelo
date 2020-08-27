@@ -550,7 +550,7 @@ function backupDB( $file = false ) {
   $params .= '-u '.$confDB['user'].' -p'.$confDB['password'].' ';
   $cmdBackup = 'mysqldump '.$params.' '.$confDB['name'].' --result-file='.$dir.'/'.$file;
 
-  echo "\n\n$cmdBackup\n";
+  // echo "\n\n$cmdBackup\n";
 
   popen( $cmdBackup, 'r' );
   exec( 'gzip ' . $dir . '/' . $file );
