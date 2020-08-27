@@ -62,7 +62,7 @@ class MailSenderSmtp {
    *
    * @return boolean $mailResult
    **/
-  public function send( $adresses, $subject, $bodyPlain = false, $bodyHtml = false, $files = false, $fromName = false, $fromMail = false ) {
+  public function send( $adresses, $subject, $bodyPlain = '', $bodyHtml = false, $files = false, $fromName = false, $fromMail = false ) {
     $mailResult = false;
 
     if( !$fromName ){
@@ -76,6 +76,7 @@ class MailSenderSmtp {
     // If $adresses is an array of adresses include all into mail
     if( is_array($adresses) ) {
       foreach( $adresses as $adress ) {
+        // Los destinatarios multiples se cargan en BCC
         $this->phpmailer->addBCC($adress);
       }
     }
@@ -97,7 +98,7 @@ class MailSenderSmtp {
 
 
 
-    if( $files ) {
+    if( !empty( $files ) ) {
       if( is_array($files) ) {
         foreach( $files as $file ) {
           $this->phpmailer->AddAttachment($file);
@@ -113,7 +114,7 @@ class MailSenderSmtp {
     if( $bodyHtml ) {
       $this->phpmailer->isHTML( true );
       $this->phpmailer->Body = $bodyHtml;
-      if( $bodyPlain ) {
+      if( !empty($bodyPlain) ) {
         $this->phpmailer->AltBody = $bodyPlain;
       }
     }
