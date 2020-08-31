@@ -57,7 +57,7 @@ class FilegroupModel extends Model {
         $filegroupList = $this->listItems( [ 'filters' => [ 'idGroupIn' => $idGroups ] ] );
       }
       else {
-        $filegroupList = $this->listItems( [ 'filters' => [ 'id' => $idGroups ] ] );
+        $filegroupList = $this->listItems( [ 'filters' => [ 'idGroup' => $idGroups ] ] );
       }
 
       if( is_object( $filegroupList ) ) {
