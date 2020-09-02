@@ -29,76 +29,76 @@ class CogumeloClass extends Singleton {
 
   // main dependences for cogumelo framework
   static $mainDependences = array(
-     array(
-       'id' => 'phpmailer',
-       'params' => array( 'phpmailer/phpmailer', '5.2.14' ),
-       'installer' => 'composer',
-       'includes' => array('PHPMailerAutoload.php')
-       // 'includes' => array('class.phpmailer.php')
-     ),
-     array( // para phpmailer
-       'id' => 'oauth2-client',
-       'params' => array( 'league/oauth2-client', '1.4.*' ),
-       'installer' => 'composer',
-       'includes' => array()
-     ),
-     array( // para phpmailer
-       'id' => 'oauth2-google',
-       'params' => array( 'league/oauth2-google', '1.0.*' ),
-       'installer' => 'composer',
-       'includes' => array()
-     ),
-     array(
-       'id' => 'smarty',
-       'params' => array('smarty/smarty', '3.1.18'),
-       'installer' => 'composer',
-       'includes' => array('libs/Smarty.class.php')
-     ),
-     array(
-       'id' => 'jquery',
-       'params' => array('jQuery#2.2'),
-       'installer' => 'bower',
-       'includes' => array()
-     ),
-     array(
+    array(
+      'id' => 'phpmailer',
+      'params' => array( 'phpmailer/phpmailer', '5.2.14' ),
+      'installer' => 'composer',
+      'includes' => array('PHPMailerAutoload.php')
+      // 'includes' => array('class.phpmailer.php')
+    ),
+    array( // para phpmailer
+      'id' => 'oauth2-client',
+      'params' => array( 'league/oauth2-client', '1.4.*' ),
+      'installer' => 'composer',
+      'includes' => array()
+    ),
+    array( // para phpmailer
+      'id' => 'oauth2-google',
+      'params' => array( 'league/oauth2-google', '1.0.*' ),
+      'installer' => 'composer',
+      'includes' => array()
+    ),
+    array(
+      'id' => 'smarty',
+      'params' => array('smarty/smarty', '3.1.18'),
+      'installer' => 'composer',
+      'includes' => array('libs/Smarty.class.php')
+    ),
+    array(
+      'id' => 'jquery',
+      'params' => array('jQuery#2.2'),
+      'installer' => 'bower',
+      'includes' => array()
+    ),
+    array(
       "id" => "bootstrap",
       "params" => array("bootstrap#v3.4"),
       "installer" => "bower",
       //"includes" => array("dist/js/bootstrap.min.js")  //{"url":"/media/jsLog.js?ref=/vendor/bower/bootstrap/dist/js/bootstrap.min.js","expire":1}
-     ),
-     array(
-       'id' => 'gettext',
-       'params' => array('Gettext'),
-       'installer' => 'manual',
-       'includes' => array('')
-     ),
-     array(
-       'id' => 'smarty-gettext',
-       'params' => array('smarty-gettext'),
-       'installer' => 'manual',
-       'includes' => array('block.t.php')
-     ),
-     array(
-       'id' =>'rsvp',
-       'params' => array('rsvp'),
-       'installer' => 'manual',
-       'includes' => array()
-     ),
-     array(
-       'id' =>'basket',
-       'params' => array('basket'),
-       'installer' => 'manual',
-       'includes' => array()
-     )
-     /*
-     ,
-     array(
-       'id' => 'php-jwt',
-       'params' => array('firebase/php-jwt', '3.*'),
-       'installer' => 'composer',
-       'includes' => array('src/JWT.php')
-     )
-     */
+    ),
+    array(
+      'id' => 'gettext',
+      'params' => array('Gettext'),
+      'installer' => 'manual',
+      'includes' => array('')
+    ),
+    array(
+      'id' => 'smarty-gettext',
+      'params' => array('smarty-gettext'),
+      'installer' => 'manual',
+      'includes' => array('block.t.php')
+    ),
+    array(
+      'id' =>'rsvp',
+      'params' => array('rsvp'),
+      'installer' => 'manual',
+      'includes' => array()
+    ),
+    array(
+      'id' =>'basket',
+      'params' => array('basket'),
+      'installer' => 'manual',
+      'includes' => array()
+    )
+    /*
+    ,
+    array(
+      'id' => 'php-jwt',
+      'params' => array('firebase/php-jwt', '3.*'),
+      'installer' => 'composer',
+      'includes' => array('src/JWT.php')
+    )
+    */
   );
 
   public function __construct() {
@@ -273,8 +273,8 @@ class CogumeloClass extends Singleton {
   //
   //  Redirect (alias for RequestController::redirect )
   //
-  public static function redirect( $redirect_url ) {
-    RequestController::redirect( $redirect_url );
+  public static function redirect( $redirect_url, $httpCode = 301 ) {
+    RequestController::redirect( $redirect_url, $httpCode );
   }
 
 
@@ -413,6 +413,18 @@ class CogumeloClass extends Singleton {
             else {
               $fileLog = Cogumelo::getSetupValue('setup:appBasePath').'/log/'.$logLabel.'.log';
             }
+
+
+            if( $logLabel === 'cogumelo_debug_sql' ) {
+              // error_log('debugTrace: '.$logLabel.json_encode(debug_backtrace()) );
+              $debugTrace = 'debugTrace: ';
+              $backtrace = debug_backtrace();
+              foreach( $backtrace as $l ) {
+                $debugTrace .= ' - '.( isset($l['class']) ? $l['class'] : '*');
+              }
+              error_log( "\n".$debugTrace."\n", 3, $fileLog );
+            }
+
 
             error_log( $msg, 3, $fileLog );
             break;
