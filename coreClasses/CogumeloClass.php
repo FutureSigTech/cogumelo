@@ -31,26 +31,26 @@ class CogumeloClass extends Singleton {
   static $mainDependences = array(
     array(
       'id' => 'phpmailer',
-      'params' => array( 'phpmailer/phpmailer', '5.2' ),
+      'params' => array( 'phpmailer/phpmailer', '5.2.*' ),
       'installer' => 'composer',
       'includes' => array('PHPMailerAutoload.php')
       // 'includes' => array('class.phpmailer.php')
     ),
     array( // para phpmailer
       'id' => 'oauth2-client',
-      'params' => array( 'league/oauth2-client', '1.4' ),
+      'params' => array( 'league/oauth2-client', '1.4.*' ),
       'installer' => 'composer',
       'includes' => []
     ),
     array( // para phpmailer
       'id' => 'oauth2-google',
-      'params' => array( 'league/oauth2-google', '1.0' ),
+      'params' => array( 'league/oauth2-google', '1.0.*' ),
       'installer' => 'composer',
       'includes' => []
     ),
     array(
       'id' => 'smarty',
-      'params' => array('smarty/smarty', '3.1.18'),
+      'params' => array('smarty/smarty', '3.1.33'),
       'installer' => 'composer',
       'includes' => array('libs/Smarty.class.php')
     ),
@@ -273,8 +273,8 @@ class CogumeloClass extends Singleton {
   //
   //  Redirect (alias for RequestController::redirect )
   //
-  public static function redirect( $redirect_url, $httpCode = 301 ) {
-    RequestController::redirect( $redirect_url, $httpCode );
+  public static function redirect( $redirectUrl, $httpCode = 301 ) {
+    RequestController::redirect( $redirectUrl, $httpCode );
   }
 
 
