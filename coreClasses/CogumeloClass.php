@@ -414,16 +414,16 @@ class CogumeloClass extends Singleton {
               $fileLog = Cogumelo::getSetupValue('setup:appBasePath').'/log/'.$logLabel.'.log';
             }
 
-
-            if( $logLabel === 'cogumelo_debug_sql' ) {
-              // error_log('debugTrace: '.$logLabel.json_encode(debug_backtrace()) );
-              $debugTrace = 'debugTrace: ';
-              $backtrace = debug_backtrace();
-              foreach( $backtrace as $l ) {
-                $debugTrace .= ' - '.( isset($l['class']) ? $l['class'] : '*');
-              }
-              error_log( "\n".$debugTrace."\n", 3, $fileLog );
-            }
+            // TRACE dentro del debug de SQL
+            // if( $logLabel === 'cogumelo_debug_sql' ) {
+            //   // error_log('debugTrace: '.$logLabel.json_encode(debug_backtrace()) );
+            //   $debugTrace = 'debugTrace: ';
+            //   $backtrace = debug_backtrace();
+            //   foreach( $backtrace as $l ) {
+            //     $debugTrace .= ' - '.( isset($l['class']) ? $l['class'] : '*');
+            //   }
+            //   error_log( "\n".$debugTrace."\n", 3, $fileLog );
+            // }
 
 
             error_log( $msg, 3, $fileLog );
