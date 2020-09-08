@@ -24,29 +24,29 @@ class CogumeloClass extends Singleton {
 
   private static $setupMethods = null;
 
-  public $dependences = array();
-  public $includesCommon = array();
+  public $dependences = [];
+  public $includesCommon = [];
 
   // main dependences for cogumelo framework
   static $mainDependences = array(
     array(
       'id' => 'phpmailer',
-      'params' => array( 'phpmailer/phpmailer', '5.2.14' ),
+      'params' => array( 'phpmailer/phpmailer', '5.2' ),
       'installer' => 'composer',
       'includes' => array('PHPMailerAutoload.php')
       // 'includes' => array('class.phpmailer.php')
     ),
     array( // para phpmailer
       'id' => 'oauth2-client',
-      'params' => array( 'league/oauth2-client', '1.4.*' ),
+      'params' => array( 'league/oauth2-client', '1.4' ),
       'installer' => 'composer',
-      'includes' => array()
+      'includes' => []
     ),
     array( // para phpmailer
       'id' => 'oauth2-google',
-      'params' => array( 'league/oauth2-google', '1.0.*' ),
+      'params' => array( 'league/oauth2-google', '1.0' ),
       'installer' => 'composer',
-      'includes' => array()
+      'includes' => []
     ),
     array(
       'id' => 'smarty',
@@ -58,7 +58,7 @@ class CogumeloClass extends Singleton {
       'id' => 'jquery',
       'params' => array('jQuery#2.2'),
       'installer' => 'bower',
-      'includes' => array()
+      'includes' => []
     ),
     array(
       "id" => "bootstrap",
@@ -82,13 +82,13 @@ class CogumeloClass extends Singleton {
       'id' =>'rsvp',
       'params' => array('rsvp'),
       'installer' => 'manual',
-      'includes' => array()
+      'includes' => []
     ),
     array(
       'id' =>'basket',
       'params' => array('basket'),
       'installer' => 'manual',
-      'includes' => array()
+      'includes' => []
     )
     /*
     ,
@@ -472,7 +472,7 @@ class CogumeloClass extends Singleton {
   public static function objDebugPull() {
     $now = getdate();
     $debug_object_maxlifetime = 60; // in seconds
-    $result_array = array();
+    $result_array = [];
 
     if( Cogumelo::getSetupValue( 'logs:debug' ) &&
       isset($_SESSION['cogumelo_dev_obj_array'])  &&
@@ -494,7 +494,7 @@ class CogumeloClass extends Singleton {
       }
 
       // reset sesesion array
-      $_SESSION['cogumelo_dev_obj_array'] = array();
+      $_SESSION['cogumelo_dev_obj_array'] = [];
     }
 
     return $result_array;
@@ -507,7 +507,7 @@ class CogumeloClass extends Singleton {
   public static function objDebugPush( $obj, $comment ) {
     if(Cogumelo::getSetupValue( 'logs:debug' ) && isset($obj)){
 
-      $session_array = array();
+      $session_array = [];
 
       if( isset($_SESSION['cogumelo_dev_obj_array']) &&
         $_SESSION['cogumelo_dev_obj_array'] != '' &&
@@ -532,7 +532,7 @@ class CogumeloClass extends Singleton {
   // (Ini)
 
   public function deleteUrlPatterns() {
-    $this->urlPatterns = array();
+    $this->urlPatterns = [];
   }
 
   public function addUrlPatterns( $regex, $destination ) {
