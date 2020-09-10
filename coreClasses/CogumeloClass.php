@@ -31,25 +31,37 @@ class CogumeloClass extends Singleton {
   static $mainDependences = array(
     array(
       'id' => 'phpmailer',
+      // https://github.com/PHPMailer/PHPMailer/blob/master/changelog.md
+      // "league/oauth2-google": "Needed for Google XOAUTH2 authentication",
+      // "ext-mbstring": "Needed to send email in multibyte encoding charset",
+      // 6.1.7 (July 14th, 2020)
+      // 6.0.7 (February 1st 2019)
+      // 5.2.27 (November 14th 2018)
       'params' => array( 'phpmailer/phpmailer', '5.2.*' ),
       'installer' => 'composer',
       'includes' => array('PHPMailerAutoload.php')
       // 'includes' => array('class.phpmailer.php')
     ),
     array( // para phpmailer
-      'id' => 'oauth2-client',
-      'params' => array( 'league/oauth2-client', '1.4.*' ),
-      'installer' => 'composer',
-      'includes' => []
-    ),
-    array( // para phpmailer
       'id' => 'oauth2-google',
+      // https://github.com/thephpleague/oauth2-google
+      // 3.0.3 2020-07-24
       'params' => array( 'league/oauth2-google', '1.0.*' ),
       'installer' => 'composer',
       'includes' => []
     ),
-    array(
+    array( // para oauth2-google para phpmailer
+      'id' => 'oauth2-client',
+      // https://github.com/thephpleague/oauth2-client
+      // 2.5.0 Released: 2020-07-18
+      'params' => array( 'league/oauth2-client', '1.4.*' ),
+      'installer' => 'composer',
+        'includes' => []
+      ),
+      array(
       'id' => 'smarty',
+      // https://github.com/smarty-php/smarty
+      // [3.1.36] - 2020-04-14
       'params' => array('smarty/smarty', '3.1.33'),
       'installer' => 'composer',
       'includes' => array('libs/Smarty.class.php')
@@ -91,28 +103,27 @@ class CogumeloClass extends Singleton {
       'includes' => []
     )
     /*
-    ,
-    array(
-      'id' => 'php-jwt',
-      'params' => array('firebase/php-jwt', '3.*'),
-      'installer' => 'composer',
-      'includes' => array('src/JWT.php')
-    )
+      array(
+        'id' => 'php-jwt',
+        'params' => array('firebase/php-jwt', '3.*'),
+        'installer' => 'composer',
+        'includes' => array('src/JWT.php')
+      )
     */
   );
 
   public function __construct() {
     // Control hard url cache
-    $cacheByUrlControl = new CacheByUrlController();
+    // $cacheByUrlControl = new CacheByUrlController();
 
     $this->setTimezones();
     // CogumeloSession controller
-    $cogumeloSessionControllerClassFile = Cogumelo::getSetupValue( 'cogumeloSessionController:classFile' );
-    if( empty( $cogumeloSessionControllerClassFile ) || !file_exists( $cogumeloSessionControllerClassFile ) ) {
-      $cogumeloSessionControllerClassFile = COGUMELO_LOCATION.
+    $cogumeloSessionCtrlFile = Cogumelo::getSetupValue( 'cogumeloSessionController:classFile' );
+    if( empty( $cogumeloSessionCtrlFile ) || !file_exists( $cogumeloSessionCtrlFile ) ) {
+      $cogumeloSessionCtrlFile = COGUMELO_LOCATION.
         '/coreModules/cogumeloSession/classes/controller/CogumeloSessionController.php';
     }
-    require_once( $cogumeloSessionControllerClassFile );
+    require_once( $cogumeloSessionCtrlFile );
     $sessionCtrl = new CogumeloSessionController();
     $sessionCtrl->prepareTokenSessionEnvironment();
 

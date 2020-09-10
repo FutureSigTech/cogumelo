@@ -10,6 +10,8 @@ class form extends Module {
   public $dependences = [
     [
       'id' => 'jquery-validation',
+      // https://github.com/jquery-validation/jquery-validation
+      // jquery-validate 1.14 Jun.2015 -->  1.19.2 May.2020
       'params' => [ 'jquery-validate#1.14' ],
       'installer' => 'bower',
       'includes' => [ 'dist/jquery.validate.min.js', 'dist/additional-methods.min.js' ]
