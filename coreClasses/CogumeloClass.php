@@ -24,100 +24,111 @@ class CogumeloClass extends Singleton {
 
   private static $setupMethods = null;
 
-  public $dependences = array();
-  public $includesCommon = array();
+  public $dependences = [];
+  public $includesCommon = [];
 
   // main dependences for cogumelo framework
   static $mainDependences = array(
-     array(
-       'id' => 'phpmailer',
-       'params' => array( 'phpmailer/phpmailer', '5.2.26' ),
-       'installer' => 'composer',
-       'includes' => array('PHPMailerAutoload.php')
-       // 'includes' => array('class.phpmailer.php')
-     ),
-     array( // para phpmailer
-       'id' => 'oauth2-client',
-       'params' => array( 'league/oauth2-client', '1.4.*' ),
-       'installer' => 'composer',
-       'includes' => array()
-     ),
-     array( // para phpmailer
-       'id' => 'oauth2-google',
-       'params' => array( 'league/oauth2-google', '1.0.*' ),
-       'installer' => 'composer',
-       'includes' => array()
-     ),
-     array(
-       'id' => 'smarty',
-       'params' => array('smarty/smarty', '3.1.33'),
-       'installer' => 'composer',
-       'includes' => array('libs/Smarty.class.php')
-     ),
-     array(
-       'id' => 'jquery',
-       'params' => array('jquery@3.3'),
-       'installer' => 'yarn',
-       'includes' => array()
-     ),
+    array(
+      'id' => 'phpmailer',
+      // https://github.com/PHPMailer/PHPMailer/blob/master/changelog.md
+      // "league/oauth2-google": "Needed for Google XOAUTH2 authentication",
+      // "ext-mbstring": "Needed to send email in multibyte encoding charset",
+      // 6.1.7 (July 14th, 2020)
+      // 6.0.7 (February 1st 2019)
+      // 5.2.27 (November 14th 2018)
+      'params' => array( 'phpmailer/phpmailer', '5.2.*' ),
+      'installer' => 'composer',
+      'includes' => array('PHPMailerAutoload.php')
+      // 'includes' => array('class.phpmailer.php')
+    ),
+    array( // para phpmailer
+      'id' => 'oauth2-google',
+      // https://github.com/thephpleague/oauth2-google
+      // 3.0.3 2020-07-24
+      'params' => array( 'league/oauth2-google', '1.0.*' ),
+      'installer' => 'composer',
+      'includes' => []
+    ),
+    array( // para oauth2-google para phpmailer
+      'id' => 'oauth2-client',
+      // https://github.com/thephpleague/oauth2-client
+      // 2.5.0 Released: 2020-07-18
+      'params' => array( 'league/oauth2-client', '1.4.*' ),
+      'installer' => 'composer',
+      'includes' => []
+    ),
+    array(
+      'id' => 'smarty',
+      // https://github.com/smarty-php/smarty
+      // [3.1.36] - 2020-04-14
+      'params' => array('smarty/smarty', '3.1.33'),
+      'installer' => 'composer',
+      'includes' => array('libs/Smarty.class.php')
+    ),
+    array(
+      'id' => 'jquery',
+      'params' => array('jquery@3.3'),
+      'installer' => 'yarn',
+      'includes' => []
+    ),
 
-     array(
+    array(
       "id" => "popper.js",
       "params" => array("popper.js"),
       "installer" => "yarn"
-     ),
-     array(
+    ),
+    array(
       "id" => "bootstrap",
       "params" => array("bootstrap@4.1.3"),
       "installer" => "yarn"
-     ),
-     array(
-       'id' => 'gettext',
-       'params' => array('Gettext'),
-       'installer' => 'manual',
-       'includes' => array('')
-     ),
-     array(
-       'id' => 'smarty-gettext',
-       'params' => array('smarty-gettext'),
-       'installer' => 'manual',
-       'includes' => array('block.t.php')
-     ),
-     array(
-       'id' =>'rsvp',
-       'params' => array('rsvp'),
-       'installer' => 'manual',
-       'includes' => array()
-     ),
-     array(
-       'id' =>'basket',
-       'params' => array('basket'),
-       'installer' => 'manual',
-       'includes' => array()
-     )
-     /*
-     ,
-     array(
-       'id' => 'php-jwt',
-       'params' => array('firebase/php-jwt', '3.*'),
-       'installer' => 'composer',
-       'includes' => array('src/JWT.php')
-     )
-     */
+    ),
+    array(
+      'id' => 'gettext',
+      'params' => array('Gettext'),
+      'installer' => 'manual',
+      'includes' => array('')
+    ),
+    array(
+      'id' => 'smarty-gettext',
+      'params' => array('smarty-gettext'),
+      'installer' => 'manual',
+      'includes' => array('block.t.php')
+    ),
+    array(
+      'id' =>'rsvp',
+      'params' => array('rsvp'),
+      'installer' => 'manual',
+      'includes' => []
+    ),
+    array(
+      'id' =>'basket',
+      'params' => array('basket'),
+      'installer' => 'manual',
+      'includes' => []
+    )
+    /*
+      array(
+        'id' => 'php-jwt',
+        'params' => array('firebase/php-jwt', '3.*'),
+        'installer' => 'composer',
+        'includes' => array('src/JWT.php')
+      )
+    */
   );
 
   public function __construct() {
     // Control hard url cache
-    $cacheByUrlControl = new CacheByUrlController();
+    // $cacheByUrlControl = new CacheByUrlController();
 
     $this->setTimezones();
     // CogumeloSession controller
-    $cogumeloSessionControllerClassFile = Cogumelo::getSetupValue( 'cogumeloSessionController:classFile' );
-    if( empty( $cogumeloSessionControllerClassFile ) || !file_exists( $cogumeloSessionControllerClassFile ) ) {
-      $cogumeloSessionControllerClassFile = COGUMELO_LOCATION.
+    $cogumeloSessionCtrlFile = Cogumelo::getSetupValue( 'cogumeloSessionController:classFile' );
+    if( empty( $cogumeloSessionCtrlFile ) || !file_exists( $cogumeloSessionCtrlFile ) ) {
+      $cogumeloSessionCtrlFile = COGUMELO_LOCATION.
         '/coreModules/cogumeloSession/classes/controller/CogumeloSessionController.php';
     }
-    require_once( $cogumeloSessionControllerClassFile );
+    require_once( $cogumeloSessionCtrlFile );
     $sessionCtrl = new CogumeloSessionController();
     $sessionCtrl->prepareTokenSessionEnvironment();
 
@@ -278,8 +289,8 @@ class CogumeloClass extends Singleton {
   //
   //  Redirect (alias for RequestController::redirect )
   //
-  public static function redirect( $redirect_url ) {
-    RequestController::redirect( $redirect_url );
+  public static function redirect( $redirectUrl, $httpCode = 301 ) {
+    RequestController::redirect( $redirectUrl, $httpCode );
   }
 
 
@@ -419,6 +430,18 @@ class CogumeloClass extends Singleton {
               $fileLog = Cogumelo::getSetupValue('setup:appBasePath').'/log/'.$logLabel.'.log';
             }
 
+            // TRACE dentro del debug de SQL
+            // if( $logLabel === 'cogumelo_debug_sql' ) {
+            //   // error_log('debugTrace: '.$logLabel.json_encode(debug_backtrace()) );
+            //   $debugTrace = 'debugTrace: ';
+            //   $backtrace = debug_backtrace();
+            //   foreach( $backtrace as $l ) {
+            //     $debugTrace .= ' - '.( isset($l['class']) ? $l['class'] : '*');
+            //   }
+            //   error_log( "\n".$debugTrace."\n", 3, $fileLog );
+            // }
+
+
             error_log( $msg, 3, $fileLog );
             break;
         }
@@ -465,7 +488,7 @@ class CogumeloClass extends Singleton {
   public static function objDebugPull() {
     $now = getdate();
     $debug_object_maxlifetime = 60; // in seconds
-    $result_array = array();
+    $result_array = [];
 
     if( Cogumelo::getSetupValue( 'logs:debug' ) &&
       isset($_SESSION['cogumelo_dev_obj_array'])  &&
@@ -487,7 +510,7 @@ class CogumeloClass extends Singleton {
       }
 
       // reset sesesion array
-      $_SESSION['cogumelo_dev_obj_array'] = array();
+      $_SESSION['cogumelo_dev_obj_array'] = [];
     }
 
     return $result_array;
@@ -500,7 +523,7 @@ class CogumeloClass extends Singleton {
   public static function objDebugPush( $obj, $comment ) {
     if(Cogumelo::getSetupValue( 'logs:debug' ) && isset($obj)){
 
-      $session_array = array();
+      $session_array = [];
 
       if( isset($_SESSION['cogumelo_dev_obj_array']) &&
         $_SESSION['cogumelo_dev_obj_array'] != '' &&
@@ -525,7 +548,7 @@ class CogumeloClass extends Singleton {
   // (Ini)
 
   public function deleteUrlPatterns() {
-    $this->urlPatterns = array();
+    $this->urlPatterns = [];
   }
 
   public function addUrlPatterns( $regex, $destination ) {
