@@ -41,10 +41,10 @@ class MailController {
    * Reestablece los valores iniciales
    **/
   public function clear() {
-    $senderController = false;
-    $bodyPlain = false;
-    $bodyHtml = false;
-    $mailFiles = false;
+    $this->senderController = false;
+    $this->bodyPlain = false;
+    $this->bodyHtml = false;
+    $this->mailFiles = false;
   }
 
   /**
@@ -135,9 +135,11 @@ class MailController {
     $mailSenderResult = false;
 
     if( $this->bodyPlain || $this->bodyHtml ) {
+      Cogumelo::log( 'Lanzamos send: '. json_encode( [ 'subject' => $subject, 'adresses' => $adresses ] ), 'MailController' );
       $mailSenderResult = $this->senderController->send( $adresses, $subject,
         $this->bodyPlain, $this->bodyHtml, $this->mailFiles, $fromName, $fromMail );
-    }
+      Cogumelo::log( 'Resultado send: '. json_encode( $mailSenderResult ), 'MailController' );
+      }
     else {
       Cogumelo::error( 'Error sending mail: No body.' );
     }
