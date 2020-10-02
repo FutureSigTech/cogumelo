@@ -141,7 +141,7 @@ class MailController {
       Cogumelo::log( 'Resultado send: '. json_encode( $mailSenderResult ), 'MailController' );
       }
     else {
-      Cogumelo::error( 'Error sending mail: No body.' );
+      Cogumelo::log( 'Error sending mail: No body.' );
     }
 
     return $mailSenderResult;

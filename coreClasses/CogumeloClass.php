@@ -56,9 +56,9 @@ class CogumeloClass extends Singleton {
       // 2.5.0 Released: 2020-07-18
       'params' => array( 'league/oauth2-client', '1.4.*' ),
       'installer' => 'composer',
-        'includes' => []
-      ),
-      array(
+      'includes' => []
+    ),
+    array(
       'id' => 'smarty',
       // https://github.com/smarty-php/smarty
       // [3.1.36] - 2020-04-14

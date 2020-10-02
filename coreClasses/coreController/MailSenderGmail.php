@@ -117,7 +117,7 @@ class MailSenderGmail {
       Cogumelo::debug( 'Mail ERROR('.$this->phpmailer->MessageID.'): Adresses: '.var_export($adresses, true), 3 );
       Cogumelo::debug( 'Mail ERROR('.$this->phpmailer->MessageID.'): Subject: '.$subject, 3 );
       Cogumelo::debug( 'Mail ERROR('.$this->phpmailer->MessageID.'): ErrorInfo: '.$this->phpmailer->ErrorInfo, 3 );
-      Cogumelo::error( 'Error sending mail' );
+      Cogumelo::log( 'Error sending mail' );
     }
 
     $this->phpmailer->ClearAllRecipients();
