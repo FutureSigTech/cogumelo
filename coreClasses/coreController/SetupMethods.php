@@ -153,4 +153,34 @@ class SetupMethods {
     return $resultArray;
   }
 
+  public function log( $texto ) {
+    $logLabel = 'setup';
+
+    global $COGUMELO_DISABLE_LOGS;
+    if( !$COGUMELO_DISABLE_LOGS ) {
+      $setupLogs = $this->getSetupValue('logs');
+      $typeLog = empty( $setupLogs['type'] ) ? 'file' : $setupLogs['type'];
+      if( $typeLog !== 'disable' && !empty( $setupLogs['disableLabels'] ) && is_array( $setupLogs['disableLabels'] ) ) {
+        if( in_array( $logLabel, $setupLogs['disableLabels'] ) ) {
+          $typeLog = 'disable';
+        }
+      }
+
+      if( $typeLog !== 'disable' ) {
+        $msg = '['.date('y-m-d H:i:s',time()).'] ['.$_SERVER['REMOTE_ADDR'] .'] '.
+          str_replace("\n", '\n', $texto)."\n";
+
+        if( !empty( $setupLogs['path'] ) ) {
+          $fileLog = $setupLogs['path'].'/'.$logLabel.'.log';
+        }
+        else {
+          $appBasePath = $this->getSetupValue('setup:appBasePath');
+          $appBasePath = !empty( $appBasePath ) ? $appBasePath : APP_BASE_PATH;
+          $fileLog = $appBasePath.'/log/'.$logLabel.'.log';
+        }
+
+        error_log( $msg, 3, $fileLog );
+      }
+    }
+  }
 }
