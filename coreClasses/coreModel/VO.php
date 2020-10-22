@@ -295,7 +295,7 @@ Class VO
           $value = (int) $val;
           break;
         case 'FLOAT':
-          $value = (float) $val;
+          $value = (float) str_replace(',' , '.' , $val );
           break;
         case 'CHAR':
         case 'VARCHAR':
