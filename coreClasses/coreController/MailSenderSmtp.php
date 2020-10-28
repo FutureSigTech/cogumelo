@@ -35,8 +35,13 @@ class MailSenderSmtp {
       $this->phpmailer->SMTPAuth = false;
     }
 
-    if( Cogumelo::getSetupValue( 'mail:secure' ) ) {
-      $this->phpmailer->SMTPSecure = Cogumelo::getSetupValue( 'mail:secure' );
+    $secure = Cogumelo::getSetupValue( 'mail:secure' );
+    if( $secure ) {
+      $this->phpmailer->SMTPSecure = $secure;
+    }
+    else {
+      $this->phpmailer->SMTPSecure = false;
+      $this->phpmailer->SMTPAutoTLS = false;
     }
   }
 
@@ -122,7 +127,12 @@ class MailSenderSmtp {
       $this->phpmailer->Body = $bodyPlain;
     }
 
-    // $this->phpmailer->SMTPDebug = 2; // SOLO TEST - EL FORM NO FUNCIONA CON ESTO!!!
+
+    // DEBUG
+    // $this->phpmailer->SMTPDebug = 2;
+    // $this->phpmailer->Debugoutput = function($str, $level) { Cogumelo::log( 'SMTPDebug: ('.$level.') - '.$str, 'MailController' ); };
+
+
 
     $mailResult = false;
     try{
