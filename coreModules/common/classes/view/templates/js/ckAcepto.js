@@ -16,13 +16,18 @@ cogumelo.ckAcepto.txtAceptar = 'Aceptar';
 cogumelo.ckAcepto.msg = 'Utilizamos cookies propias y de terceros para analizar sus preferencias y hábitos de navegación. ' +
   'Puede cambiar la configuración, seleccionar de manera específica qué cookies consiente y cuáles no y obtener más información. ' +
   'Puede cambiar la configuración u obtener más información ' +
-  '<a style="font-weight:700;color:#CCC;text-decoration:underline;" href="' + cogumelo.ckAcepto.link + '">aquí</a>. ' +
-  'Pulse el botón "' + cogumelo.ckAcepto.txtAceptar + '" para consentir el uso de todas las cookies.';
+  '<a style="font-weight:700;color:#CCC;text-decoration:underline;" href="#cogumelo.ckAcepto.link#">aquí</a>. ' +
+  'Pulse el botón "#cogumelo.ckAcepto.txtAceptar#" para consentir el uso de todas las cookies.';
 
+cogumelo.ckAcepto.getMsg = function getMsg() {
+  var msg = cogumelo.ckAcepto.msg;
 
+  msg = msg.replace('#cogumelo.ckAcepto.link#', cogumelo.ckAcepto.link );
+  msg = msg.replace('#cogumelo.ckAcepto.txtAceptar#', cogumelo.ckAcepto.txtAceptar );
+  console.log( 'getMsg '+msg );
 
-// Google Analytics function
-function gtag() {}
+  return msg;
+}
 
 cogumelo.ckAcepto.set = function set( acepto ) {
   var fecha = new Date();
@@ -88,7 +93,7 @@ cogumelo.ckAcepto.removeAll2 = function removeAll2() {
 
 
 cogumelo.ckAcepto.showPanel = function showPanel() {
-  // Obligatorio: El ID exterior tiene que ser (this.base + '-panel')
+  // IMPORTANTE: El ID exterior tiene que ser (this.base + '-panel')
   // ...o reemplazar cogumelo.ckAcepto.hidePanel
 
   if( document.getElementById( this.base + '-panel' ) === null ) {
@@ -106,7 +111,7 @@ cogumelo.ckAcepto.showPanel = function showPanel() {
       '<div class="ckBlock" style="margin:0 auto;padding:15px;">' +
         '<span class="ckBlockSub" style="margin:0;padding:0;">' +
           '<a class="ckButton acepto" style="' + ckBotStyle + '">' + this.txtAceptar + '</a>' +
-          '<span class="ckBlockSub">' + cogumelo.ckAcepto.msg + '</span>' +
+          '<span class="ckBlockSub">' + cogumelo.ckAcepto.getMsg() + '</span>' +
         '</span>' +
       '</div>'
     ;
@@ -123,6 +128,10 @@ cogumelo.ckAcepto.showPanel = function showPanel() {
 cogumelo.ckAcepto.hidePanel = function hidePanel() {
   document.getElementById( this.base + '-panel' ).remove();
 };
+
+
+// Google Analytics function
+function gtag() {}
 
 cogumelo.ckAcepto.loadExternals = function loadExternals() {
   // console.log( 'cogumelo.ckAcepto.loadExternals' );
