@@ -1,37 +1,33 @@
 <?php
 
-Cogumelo::load("coreController/Module.php");
+Cogumelo::load('coreController/Module.php');
 
 class common extends Module {
 
-  public $name = "common";
+  public $name = 'common';
   public $version = 1.0;
   public $autoIncludeAlways = true;
 
-  public $dependences = array(
-   array(
-     "id" =>"less",
-     "params" => array("less#v2.7.3"),
-     "installer" => "bower",
-     "includes" => array()
-   ),
-   array(
-     'id' =>'lobibox',
-     'params' => [ 'lobibox' ],
-     'installer' => 'bower',
-     'includes' => [ 'dist/css/lobibox.min.css', 'dist/js/lobibox.min.js' ]
-   )
+  public $dependences = [
+    [
+      'id' => 'less',
+      'params' => [ 'less#v2.7.3' ],
+      'installer' => 'bower',
+      'includes' => []
+    ],
+    [
+      'id' =>'lobibox',
+      'params' => [ 'lobibox' ],
+      'installer' => 'bower',
+      'includes' => [ 'dist/css/lobibox.min.css', 'dist/js/lobibox.min.js' ]
+    ]
+  ];
 
-  );
-
-  public $includesCommon = array(
+  public $includesCommon = [
+    'js/clientMsg.js',
+    'js/ckAcepto.js',
     //'styles/common.less',
-    'js/clientMsg.js'
-  );
+  ];
 
-
-  public function __construct() {
-    //$this->addUrlPatterns( regex, destination );
-  }
-
+  public function __construct() {}
 }

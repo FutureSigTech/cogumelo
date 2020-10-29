@@ -1,4 +1,4 @@
-var geozzy = geozzy || {};
+var cogumelo = cogumelo || {};
 
 cogumelo.clientMsgClass = function( options ) {
 
