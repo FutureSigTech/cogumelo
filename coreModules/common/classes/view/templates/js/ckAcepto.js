@@ -84,10 +84,10 @@ cogumelo.ckAcepto.showPanel = function showPanel() {
 
   if( document.getElementById( this.base + '-panel' ) === null ) {
 
-    var ckBlockMsg = 'Utilizamos cookies propias y de terceros para permitirte la navegación en ' +
-      'nuestra web y mejorar nuestros servicios. Puedes cambiar la configuración u obtener más información ' +
+    var ckBlockMsg = 'Utilizamos cookies propias y de terceros para analizar sus preferencias y hábitos de navegación.' +
+      'Puede cambiar la configuración, seleccionar de manera específica qué cookies consiente y cuáles no y obtener más información. Puedes cambiar la configuración u obtener más información ' +
       '<a style="font-weight:700;color:#CCC;text-decoration:underline;" href="' + this.link + '">aquí</a>. ' +
-      'Pulsa el botón "' + this.txtAceptar + '" para confirmar que has leído y aceptado esta información.';
+      'Pulsa el botón "' + this.txtAceptar + '" para consentir el uso de todas las cookies.';
     var ckBlockStyle = 'position:fixed;bottom:0;width:100%;padding:25px;' +
       'color:#CCC;background-color:rgba(22,22,22,0.9);font-size:15px;line-height:26px;' +
       'border:2px solid #EEE;z-index:99999;';
