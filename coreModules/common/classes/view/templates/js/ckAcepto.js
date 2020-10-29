@@ -15,24 +15,6 @@ cogumelo.ckAcepto.name = cogumelo.ckAcepto.base + '-' + cogumelo.ckAcepto.versio
 // Google Analytics function
 function gtag() {}
 
-cogumelo.ckAcepto.loadExternals = function loadExternals() {
-  console.log( 'cogumelo.ckAcepto.loadExternals' );
-
-  // Google Analytics load+init
-  if( this.keyGA && this.keyGA.length > 0 ) {
-    var loadJS = document.createElement( 'script' );
-    loadJS.type = 'text/javascript';
-    loadJS.src = 'https://www.googletagmanager.com/gtag/js?id=' + this.keyGA;
-    document.body.appendChild( loadJS );
-
-    window.dataLayer = window.dataLayer || [];
-    function gtag() { dataLayer.push( arguments ); };
-    gtag( 'js', new Date() );
-    gtag( 'config', this.keyGA, { 'anonymize_ip': true } ); // gtag('config', keyGA);
-  }
-};
-
-
 cogumelo.ckAcepto.set = function set( acepto ) {
   var fecha = new Date();
   fecha.setTime( fecha.getTime() + (365*24*60*60*1000) );
@@ -94,7 +76,12 @@ cogumelo.ckAcepto.removeAll2 = function removeAll2() {
   // }
 };
 
+
+
 cogumelo.ckAcepto.showPanel = function showPanel() {
+  // Obligatorio: El ID exterior tiene que ser (this.base + '-panel')
+  // ...o reemplazar cogumelo.ckAcepto.hidePanel
+
   if( document.getElementById( this.base + '-panel' ) === null ) {
 
     var ckBlockMsg = 'Utilizamos cookies propias y de terceros para permitirte la navegación en ' +
@@ -131,6 +118,24 @@ cogumelo.ckAcepto.showPanel = function showPanel() {
 cogumelo.ckAcepto.hidePanel = function hidePanel() {
   document.getElementById( this.base + '-panel' ).remove();
 };
+
+cogumelo.ckAcepto.loadExternals = function loadExternals() {
+  console.log( 'cogumelo.ckAcepto.loadExternals' );
+
+  // Google Analytics load+init
+  if( this.keyGA && this.keyGA.length > 0 ) {
+    var loadJS = document.createElement( 'script' );
+    loadJS.type = 'text/javascript';
+    loadJS.src = 'https://www.googletagmanager.com/gtag/js?id=' + this.keyGA;
+    document.body.appendChild( loadJS );
+
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push( arguments ); };
+    gtag( 'js', new Date() );
+    gtag( 'config', this.keyGA, { 'anonymize_ip': true } ); // gtag('config', keyGA);
+  }
+};
+
 
 
 cogumelo.ckAcepto.init = function init( keyGA, version ) {
