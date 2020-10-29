@@ -1,6 +1,6 @@
 var cogumelo = cogumelo || {};
 
-console.log(' *** ckAcepto cargado *** ');
+// console.log(' *** ckAcepto cargado *** ');
 
 cogumelo.ckAcepto = {
   base: 'ck-acepto-eu-law', // No cambiar
@@ -18,7 +18,7 @@ function gtag() {}
 cogumelo.ckAcepto.set = function set( acepto ) {
   var fecha = new Date();
   fecha.setTime( fecha.getTime() + (365*24*60*60*1000) );
-  document.cookie = this.name + '=' + acepto + '; expires=' + fecha.toGMTString() + '; path=/';
+  document.cookie = this.name + '=' + acepto + '; expires=' + fecha.toGMTString() + '; path=/; SameSite=Strict';
 };
 
 cogumelo.ckAcepto.get = function get() {
@@ -120,7 +120,7 @@ cogumelo.ckAcepto.hidePanel = function hidePanel() {
 };
 
 cogumelo.ckAcepto.loadExternals = function loadExternals() {
-  console.log( 'cogumelo.ckAcepto.loadExternals' );
+  // console.log( 'cogumelo.ckAcepto.loadExternals' );
 
   // Google Analytics load+init
   if( this.keyGA && this.keyGA.length > 0 ) {
@@ -139,7 +139,7 @@ cogumelo.ckAcepto.loadExternals = function loadExternals() {
 
 
 cogumelo.ckAcepto.init = function init( keyGA, version ) {
-  console.log(' *** cogumelo.ckAcepto.init *** ');
+  // console.log(' *** cogumelo.ckAcepto.init *** ');
   if( typeof keyGA !== 'undefined' ) {
     this.keyGA = keyGA;
   }
