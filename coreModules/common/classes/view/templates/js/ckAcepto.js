@@ -23,7 +23,7 @@ cogumelo.ckAcepto.getMsg = function getMsg() {
 
   msg = msg.replace('#cogumelo.ckAcepto.link#', cogumelo.ckAcepto.link );
   msg = msg.replace('#cogumelo.ckAcepto.txtAceptar#', cogumelo.ckAcepto.txtAceptar );
-  console.log( 'getMsg '+msg );
+  // console.log( 'getMsg '+msg );
 
   return msg;
 }
