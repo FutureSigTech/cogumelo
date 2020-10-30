@@ -14,8 +14,7 @@ cogumelo.ckAcepto.name = cogumelo.ckAcepto.base + '-' + cogumelo.ckAcepto.versio
 cogumelo.ckAcepto.link = '/cookies';
 cogumelo.ckAcepto.txtAceptar = 'Aceptar';
 cogumelo.ckAcepto.msg = 'Utilizamos cookies propias y de terceros para analizar sus preferencias y hábitos de navegación. ' +
-  'Puede cambiar la configuración, seleccionar de manera específica qué cookies consiente y cuáles no y obtener más información. ' +
-  'Puede cambiar la configuración u obtener más información ' +
+  'Puede cambiar la configuración, seleccionar de manera específica qué cookies consiente y cuáles no y obtener más información ' +
   '<a style="font-weight:700;color:#CCC;text-decoration:underline;" href="#cogumelo.ckAcepto.link#">aquí</a>. ' +
   'Pulse el botón "#cogumelo.ckAcepto.txtAceptar#" para consentir el uso de todas las cookies.';
 
