@@ -49,6 +49,8 @@ class Model extends VO {
   * @return DAOResult
   */
   public function listItems( array $parameters = array() ) {
+    // error_log( __METHOD__ );
+
     $p = array(
       'filters' => false,
       'range' => false,
@@ -61,17 +63,9 @@ class Model extends VO {
     );
     $parameters = array_merge( $p, $parameters );
 
+    // Cogumelo::log( __METHOD__.' Trace: '.get_called_class().' -- '. str_replace( '/home/proxectos/', '', (new \Exception)->getTraceAsString() ), 'ModelTrace' );
 
     Cogumelo::log( 'Called listItems on '.get_called_class().' CACHE: '. ( ($parameters['cache']===false) ? 'NON' : $parameters['cache'] ), 'cache' );
-    // if( $parameters['cache']===false ) {
-    //   $dt=debug_backtrace();
-    //   $dtl='listItems CACHE: NON';
-    //   foreach( $dt as $l ) {
-    //     $dtl .= ' - '.( isset($l['class']) ? $l['class'] : '*');
-    //   }
-    //   Cogumelo::log( $dtl, 'cache' );
-    // }
-
 
     $data = $this->dataFacade->listItems(
       $parameters['filters'],
@@ -123,8 +117,11 @@ class Model extends VO {
 
   public static function getFilters() {
 
-    $extraFilters = array();
-    $filterCols = array();
+    $extraFilters = [];
+    $filterCols = [];
+    $tableName = false;
+    $cols = [];
+    $extraFilters = [];
 
     eval('$tableName = '.get_called_class().'::$tableName;');
     eval('$cols = '.get_called_class().'::$cols;');
