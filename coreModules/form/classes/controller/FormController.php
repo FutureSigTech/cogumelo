@@ -21,16 +21,6 @@ error_reporting( -1 );
  *
  * @package Module Form
  *
- * PHPMD: Suppress all warnings from these rules.
- * @SuppressWarnings(PHPMD.Superglobals)
- * @SuppressWarnings(PHPMD.ElseExpression)
- * @SuppressWarnings(PHPMD.StaticAccess)
- * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
- * @SuppressWarnings(PHPMD.CamelCaseVariableName)
- * @SuppressWarnings(PHPMD.CyclomaticComplexity)
- * @SuppressWarnings(PHPMD.NPathComplexity)
- * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
- * @SuppressWarnings(PHPMD.LongVariable)
  **/
 class FormController implements Serializable {
 
@@ -145,6 +135,14 @@ class FormController implements Serializable {
   }
 
 
+  /**
+   * Inicializa el objeto
+   *
+   * @param string $name Nombre del formulario
+   * @param string $action URL del action del formulario
+   *
+   * @return void
+   */
   public function reset( $name = false, $action = false ) {
     Cogumelo::log(__METHOD__.' - '.$this->getTokenId(), 'Form');
 
@@ -181,6 +179,8 @@ class FormController implements Serializable {
 
   /**
    * Elimina todos los formularios de la actual session
+   *
+   * @return void
    */
   public function removeAllFormsInSession() {
     Cogumelo::log(__METHOD__, 'Form');
@@ -2956,7 +2956,7 @@ class FormController implements Serializable {
     foreach( $this->getFieldsNamesArray() as $fieldName ) {
       if( $this->getFieldType( $fieldName ) === 'file' ) {
         $fileInfo = $this->getFieldValue( $fieldName );
-        if( $fileInfo[ 'status' ] === 'EXIST' ) {
+        if( !empty( $fileInfo[ 'status' ] ) && $fileInfo[ 'status' ] === 'EXIST' ) {
           $html .= '  $formCtrl.fileFieldToOk( "'.$fieldName.'", { '.
             '"id": "'.$fileInfo['prev']['id'].'", "name": "'.$fileInfo['prev']['name'].'", '.
             '"aKey": "'.$fileInfo['prev']['aKey'].'", "type": "'.$fileInfo['prev']['type'].'" } );'."\n\n";
