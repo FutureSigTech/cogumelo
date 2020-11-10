@@ -31,10 +31,11 @@ CKEDITOR.editorConfig = function( config ) {
 
 // bootstrap-ckeditor-modal-fix
 // hack to fix ckeditor/bootstrap compatiability bug when ckeditor appears in a bootstrap modal dialog
-//
+
 // Include this AFTER both bootstrap and ckeditor are loaded.
 $.fn.modal.Constructor.prototype.enforceFocus = function() {
   var modalThis = this;
+  $( document ).off( 'focusin.modal' );
   $( document ).on( 'focusin.modal', function( e ) {
     if( modalThis.$element[0] !== e.target
       && !modalThis.$element.has(e.target).length
@@ -43,5 +44,5 @@ $.fn.modal.Constructor.prototype.enforceFocus = function() {
     {
       modalThis.$element.focus();
     }
-  } );
+  });
 };
