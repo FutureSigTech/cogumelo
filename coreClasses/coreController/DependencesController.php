@@ -242,8 +242,10 @@ Class DependencesController {
         else {
           $allparam = $params[0];
         }
-        echo( "Exec... bower install ".$depKey."=".$allparam." --quiet\n" );
-        exec( 'cd '.PRJ_BASE_PATH.' ; bower install '.$depKey.'='.$allparam.' --quiet --allow-root' );
+        // echo( "Exec... bower install ".$depKey."=".$allparam." --quiet\n" );
+        // exec( 'cd '.PRJ_BASE_PATH.' ; bower install '.$depKey.'='.$allparam.' --quiet --allow-root' );
+        echo( "Exec... bower install ".$depKey."=".$allparam." --silent\n" );
+        exec( 'cd '.PRJ_BASE_PATH.' ; bower install '.$depKey.'='.$allparam.' --silent --allow-root' );
       } // end foreach
     } // end foreach
 
