@@ -46,10 +46,11 @@ $.fn.serializeFormToObject = function () {
           formDataObj[ elem.name ] = {};
           formDataObj[ elem.name ].value = false;
         }
+
         // Order select values
-        if( elem.multiple === true && $elem.hasClass( 'cgmMForm-order' ) && formDataObj[ elem.name ].value.push ) {
-          // Array de options
+        if( elem.nodeName==='SELECT' && elem.multiple===true && $elem.hasClass('cgmMForm-order') && formDataObj[ elem.name ].value.push ) {
           cogumelo.log( 'Ordenando '+ elem.name, formDataObj[ elem.name ] );
+          // Array de options
           formDataObj[ elem.name ].value = $elem.find( 'option' ).filter( ':selected').toArray()
             .sort( function( a, b ) { return( parseInt( $( a ).data( 'order' ) ) - parseInt( $( b ).data( 'order' ) ) ); } )
             .map( function( e ) { return( e.value ); } );
