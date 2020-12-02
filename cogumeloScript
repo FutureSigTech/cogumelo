@@ -538,26 +538,25 @@ function setPermissionsDevel() {
 // }
 
 function doBackup( $db, $user, $passwd, $file ) {
-  if( !$file ) {
+
+
+
+  if( empty( $file ) ) {
     $file = date('Ymd-His').'-'.$db.'.sql';
   }
 
-  // if( empty( $dbHost ) ) {
-  //   $dbHost = 'localhost';
-  // }
+  $dir = Cogumelo::getSetupValue('script:backupPath');
 
-  $dir = Cogumelo::getSetupValue( 'script:backupPath' );
-
-  $params = '--hex-blob ';
+  $params = '';
+  $params .= '-f ';
+  $params .= '--hex-blob ';
   $params .= '--no-tablespaces ';
   // $params .= '--complete-insert --skip-extended-insert ';
   $params .= '-u '.$user.' -p'.$passwd.' ';
   $cmdBackup = 'mysqldump '.$params.' '.$db.' --result-file='.$dir.'/'.$file;
-
   // echo "\n\n$cmdBackup\n";
 
   popen( $cmdBackup, 'r' );
-  // popen( 'mysqldump --hex-blob --complete-insert --skip-extended-insert -u ' . $user . ' -p' . $passwd .' '. $db . '> ' . $dir . '/' . $file, 'r' );
   exec( 'gzip ' . $dir . '/' . $file );
   exec( 'chmod go-rwx ' . $dir . '/' . $file . '*' );
   echo "\nYour db was successfully saved!\n";

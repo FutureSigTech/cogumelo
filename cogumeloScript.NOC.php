@@ -544,12 +544,12 @@ function backupDB( $file = false ) {
   $dir = Cogumelo::getSetupValue('script:backupPath');
 
   $params = '-h '.$confDB['hostname'].' -P '.$confDB['port'].' ';
+  $params .= '-f ';
   $params .= '--hex-blob ';
   $params .= '--no-tablespaces ';
   // $params .= '--complete-insert --skip-extended-insert ';
   $params .= '-u '.$confDB['user'].' -p'.$confDB['password'].' ';
   $cmdBackup = 'mysqldump '.$params.' '.$confDB['name'].' --result-file='.$dir.'/'.$file;
-
   // echo "\n\n$cmdBackup\n";
 
   popen( $cmdBackup, 'r' );
