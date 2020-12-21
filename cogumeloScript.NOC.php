@@ -1,5 +1,7 @@
 <?php
-// declare(strict_types=1);
+
+// echo "\n\nScript  user: ".get_current_user();
+// echo "\n\nPHP run user: ".(posix_getpwuid(posix_geteuid()))['name']."\n\n";
 
 require_once( COGUMELO_LOCATION.'/coreClasses/CogumeloClass.php' );
 require_once( APP_BASE_PATH.'/Cogumelo.php' );
@@ -17,6 +19,11 @@ require_once( ModuleController::getRealFilePath('devel.php', 'devel') );
 require_once( ModuleController::getRealFilePath('classes/controller/DevelDBController.php', 'devel') );
 require_once( ModuleController::getRealFilePath('classes/controller/CacheUtilsController.php', 'mediaserver') );
 Cogumelo::load('coreController/ModuleController.php');
+
+
+if( !defined('DOCKER_ENV') ) {
+  define( 'DOCKER_ENV', false );
+}
 
 
 if( empty( $_SERVER['DOCUMENT_ROOT'] ) ) {
@@ -45,7 +52,6 @@ if( $argc > 1 ) {
       if( Cogumelo::getSetupValue('db:name') ) {
         ( IS_DEVEL_ENV ) ? setPermissionsDevel() : setPermissions();
         backupDB();
-
         createDB();
       }
       else {
@@ -56,7 +62,6 @@ if( $argc > 1 ) {
     case 'generateModel':
       if( Cogumelo::getSetupValue('db:name') ) {
         ( IS_DEVEL_ENV ) ? setPermissionsDevel() : setPermissions();
-
         backupDB();
         createRelSchemes();
         generateModel();
@@ -70,7 +75,6 @@ if( $argc > 1 ) {
     case 'deploy':
       if( Cogumelo::getSetupValue('db:name') ) {
         ( IS_DEVEL_ENV ) ? setPermissionsDevel() : setPermissions();
-
         backupDB();
         createRelSchemes();
         deploy();
@@ -100,7 +104,6 @@ if( $argc > 1 ) {
     case 'backupDB': // do the backup of the db
       if( Cogumelo::getSetupValue('db:name') ) {
         ( IS_DEVEL_ENV ) ? setPermissionsDevel() : setPermissions();
-
         $file = ( $argc > 2 ) ? $argv[2].'.sql' : false;
         backupDB( $file );
       }
@@ -113,9 +116,7 @@ if( $argc > 1 ) {
       if( Cogumelo::getSetupValue('db:name') ) {
         if( $argc > 2 ) {
           $file = $argv[2]; //name of the backup file
-
           restoreDB( $file );
-
           createRelSchemes();
           flushAll();
         }
@@ -198,7 +199,9 @@ if( $argc > 1 ) {
     //   break;
 
     case 'generateClientCaches':
+      ( IS_DEVEL_ENV ) ? setPermissionsDevel() : setPermissions();
       actionGenerateClientCaches();
+      ( IS_DEVEL_ENV ) ? setPermissionsDevel() : setPermissions();
       break;
 
     case 'garbageCollection':
@@ -401,7 +404,7 @@ function makeAppPaths() {
     Cogumelo::getSetupValue( 'mod:filedata:filePath' ),
     Cogumelo::getSetupValue( 'mod:filedata:cachePath' ),
     Cogumelo::getSetupValue( 'script:backupPath' ),
-    Cogumelo::getSetupValue( 'i18n:localePath' )
+    Cogumelo::getSetupValue( 'i18n:path' ), Cogumelo::getSetupValue( 'i18n:localePath' )
   );
 
   foreach( Cogumelo::getSetupValue( 'lang:available' ) as $lang ) {
@@ -445,7 +448,7 @@ function setPermissions( $devel = false ) {
       Cogumelo::getSetupValue( 'logs:path' ).' '.
       Cogumelo::getSetupValue( 'mod:form:tmpPath' ).' '.
       Cogumelo::getSetupValue( 'mod:filedata:filePath' ).' '.
-      Cogumelo::getSetupValue( 'i18n:localePath' )
+      Cogumelo::getSetupValue( 'i18n:path' ).' '.Cogumelo::getSetupValue( 'i18n:localePath' )
     ;
 
     echo( " - Executamos chgrp general \n" );
@@ -487,7 +490,7 @@ function setPermissions( $devel = false ) {
       // Varios
       Cogumelo::getSetupValue( 'logs:path' ).' '.
       // Cogumelo::getSetupValue( 'session:savePath' ).' '.
-      // Cogumelo::getSetupValue( 'i18n:localePath' ).' '.
+      // Cogumelo::getSetupValue( 'i18n:path' ).' '.Cogumelo::getSetupValue( 'i18n:localePath' ).' '.
       ''
     ;
 
