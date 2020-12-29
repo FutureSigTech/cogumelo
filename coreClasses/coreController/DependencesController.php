@@ -198,8 +198,8 @@ Class DependencesController {
           else {
             $allparam = $params[0];
           }
-          echo( "Exec... yarn add ".$allparam."   \n" );
-          exec( 'cd '.PRJ_BASE_PATH.' ; yarn add '.$allparam.'' );
+          echo( "Exec... yarnpkg add ".$allparam."   \n" );
+          exec( 'cd '.PRJ_BASE_PATH.' ; yarnpkg add '.$allparam.'' );
         } // end foreach
       } // end foreach
 
@@ -255,8 +255,8 @@ Class DependencesController {
   public function installDependencesYarn( $dependences ) {
     if(!empty($dependences) && !empty(Cogumelo::getSetupValue( 'dependences:yarnPath' ))){
       echo "\n === Yarn dependences ===\n\n";
-      echo("Exec... yarn install \n");
-      echo exec('cd '.PRJ_BASE_PATH.' ; yarn install');
+      echo("Exec... yarnpkg install \n");
+      echo exec('cd '.PRJ_BASE_PATH.' ; yarnpkg install');
       echo "\n === Yarn dependences: Done ===\n\n";
     }
   }
