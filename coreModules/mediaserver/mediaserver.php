@@ -8,7 +8,7 @@ class mediaserver extends Module {
   public $name = 'mediaserver';
   public $version = 1.0;
 
-  public $dependences = array(
+  public $dependences = [
     // COMPOSER
     array(
       'id' => 'jsmin',
@@ -22,13 +22,15 @@ class mediaserver extends Module {
       'installer' => 'composer',
       'includes' => array('src/CssMin.php')
     ),
-    array(
+    'lessmin' => [
       'id' => 'lessmin',
-      'params' => array('oyejorge/less.php', '1.7.0.13'),
+      // Cambiamos la dependencia en __construct() segun la version de PHP
+      // 'params' => [ 'oyejorge/less.php', '1.7.0.13' ], // No sirve para PHP 7.4
+      'params' => [ 'wikimedia/less.php', '3.1.0' ], // PHP >= 7.2.9
       'installer' => 'composer',
-      'includes' => array('lessc.inc.php')
-    )
-  );
+      'includes' => [ 'lessc.inc.php' ]
+    ]
+  ];
 
   public $includesCommon = array(
     'controller/MediaserverController.php',
@@ -38,6 +40,12 @@ class mediaserver extends Module {
 
 
   public function __construct() {
+
+    // Cambiamos la dependencia segun la version de PHP
+    if( PHP_VERSION_ID < 70209 ) {
+      $this->dependences['lessmin']['params'] = [ 'oyejorge/less.php', '1.7.0.13' ]; // No sirve para PHP 7.4
+    }
+
     $this->addUrlPatterns( '#^'.Cogumelo::getSetupValue( 'mod:mediaserver:cachePath' ).'/jsConfConstants.js#', 'view:ConfConstantsView::javascript' );
     $this->addUrlPatterns( '#^'.Cogumelo::getSetupValue( 'mod:mediaserver:path' ).'/jsConfConstants.js#', 'view:ConfConstantsView::javascript' );
     $this->addUrlPatterns( '#^'.Cogumelo::getSetupValue( 'mod:mediaserver:path' ).'/jsLog.js#', 'view:ConfConstantsView::jslog' );
@@ -47,5 +55,4 @@ class mediaserver extends Module {
     $this->addUrlPatterns( '#(.+\/)?classes/view/templates/(.+)\.less$#', 'view:MediaserverView::onClientLess');
 
   }
-
 }
