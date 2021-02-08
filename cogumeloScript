@@ -1,17 +1,8 @@
 <?php
 // declare(strict_types=1);
 
-/**
- * PHPMD: Suppress all warnings from these rules.
- * @SuppressWarnings(PHPMD.Superglobals)
- * @SuppressWarnings(PHPMD.ElseExpression)
- * @SuppressWarnings(PHPMD.StaticAccess)
- * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
- * @SuppressWarnings(PHPMD.CamelCaseVariableName)
- * @SuppressWarnings(PHPMD.CyclomaticComplexity)
- * @SuppressWarnings(PHPMD.NPathComplexity)
- * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
- **/
+// echo "\n\nScript  user: ".get_current_user();
+// echo "\n\nPHP run user: ".(posix_getpwuid(posix_geteuid()))['name']."\n\n";
 
 require_once( COGUMELO_LOCATION.'/coreClasses/CogumeloClass.php' );
 require_once( APP_BASE_PATH.'/Cogumelo.php' );
@@ -31,8 +22,14 @@ require_once( ModuleController::getRealFilePath('classes/controller/CacheUtilsCo
 Cogumelo::load('coreController/ModuleController.php');
 
 
+if( !defined('DOCKER_ENV') ) {
+  define( 'DOCKER_ENV', false );
+}
+
+
 if( empty( $_SERVER['DOCUMENT_ROOT'] ) ) {
-  $_SERVER['DOCUMENT_ROOT'] = ( defined('WEB_BASE_PATH') ) ? WEB_BASE_PATH : getcwd().'/httpdocs';
+  $webBasePath = Cogumelo::getSetupValue( 'setup:webBasePath' );
+  $_SERVER['DOCUMENT_ROOT'] = !empty($webBasePath) ? $webBasePath : ( getcwd().'/httpdocs' );
   echo( "\n".'Forzando SERVER[DOCUMENT_ROOT] = '.$_SERVER['DOCUMENT_ROOT']."\n" );
 }
 
@@ -95,7 +92,6 @@ if( $argc > 1 ) {
       }
       break;
 
-
     case 'prepareDependences':
       Cogumelo::load('coreController/DependencesController.php');
       $dependencesControl = new DependencesController();
@@ -117,7 +113,6 @@ if( $argc > 1 ) {
       $dependencesControl = new DependencesController();
       $dependencesControl->installDependences();
       break;
-
 
     case 'generateFrameworkTranslations':
       Cogumelo::load('coreController/i18nScriptController.php');
@@ -156,7 +151,6 @@ if( $argc > 1 ) {
       echo "The files.json are ready to be used!\n";
       break;
 
-
     /* We execute this two actions from web as we need to operate with the apache permissions*/
     case 'flush': // delete temporary files
       flushAll();
@@ -168,7 +162,9 @@ if( $argc > 1 ) {
     //   break;
 
     case 'generateClientCaches':
+      ( IS_DEVEL_ENV ) ? setPermissionsDevel() : setPermissions();
       actionGenerateClientCaches();
+      ( IS_DEVEL_ENV ) ? setPermissionsDevel() : setPermissions();
       break;
 
     case 'garbageCollection':
@@ -216,10 +212,10 @@ function printOptions(){
     * restoreDB               Restore a database
 
   + Internationalization
-    * generateFrameworkTranslations    Update text to translate in cogumelo and geozzy modules
-    * generateAppTranslations    Get text to translate in the app
-    * precompileTranslations     Generate the intermediate POs(geozzy, cogumelo and app)
-    * compileTranslations     Mix geozzy, cogumelo and app POS in one and compile it to get the translations ready
+    * generateFrameworkTranslations  Update text to translate in cogumelo and geozzy modules
+    * generateAppTranslations        Get text to translate in the app
+    * precompileTranslations         Generate the intermediate POs(geozzy, cogumelo and app)
+    * compileTranslations            Mix geozzy, cogumelo and app POS in one and compile it to get the translations ready
   \n\n";
 }
 
@@ -273,8 +269,8 @@ function createRelSchemes() {
 }
 
 function flushAll() {
-  echo "\n --- setPermissionsDevel:\n";
-  setPermissionsDevel();
+  echo "\n --- setPermissions:\n";
+  ( IS_DEVEL_ENV ) ? setPermissionsDevel() : setPermissions();
 
   echo "\n --- actionFlush:\n";
   actionFlush();
@@ -290,8 +286,8 @@ function flushAll() {
     echo "\nPasamos porque no estamos en PRODUCTION MODE\n";
   }
 
-  echo "\n --- setPermissionsDevel:\n";
-  setPermissionsDevel();
+  echo "\n --- setPermissions:\n";
+  ( IS_DEVEL_ENV ) ? setPermissionsDevel() : setPermissions();
 }
 
 
@@ -370,7 +366,6 @@ function createDB(){
 
   echo "\nDatase created!\n";
 }
-
 
 
 function makeAppPaths() {
@@ -591,6 +586,21 @@ function restoreDB( $db, $user, $passwd, $file ) {
   echo "\nYour db was successfully restored!\n";
 }
 
+function getDBConfiguration() {
+  $confDB = Cogumelo::getSetupValue('db');
+
+  if( !empty($confDB) ) {
+    if( empty( $confDB['hostname'] ) || $confDB['hostname'] === 'localhost' ) {
+      $confDB['hostname'] = '127.0.0.1';
+    }
+    if( empty( $confDB['port'] ) ) {
+      $confDB['port'] = 3306;
+    }
+  }
+
+  return $confDB;
+}
+
 /**
  * Get data from the shell.
  */
@@ -657,7 +667,7 @@ function rmdirRec( $dir, $removeContainer = true ) {
   // error_log( "rmdirRec( $dir )" );
 
   $dir = rtrim( $dir, '/' );
-  if( !empty( $dir ) && strpos( $dir, PRJ_BASE_PATH ) === 0 && is_dir( $dir ) ) {
+  if( !empty( $dir ) && strpos( $dir, Cogumelo::getSetupValue('setup:prjBasePath') ) === 0 && is_dir( $dir ) ) {
     $dirElements = scandir( $dir );
     if( !empty( $dirElements ) ) {
       foreach( $dirElements as $object ) {

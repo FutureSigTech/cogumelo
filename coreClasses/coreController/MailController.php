@@ -157,10 +157,12 @@ class MailController {
       }
       else {
         Cogumelo::log( 'Error sending mail: No body.' );
+        Cogumelo::log( 'Error sending mail: No body.', 'MailController' );
       }
     }
     else {
       Cogumelo::log( 'Error sending mail: No senderController.' );
+      Cogumelo::log( 'Error sending mail: No senderController.', 'MailController' );
     }
 
     return $mailSenderResult;

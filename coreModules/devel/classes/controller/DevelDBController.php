@@ -57,7 +57,6 @@ class  DevelDBController {
       echo "\nNow you can enjoy new deploy system\n";
     }
     else {
-
       $this->deploy();
     }
   }
@@ -177,8 +176,6 @@ class  DevelDBController {
         if( $this->VoIsExecutedRC( $model ) === false ) {
           echo "\n/*Getting RC deploys for'".$model."'*/";
           $moduleDeploys = array_merge($moduleDeploys, $this->VOgetDeploys( $model, ['onlyRC'=>true] ) );
-
-
         }
 
 
@@ -188,7 +185,7 @@ class  DevelDBController {
 
 
       //
-      // deploy dos modelos do módulo, en orden de versión
+      // deploy dos modelos do módulo, en orden de versión e prioridade
       //echo "\nEXEC DEPLOY CODES in module $module ";
       $deployWorks = $this->executeDeployList(
         $this->orderDeploysByExecOrder(
@@ -196,7 +193,6 @@ class  DevelDBController {
         ),
         $module
       );
-
 
 
 
@@ -356,7 +352,6 @@ class  DevelDBController {
 
 
 
-
           if(
 
 
@@ -500,6 +495,7 @@ class  DevelDBController {
 
   private function orderDeploysByExecOrder( $deploys ) {
     $retDeploys = [];
+
     while( sizeof($deploys) > 0 ) {
       foreach ($deploys as $lowerKey => $lowerVal) break;
       foreach( $deploys as $dK=>$d ) {
@@ -511,6 +507,7 @@ class  DevelDBController {
       array_push( $retDeploys, $lowerVal );
       unset( $deploys[$lowerKey] );
     }
+
     return $retDeploys;
   }
 

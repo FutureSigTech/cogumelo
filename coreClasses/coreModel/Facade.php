@@ -99,10 +99,6 @@ class Facade
 
 
 
-
-
-
-
   /**
    * Interface for any facade method
    *
@@ -129,6 +125,7 @@ class Facade
     }
 
     if( $data === false && in_array( $name, ['listItems', 'listCount', 'create', 'update', 'save'] ) ) {
+      // Nos aseguramos de que se abandona el uso de COGUMELO_ERROR en estos metodos
       Cogumelo::error('Error in facade calling : '.$name);
     }
 

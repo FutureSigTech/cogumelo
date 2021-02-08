@@ -901,6 +901,7 @@ cogumelo.formControllerClass = cogumelo.formControllerClass || function( idFormP
     else {
       $msgContainer = $( '.JQVMC-formError' );
     }
+
     if( $msgContainer !== false && $msgContainer.length > 0 ) {
       $msgContainer.append( msgLabel );
     }
@@ -1386,7 +1387,6 @@ cogumelo.formControllerClass = cogumelo.formControllerClass || function( idFormP
       }
     }
 
-
     if(tnSrc!==false){
       var tnClass = 'tn-';
       tnClass += (fileInfo.id) ? fileInfo.id : 'N';
@@ -1397,9 +1397,7 @@ cogumelo.formControllerClass = cogumelo.formControllerClass || function( idFormP
       $fileBoxElem.append( '<img class="tnImage '+tnClass+'" data-tnClass="'+tnClass+'" '+
         'src="'+tnSrc+'" alt="'+fileInfo.name+'" title="'+fileInfo.name+'"></img>' );
     }
-
     $fileBoxElem.append( $fileBoxMenu );
-
 
     var funcExtender = that.getFunctionExtender('fileBox');
     if( funcExtender ) {

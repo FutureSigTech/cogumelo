@@ -1,17 +1,4 @@
 <?php
-
-
-/**
- * PHPMD: Suppress all warnings from these rules.
- * @SuppressWarnings(PHPMD.Superglobals)
- * @SuppressWarnings(PHPMD.ElseExpression)
- * @SuppressWarnings(PHPMD.StaticAccess)
- * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
- * @SuppressWarnings(PHPMD.CamelCaseVariableName)
- * @SuppressWarnings(PHPMD.CyclomaticComplexity)
- * @SuppressWarnings(PHPMD.NPathComplexity)
- * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
- */
 class FiledataImagesController {
 
 
@@ -373,7 +360,7 @@ class FiledataImagesController {
           $im->rotateimage( '#fff', 270 );  //rotate 270º
           break;
       }
-      
+
 
       $imSize = $im->getImageGeometry();
       $x = $imSize['width'];
@@ -710,6 +697,7 @@ class FiledataImagesController {
       // TODO: Revisar
       if( isset( $this->profile['cache'] ) && !$this->profile['cache'] ) {
         // Cogumelo::debug( __METHOD__.' - unlink '.$imgInfo['route'] );
+        // unlink( $imgInfo['route'] );
 
         $info = pathinfo( $imgInfo['route'] );
         $cacheDir = $info['dirname'].'/';
@@ -719,10 +707,10 @@ class FiledataImagesController {
           $this->rmdirRec( $cacheDir );
         }
         else {
-          Cogumelo::debug( __METHOD__.' ERROR: PELIGRO!!! Intento de borrado de ficheros fuera de "cachePath"' );
           Cogumelo::error( __METHOD__.' ERROR: PELIGRO!!! Intento de borrado de ficheros fuera de "cachePath"' );
-          Cogumelo::error( __METHOD__.' filesCachePath '.$this->filesCachePath );
-          Cogumelo::error( __METHOD__.' cacheDir '.$cacheDir );
+          Cogumelo::debug( __METHOD__.' ERROR: PELIGRO!!! Intento de borrado de ficheros fuera de "cachePath"' );
+          Cogumelo::debug( __METHOD__.' filesCachePath '.$this->filesCachePath );
+          Cogumelo::debug( __METHOD__.' cacheDir '.$cacheDir );
           error_log( __METHOD__.' ERROR: PELIGRO!!! Intento de borrado de ficheros fuera de "cachePath"' );
           error_log( __METHOD__.' filesCachePath '.$this->filesCachePath );
           error_log( __METHOD__.' cacheDir '.$cacheDir );

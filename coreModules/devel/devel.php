@@ -1,20 +1,18 @@
 <?php
-
 // Dependencias en classes/view/templates/js/devel.js
 
-Cogumelo::load("coreController/Module.php");
+Cogumelo::load('coreController/Module.php');
 
 class devel extends Module {
 
-  public $name = "devel";
+  public $name = 'devel';
   public $version = 1.0;
   public $dependences = array(
-    // BOWER
     array(
-      "id" => "jquery",
-      "params" => array("jQuery#2.2"),
-      "installer" => "bower",
-      "includes" => array("dist/jquery.min.js")
+      'id' => 'jquery',
+      'params' => array('jQuery#2.2'),
+      'installer' => 'bower',
+      'includes' => array('dist/jquery.min.js')
     ),
     array(
       "id" => "bootstrap",
@@ -62,19 +60,17 @@ class devel extends Module {
   );
 
   public function __construct() {
-    /*
-      OLD URL's (now in moduledevelWebPanel)
-      $this->addUrlPatterns( '#^'.Cogumelo::getSetupValue( 'mod:devel:url' ).'$#', 'view:DevelView::main' );
-      $this->addUrlPatterns( '#^'.Cogumelo::getSetupValue( 'mod:devel:url' ).'/read_logs$#', 'view:DevelView::read_logs' );
-      $this->addUrlPatterns( '#^'.Cogumelo::getSetupValue( 'mod:devel:url' ).'/get_debugger#', 'view:DevelView::get_debugger' );
-      $this->addUrlPatterns( '#^'.Cogumelo::getSetupValue( 'mod:devel:url' ).'/get_sql_tables$#', 'view:DevelView::get_sql_tables' );
-      $this->addUrlPatterns( '#^'.Cogumelo::getSetupValue( 'mod:devel:url' ).'/phpinfo$#', 'view:DevelView::develPhpInfo' );
-      $this->addUrlPatterns( '#^'.Cogumelo::getSetupValue( 'mod:devel:url' ).'/phpinfo[/\#\?]+.*#', 'view:DevelView::develPhpInfo' );
-    */
+    // // OLD URL's (now in moduledevelWebPanel)
+    // $this->addUrlPatterns( '#^'.Cogumelo::getSetupValue( 'mod:devel:url' ).'$#', 'view:DevelView::main' );
+    // $this->addUrlPatterns( '#^'.Cogumelo::getSetupValue( 'mod:devel:url' ).'/read_logs$#', 'view:DevelView::read_logs' );
+    // $this->addUrlPatterns( '#^'.Cogumelo::getSetupValue( 'mod:devel:url' ).'/get_debugger#', 'view:DevelView::get_debugger' );
+    // $this->addUrlPatterns( '#^'.Cogumelo::getSetupValue( 'mod:devel:url' ).'/get_sql_tables$#', 'view:DevelView::get_sql_tables' );
+    // $this->addUrlPatterns( '#^'.Cogumelo::getSetupValue( 'mod:devel:url' ).'/phpinfo$#', 'view:DevelView::develPhpInfo' );
+    // $this->addUrlPatterns( '#^'.Cogumelo::getSetupValue( 'mod:devel:url' ).'/phpinfo[/\#\?]+.*#', 'view:DevelView::develPhpInfo' );
+
     //$this->addUrlPatterns( '#^'.Cogumelo::getSetupValue( 'mod:devel:url' ).'/GC#', 'view:DevelView::runGarbageCollectors' );
     //$this->addUrlPatterns( '#^'.Cogumelo::getSetupValue( 'mod:devel:url' ).'/porto#', 'view:DevelView::develPorto' );
 
     //Cogumelo::error( print_r( $this->getUrlPatternsToArray(), true ) );
   }
-
 }

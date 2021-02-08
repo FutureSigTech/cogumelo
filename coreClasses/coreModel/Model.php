@@ -49,8 +49,6 @@ class Model extends VO {
   * @return DAOResult
   */
   public function listItems( array $parameters = array() ) {
-    // error_log( __METHOD__ );
-
     $p = array(
       'filters' => false,
       'range' => false,
@@ -159,9 +157,6 @@ class Model extends VO {
 
 
 
-
-
-
   /**
    * Save item
    *
@@ -213,12 +208,13 @@ class Model extends VO {
         }
       }
 
-
       // Nos aseguramos de que se abandona el uso de COGUMELO_ERROR en este metodo
       if( $retObj === COGUMELO_ERROR ) {
         $retObj = false;
       }
+
       return $retObj;
+
     }
   }
 
@@ -231,7 +227,6 @@ class Model extends VO {
    * @return object  VO
    */
   private function saveOrUpdate( $voObj = false ) {
-
     $retObj = false;
 
     if(!$voObj) {
@@ -241,27 +236,22 @@ class Model extends VO {
     if( $voObj->data == array() ) {
       $retObj = $this;
     }
-    else
+    else {
       if( $voObj->exist() ) {
         $retObj = $this->dataFacade->update( $voObj );
       }
       else {
         $retObj = $this->dataFacade->create( $voObj );
       }
-
+    }
 
     // Nos aseguramos de que se abandona el uso de COGUMELO_ERROR en este metodo
     if( $retObj === COGUMELO_ERROR ) {
       $retObj = false;
     }
+
     return $retObj;
   }
-
-
-
-
-
-
 
   /**
   * Verify if VO exist in DDBB

@@ -149,15 +149,15 @@ class CacheRedis {
 
 
   /**
-   * Borra nuestros contenidos cache
+   * Borra todos nuestros contenidos cache
    */
   public function flush() {
-    Cogumelo::log(__METHOD__, 'cache');
+    Cogumelo::log( __METHOD__, 'cache' );
     $result = null;
 
     if( $this->cacheCtrl ) {
       $cacheKeys = $this->cacheCtrl->keys( $this->keyPrefix .':*' );
-      Cogumelo::log(__METHOD__.' - cacheKeys: '.json_encode( $cacheKeys ), 'cache');
+      Cogumelo::log( __METHOD__.' - cacheKeys: '.json_encode( $cacheKeys ), 'cache' );
       if( $this->cacheCtrl->del( $cacheKeys ) ) {
         $result = true;
       }

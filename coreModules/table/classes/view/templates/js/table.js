@@ -105,21 +105,24 @@ function cogumeloTable( tableId, tableUrl ) {
 
   that.load = function( doAction, res ) {
 
+    var currentRange;
+    var action;
+
     // range
     if( !that.tableData ) {
-      var currentRange = null;
+      currentRange = null;
     }
     else {
       //var currentRange = [ (that.currentPage-1)*parseInt(that.tableData.rowsEachPage), (that.currentPage-1)*parseInt(that.tableData.rowsEachPage) + that.currentPage*parseInt(that.tableData.rowsEachPage) -1 ];
-      var currentRange = [ (that.currentPage-1)*parseInt(that.tableData.rowsEachPage), that.tableData.rowsEachPage ];
+      currentRange = [ (that.currentPage-1)*parseInt(that.tableData.rowsEachPage), that.tableData.rowsEachPage ];
     }
 
     // action
     if( typeof doAction == 'undefined' ){
-      var action = {action: 'list', keys: false};
+      action = {action: 'list', keys: false};
     }
     else {
-      var action = doAction;
+      action = doAction;
     }
 
 
@@ -143,7 +146,6 @@ function cogumeloTable( tableId, tableUrl ) {
         window.location = window.location;
       },
       success: function(tableData) {
-
         that.tableData = tableData;
 
         that.clearData();
@@ -195,12 +197,13 @@ function cogumeloTable( tableId, tableUrl ) {
       that.currentTab = { key: that.tableData.tabs.tabsKey, default:that.tableData.tabs.defaultKey};
 
       if( that.tableData.tabs != false ){
+        var sel;
         $.each( that.tableData.tabs.tabs , function(i,e)  {
           if(i == that.currentTab.default){
-            var sel = ' SELECTED ';
+            sel = ' SELECTED ';
           }
           else {
-            var sel = ' ';
+            sel = ' ';
           }
           that.tabsContent.append('<option ' + sel + ' value="' + i + '">' + e + '</option>');
 
@@ -256,8 +259,8 @@ function cogumeloTable( tableId, tableUrl ) {
   that.getFilterValues = function() {
     that.extraFilters  = {};
     that.filtersContent.find('select, input').each( function(i,e) {
-      //cogumelo.log( $(e).attr('data-filter-id'), $(e).val() );
-//      eval('that.extraFilters.' + $(e).attr('data-filter-id') + ' = "' + $(e).val() + '"' );
+      // cogumelo.log( $(e).attr('data-filter-id'), $(e).val() );
+      // eval('that.extraFilters.' + $(e).attr('data-filter-id') + ' = "' + $(e).val() + '"' );
 
       eval( "that.extraFilters['" + $(e).attr('data-filter-id') + "'] = '" + $(e).val() + "'");
     });
@@ -387,22 +390,21 @@ function cogumeloTable( tableId, tableUrl ) {
     var orderDownImg = '<img src="'+cogumelo.publicConf.media+'/module/table/img/down.png">';
     var h = '<th><div class="selectAllPages" style="display:none">'+__('Select all pages')+'</div><div class="selectAll"><input class="headCheckBox" type="checkbox" '+checkBoxSelected+'><i class="dropSelectAll fa fa-align-left"></div></th>';
 
-
     $.each(that.tableData.colsDef, function(i,e)  {
-
+      var ord;
       if( that.getOrderValue(i) == 1 ) {
-        var ord = orderDownImg;
+        ord = orderDownImg;
       }
       else {
-        var ord = orderUpImg;
+        ord = orderUpImg;
       }
 
-
+      var colClasses;
       if( typeof $(that.tableData.colsClasses).attr( i )  != 'undefined' ) {
-        var colClasses = $(that.tableData.colsClasses).attr( i );
+        colClasses = $(that.tableData.colsClasses).attr( i );
       }
       else {
-        var colClasses = '';
+        colClasses = '';
       }
 
 
@@ -417,7 +419,6 @@ function cogumeloTable( tableId, tableUrl ) {
     });
 
     that.tableContent.append('<tr>'+h+'</tr>');
-
 
     // select/unselect all checkbox
     $(that.headTableCheckBoxQstr).on("change", function(el) {
@@ -478,7 +479,7 @@ function cogumeloTable( tableId, tableUrl ) {
     //$(that.headTableCheckBoxQstr).attr('checked', true);
     that.load();
 
-  },
+  };
 
 
   that.setSearchValue = function(  ) {
@@ -554,7 +555,11 @@ function cogumeloTable( tableId, tableUrl ) {
 
   };
 
-
+  that.setElementsEachPage = function( number ) {
+    that.tableData.rowsEachPage = number;
+    that.setPager(1);
+    that.load();
+  };
 
   that.setRows = function(){
     var trows = '';
@@ -575,12 +580,12 @@ function cogumeloTable( tableId, tableUrl ) {
       trows += '<td> <input '+blockSelectedDisabled+' class="eachRowCheckBox"  rowReferenceKey="'+row.rowReferenceKey+'" type="checkbox"> </td>';
 
       $.each( row, function( i, e ){
-
+        var cowClasses;
         if( typeof $(that.tableData.colsClasses).attr( i )  != 'undefined' ) {
-          var cowClasses = $(that.tableData.colsClasses).attr( i );
+          cowClasses = $(that.tableData.colsClasses).attr( i );
         }
         else {
-          var cowClasses = '';
+          cowClasses = '';
         }
 
         if( i != 'rowReferenceKey' && i != 'tableUrlString' ){
@@ -598,12 +603,6 @@ function cogumeloTable( tableId, tableUrl ) {
     $(that.allTableCheckBoxesQstr).on('change', function( chClick ){
       $(that.headTableCheckBoxQstr).prop('checked', false);
     });
-  };
-
-  that.setElementsEachPage = function( number ) {
-    that.tableData.rowsEachPage = number;
-    that.setPager(1);
-    that.load();
   };
 
   that.actionExport = function() {
@@ -675,12 +674,12 @@ function cogumeloTable( tableId, tableUrl ) {
       act = that.actionSelect.val();
 
     if( act != '0' && selectedRows.length > 0 ){
-
+      var numberStrForAction;
       if( this.selectAllPagesValue == true ){
-        var numberStrForAction = that.tableData.totalRows;
+        numberStrForAction = that.tableData.totalRows;
       }
       else {
-        var numberStrForAction = selectedRows.length;
+        numberStrForAction = selectedRows.length;
       }
 
       cogumelo.clientMsg.confirm(
@@ -757,12 +756,6 @@ function cogumeloTable( tableId, tableUrl ) {
     that.actionExport();
   });
 
-
-  // pager events
-  that.rowsEachPage.on("change", function( inputEachPage ){
-    that.setElementsEachPage( $(inputEachPage.target).val() );
-  });
-
   // tabs change
   that.tabsContent.on("change", function(){
     that.setPager(1);
@@ -786,6 +779,10 @@ function cogumeloTable( tableId, tableUrl ) {
 
 
   // pager events
+  that.rowsEachPage.on("change", function( inputEachPage ){
+    that.setElementsEachPage( $(inputEachPage.target).val() );
+  });
+
   that.pagersCurrent.on("change", function( inputCurrentPage ){
     that.setPager( $(inputCurrentPage.target).val() );
   });

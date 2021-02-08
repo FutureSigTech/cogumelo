@@ -1,25 +1,13 @@
 <?php
 
-
 global $COGUMELO_RELATIONSHIP_MODEL;
 $COGUMELO_RELATIONSHIP_MODEL = array();
 
-
 /**
- * Utils for VO objects and relationship
- *
- * @package Cogumelo Model
- *
- * PHPMD: Suppress all warnings from these rules.
- * @SuppressWarnings(PHPMD.Superglobals)
- * @SuppressWarnings(PHPMD.ElseExpression)
- * @SuppressWarnings(PHPMD.StaticAccess)
- * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
- * @SuppressWarnings(PHPMD.CamelCaseVariableName)
- * @SuppressWarnings(PHPMD.CyclomaticComplexity)
- * @SuppressWarnings(PHPMD.NPathComplexity)
- * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
- */
+* Utils for VO objects and relationship
+*
+* @package Cogumelo Model
+*/
 class VOUtils {
 
 

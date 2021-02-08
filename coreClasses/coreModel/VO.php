@@ -729,7 +729,6 @@ Class VO
   }
 
 
-
   /**
    * Cursom select string for listIttems
    *
@@ -739,9 +738,9 @@ Class VO
     return false;
   }
 
+
   function customSelectListCount( $extraArrayParam ) {
     return false;
   }
-
 
 }

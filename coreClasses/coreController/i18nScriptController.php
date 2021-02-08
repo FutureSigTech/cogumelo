@@ -174,17 +174,19 @@ class i18nScriptController {
   /*
   * Check if already exists a translation file PO in App
   **/
-  public function checkAppTranslations( $l ) {
+  public function checkAppTranslations( $path ) {
     $exist = false;
+
     $transFile = $this->textdomain.'_app.po';
-    if (is_dir($l)){
-      $handle = opendir($l);
-      while ($file = readdir($handle)) {
-        if ($file==$transFile){
+    if( is_dir($path) ) {
+      $handle = opendir($path);
+      while( $file = readdir($handle) ) {
+        if( $file==$transFile ) {
           $exist = true;
         }
       }
     }
+
     return $exist;
   }
 
@@ -193,7 +195,9 @@ class i18nScriptController {
   **/
   public function getModulePo($module){
     // $path = $module;
+
     $files = CacheUtilsController::listFolderFiles($module, array('php','js','tpl'), false);
+
     $filesModule = array();
     foreach($files as $file){
       $parts = explode('.',$file);
@@ -244,15 +248,15 @@ class i18nScriptController {
           exec( $this->script_msgcat.' '.$module.'/'.$this->textdomain.'_'.$l.'_tmp.po '.$module.'/'.$this->textdomain.'_'.$l.'_prev.po');
         }
         else{
-           if(file_exists($module.'/'.$this->textdomain.'_'.$l.'_tpl.po')){
-             if($this->checkModuleTranslations($module, $l)){
-               exec( $this->script_msgcat.' '.$module.'/'.$this->textdomain.'_'.$l.'_tmp.po '.$module.'/'.$this->textdomain.'_'.$l.'.po '.$module.'/'.$this->textdomain.'_'.$l.'_tpl.po');
-             }
-             else{
-               exec( $this->script_msgcat.' '.$module.'/'.$this->textdomain.'_'.$l.'_tmp.po '.$module.'/'.$this->textdomain.'_'.$l.'_tpl.po');
-             }
-           }
-         }
+          if(file_exists($module.'/'.$this->textdomain.'_'.$l.'_tpl.po')){
+            if($this->checkModuleTranslations($module, $l)){
+              exec( $this->script_msgcat.' '.$module.'/'.$this->textdomain.'_'.$l.'_tmp.po '.$module.'/'.$this->textdomain.'_'.$l.'.po '.$module.'/'.$this->textdomain.'_'.$l.'_tpl.po');
+            }
+            else{
+              exec( $this->script_msgcat.' '.$module.'/'.$this->textdomain.'_'.$l.'_tmp.po '.$module.'/'.$this->textdomain.'_'.$l.'_tpl.po');
+            }
+          }
+        }
       }
       if(file_exists($module.'/'.$this->textdomain.'_'.$l.'_js.po')){
         if(file_exists($module.'/'.$this->textdomain.'_'.$l.'_tmp.po')){
@@ -371,6 +375,7 @@ class i18nScriptController {
 
       foreach($this->dir_lc as $l=>$lang){
         exec( $this->script_msgcat.' '.$path.$this->textdomain.'_'.$system.'_'.$l.'.po '.$all[$l]);
+        Cogumelo::log( 'cp '.$path.'/'.$this->textdomain.'_'.$system.'_'.$l.'.po '.$lang.'/'.$this->textdomain.'_'.$system.'.po', 'i18nScriptController' );
         exec('cp '.$path.'/'.$this->textdomain.'_'.$system.'_'.$l.'.po '.$lang.'/'.$this->textdomain.'_'.$system.'.po');
         exec('rm '.$path.'/'.$this->textdomain.'_'.$system.'_'.$l.'.po');
       }
@@ -388,6 +393,7 @@ class i18nScriptController {
       exec('mkdir '.$module.'/translations');
       $module = $module.'/translations';
     }
+
     foreach( $this->lang as $l => $lang) {
       $oldFile = $module.'/'.$this->textdomain.'_'.$l.'.po';
       switch($type){
@@ -422,11 +428,11 @@ class i18nScriptController {
   function generateModuleTplPo($module,$filesTpl){
 
     if(is_dir($module.'/translations')){
-      $module = $module.'/translations';
+      $moduleTranslations = $module.'/translations';
     }
     else{
       exec('mkdir '.$module.'/translations');
-      $module = $module.'/translations';
+      $moduleTranslations = $module.'/translations';
     }
     $smartygettext = Cogumelo::getSetupValue( 'dependences:manualPath' ).'/smarty-gettext/tsmarty2c.php';
     exec( 'chmod 700 '.$smartygettext );
@@ -435,7 +441,9 @@ class i18nScriptController {
     foreach ($filesTpl as $a){
       $a_parts = explode(APP_BASE_PATH,$a);
       $name = str_replace('/','_',$a_parts[1]);
-      exec('cp '.$a.' '.Cogumelo::getSetupValue( 'smarty:tmpPath' ).'/'.$name);
+      if($name){
+        exec('cp '.$a.' '.Cogumelo::getSetupValue( 'smarty:tmpPath' ).'/'.$name);
+      }
 
       $a_cogumelo_parts = explode($this->dir_modules_c,$a);
       if(count($a_cogumelo_parts)>1){
@@ -451,8 +459,9 @@ class i18nScriptController {
         }
       }
     }
+
     foreach( $this->lang as $l => $lang ) {
-      exec($smartygettext.' -o '.$module.'/'.$this->textdomain.'_'.$l.'_tpl.po '.Cogumelo::getSetupValue( 'smarty:tmpPath' ));
+      exec($smartygettext.' -o '.$moduleTranslations.'/'.$this->textdomain.'_'.$l.'_tpl.po '.Cogumelo::getSetupValue( 'smarty:tmpPath' ));
     }
   }
 
@@ -498,6 +507,7 @@ class i18nScriptController {
     foreach ($filesTpl as $a){
       $a_parts = explode(APP_BASE_PATH,$a);
       $name = str_replace('/','_',$a_parts[1]);
+      Cogumelo::log( 'cp '.$a.' '.Cogumelo::getSetupValue( 'smarty:tmpPath' ).'/'.$name, 'i18nScriptController' );
       exec('cp '.$a.' '.Cogumelo::getSetupValue( 'smarty:tmpPath' ).'/'.$name);
     }
 
@@ -524,6 +534,7 @@ class i18nScriptController {
       exec( $this->script_msgcat.' '.$l.'/'.$this->textdomain.'.po '.$l.'/'.$this->textdomain.'_app.po '.$l.'/'.$this->textdomain.'_cogumelo.po '.$poDistr.' '.$l.'/'.$this->textdomain.'_moduleApp.po');
 
       // We compile the resultant PO and generate a json for client side
+      Cogumelo::log( 'msgfmt -c -v -o '.$l.'/'.$this->textdomain.'.mo '.$l.'/'.$this->textdomain.'.po', 'i18nScriptController' );
       exec('msgfmt -c -v -o '.$l.'/'.$this->textdomain.'.mo '.$l.'/'.$this->textdomain.'.po');
       exec('php '.$this->dir_modules_c.'/i18nServer/classes/po2json.php -i '.$l.'/'.$this->textdomain.'.po -o '.$l.'/translation.json');
     }

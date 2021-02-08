@@ -20,7 +20,6 @@ error_reporting( -1 );
  * Gestión de formularios. Campos, Validaciones, Html, Ficheros, ...
  *
  * @package Module Form
- *
  **/
 class FormController implements Serializable {
 
@@ -641,20 +640,18 @@ class FormController implements Serializable {
             $this->setFieldParam( $fieldName, 'dataMultiInfo', $formPost[ $fieldName ][ 'dataMultiInfo' ] );
           }
 
-          /*
-            {
-              "value":["67","69","71"],
-              "dataMultiInfo":{
-                "67":{"data-order":"1","data-term-icon":"","data-term-idname":"eduTIC"},
-                "69":{"data-order":"2","data-term-icon":"","data-term-idname":"flipped","data-term-parent":"68"},
-                "71":{"data-order":"3","data-term-icon":"","data-term-idname":"gamificacion","data-term-parent":"68"}
-              }
-            },
-            {
-              "value":false,
-              "dataInfo":{"data-algo":"true"}
-            }
-          */
+          // {
+          //   "value":["67","69","71"],
+          //   "dataMultiInfo":{
+          //     "67":{"data-order":"1","data-term-icon":"","data-term-idname":"eduTIC"},
+          //     "69":{"data-order":"2","data-term-icon":"","data-term-idname":"flipped","data-term-parent":"68"},
+          //     "71":{"data-order":"3","data-term-icon":"","data-term-idname":"gamificacion","data-term-parent":"68"}
+          //   }
+          // },
+          // {
+          //   "value":false,
+          //   "dataInfo":{"data-algo":"true"}
+          // }
 
           if( $fieldType !== 'file' ) {
             if( isset( $formPost[ $fieldName ][ 'value' ] ) ) {

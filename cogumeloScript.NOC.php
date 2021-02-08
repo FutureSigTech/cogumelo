@@ -27,7 +27,8 @@ if( !defined('DOCKER_ENV') ) {
 
 
 if( empty( $_SERVER['DOCUMENT_ROOT'] ) ) {
-  $_SERVER['DOCUMENT_ROOT'] = ( defined('WEB_BASE_PATH') ) ? WEB_BASE_PATH : getcwd().'/httpdocs';
+  $webBasePath = Cogumelo::getSetupValue( 'setup:webBasePath' );
+  $_SERVER['DOCUMENT_ROOT'] = !empty($webBasePath) ? $webBasePath : ( getcwd().'/httpdocs' );
   echo( "\n".'Forzando SERVER[DOCUMENT_ROOT] = '.$_SERVER['DOCUMENT_ROOT']."\n" );
 }
 
@@ -249,11 +250,32 @@ function printOptions(){
     * restoreDB               Restore a database
 
   + Internationalization
-    * generateFrameworkTranslations    Update text to translate in cogumelo and geozzy modules
-    * generateAppTranslations    Get text to translate in the app
-    * precompileTranslations     Generate the intermediate POs(geozzy, cogumelo and app)
-    * compileTranslations     Mix geozzy, cogumelo and app POS in one and compile it to get the translations ready
+    * generateFrameworkTranslations  Update text to translate in cogumelo and geozzy modules
+    * generateAppTranslations        Get text to translate in the app
+    * precompileTranslations         Generate the intermediate POs(geozzy, cogumelo and app)
+    * compileTranslations            Mix geozzy, cogumelo and app POS in one and compile it to get the translations ready
   \n\n";
+}
+
+function callCogumeloServer( $param ) {
+  $result = 'FAIL';
+
+  echo "\n".'callCogumeloServer '.$param.' ...'."\n";
+
+  $scriptCogumeloServerUrl = Cogumelo::getSetupValue( 'script:cogumeloServerUrl' );
+  if( !empty( $scriptCogumeloServerUrl ) ) {
+    // EVITAMOS CONTROLES HTTPS
+    $contextOptions = stream_context_create( [
+      "ssl" => [
+        "verify_peer" => false,
+        "verify_peer_name" => false,
+      ],
+    ] );
+    $result = file_get_contents( $scriptCogumeloServerUrl . '?q='.$param, false, $contextOptions );
+  }
+
+  echo 'callCogumeloServer '.$param.': '.$result."\n";
+  return $result;
 }
 
 function actionPrecompileTranslations() {
@@ -347,16 +369,7 @@ function actionFlush() {
   $scriptCogumeloServerUrl = Cogumelo::getSetupValue( 'script:cogumeloServerUrl' );
   if( !empty( $scriptCogumeloServerUrl ) ) {
     echo ' - Cogumelo PHP cache flush...'."\n";
-
-    // TODO: EVITAMOS CONTROLES HTTPS
-    $contextOptions = stream_context_create( [
-      "ssl" => [
-        "verify_peer" => false,
-        "verify_peer_name" => false,
-      ],
-    ] );
-    echo $scriptCogumeloServerUrl . '?q=flush';
-    echo file_get_contents( $scriptCogumeloServerUrl . '?q=flush', false, $contextOptions );
+    callCogumeloServer('flush');
   }
   else {
     echo ' - Cogumelo PHP cache flush DESCARTADO.'."\n";
@@ -369,6 +382,10 @@ function actionGenerateClientCaches() {
   require_once( ModuleController::getRealFilePath( 'mediaserver.php', 'mediaserver' ) );
   mediaserver::autoIncludes();
   CacheUtilsController::generateAllCaches();
+
+  // update timestamp file
+  $cache_timestamp = new DateTime();
+  file_put_contents( Cogumelo::getSetupValue( 'setup:appTmpPath' ).'/CACHE_FLUSH_TIMESTAMP.php', '<?php define("CACHE_FLUSH_TIMESTAMP", '.$cache_timestamp->getTimestamp().' );');
 
   echo "\nClient caches generated\n\n";
 }
@@ -390,14 +407,17 @@ function createDB(){
 function makeAppPaths() {
   echo "makeAppPaths\n";
 
-  // global $lc;
-
-  $dirList = array( APP_TMP_PATH,
+  $prepareDirs = array( APP_TMP_PATH,
     Cogumelo::getSetupValue( 'smarty:configPath' ), Cogumelo::getSetupValue( 'smarty:compilePath' ),
     Cogumelo::getSetupValue( 'smarty:cachePath' ), Cogumelo::getSetupValue( 'smarty:tmpPath' ),
     Cogumelo::getSetupValue( 'mod:mediaserver:tmpCachePath' ),
-    // WEB_BASE_PATH.'/'.Cogumelo::getSetupValue( 'mod:mediaserver:path' ),
-    WEB_BASE_PATH.'/'.Cogumelo::getSetupValue( 'mod:mediaserver:cachePath' ),
+    Cogumelo::getSetupValue( 'setup:webBasePath' ).'/'.Cogumelo::getSetupValue( 'mod:mediaserver:cachePath' ),
+
+    // Dependences
+    Cogumelo::getSetupValue( 'setup:webBasePath' ).'/vendor',
+    Cogumelo::getSetupValue( 'dependences:bowerPath' ), Cogumelo::getSetupValue( 'dependences:yarnPath' ),
+    Cogumelo::getSetupValue( 'dependences:composerPath' ), Cogumelo::getSetupValue( 'dependences:manualPath' ),
+
     Cogumelo::getSetupValue( 'logs:path' ),
     Cogumelo::getSetupValue( 'session:savePath' ),
     Cogumelo::getSetupValue( 'mod:form:tmpPath' ),
@@ -408,17 +428,15 @@ function makeAppPaths() {
   );
 
   foreach( Cogumelo::getSetupValue( 'lang:available' ) as $lang ) {
-    $dirList[] = Cogumelo::getSetupValue( 'i18n:localePath' ).'/'.$lang['i18n'].'/LC_MESSAGES';
+    $prepareDirs[] = Cogumelo::getSetupValue( 'i18n:localePath' ).'/'.$lang['i18n'].'/LC_MESSAGES';
   }
 
   $sessionSavePath = Cogumelo::getSetupValue('session:savePath');
   if( !empty( $sessionSavePath ) ) {
-    $dirList[] = $sessionSavePath;
+    $prepareDirs[] = $sessionSavePath;
   }
 
-  // echo "\n\nMKDIR\n".json_encode($dirList)."\n\n";
-
-  foreach( $dirList as $dir ) {
+  foreach( $prepareDirs as $dir ) {
     if( $dir && $dir !== '' && !is_dir( $dir ) ) {
       if( !mkdir( $dir, 0750, true ) ) {
         echo 'ERROR: Imposible crear el dirirectorio: '.$dir."\n";
@@ -433,10 +451,20 @@ function setPermissions( $devel = false ) {
 
   $extPerms = $devel ? ',ugo+rX' : '';
   $sudo = 'sudo ';
-  $sudoAllowed = Cogumelo::getSetupValue('script:sudoAllowed');
+
+  $sudoAllowed = true;
+  if( Cogumelo::issetSetupValue('script:sudoAllowed') ) {
+    $sudoAllowed = Cogumelo::getSetupValue('script:sudoAllowed');
+  }
+
   $prjLivePath = Cogumelo::getSetupValue('setup:prjLivePath');
 
-  echo( "setPermissions ".($devel ? 'DEVEL' : '')."\n" );
+  if( DOCKER_ENV ) {
+    $sudo = ''; // usase como root
+    $sudoAllowed = true;
+  }
+
+  echo( "setPermissions ".($devel ? 'Devel' : '')."\n" );
 
   if( IS_DEVEL_ENV || $sudoAllowed ) {
     $dirsString =
@@ -501,7 +529,7 @@ function setPermissions( $devel = false ) {
     exec( $sudo.$fai );
   }
   else {
-    echo( " - NON se executa chmod APP_TMP_PATH\n" );
+    echo( " - NON se executa ${sudo}chmod ug+rwX$extPerms dirsWriteString\n" );
   }
 
   if( IS_DEVEL_ENV || $sudoAllowed ) {
@@ -510,10 +538,10 @@ function setPermissions( $devel = false ) {
     $sessionSavePath = Cogumelo::getSetupValue( 'session:savePath' );
     if( !empty($sessionSavePath) ) {
       $fai = 'chgrp -R www-data '.$sessionSavePath;
-      echo( "  - Executamos $fai\n" );
+      echo( " - Executamos ${sudo}$fai\n" );
       exec( $sudo.$fai );
       $fai = 'chmod -R ug+rwX'.$extPerms.' '.$sessionSavePath;
-      echo( "  - Executamos $fai\n" );
+      echo( " - Executamos ${sudo}$fai\n" );
       exec( $sudo.$fai );
     }
 
@@ -521,7 +549,7 @@ function setPermissions( $devel = false ) {
     $backupPath = Cogumelo::getSetupValue( 'script:backupPath' );
     if( !empty($backupPath) ) {
       $fai = 'chmod -R go-rwx '.$backupPath;
-      echo( "  - Executamos $fai\n" );
+      echo( " - Executamos ${sudo}$fai\n" );
       exec( $sudo.$fai );
     }
   }
@@ -614,11 +642,6 @@ function readStdin( $prompt ) {
 
 /**
  * Get a password from the shell.
- * This function works on *nix systems only and requires shell_exec and stty.
- *
- * @param boolean $stars Wether or not to output stars for given characters
- *
- * @return string
  */
 function getPassword( $stars = false ) {
   // Get current style
@@ -663,7 +686,7 @@ function rmdirRec( $dir, $removeContainer = true ) {
   // error_log( "rmdirRec( $dir )" );
 
   $dir = rtrim( $dir, '/' );
-  if( !empty( $dir ) && strpos( $dir, PRJ_BASE_PATH ) === 0 && is_dir( $dir ) ) {
+  if( !empty( $dir ) && strpos( $dir, Cogumelo::getSetupValue('setup:prjBasePath') ) === 0 && is_dir( $dir ) ) {
     $dirElements = scandir( $dir );
     if( !empty( $dirElements ) ) {
       foreach( $dirElements as $object ) {

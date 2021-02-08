@@ -29,9 +29,10 @@ CKEDITOR.editorConfig = function( config ) {
   config.height = '150';
 };
 
+
 // bootstrap-ckeditor-modal-fix
 // hack to fix ckeditor/bootstrap compatiability bug when ckeditor appears in a bootstrap modal dialog
-
+//
 // Include this AFTER both bootstrap and ckeditor are loaded.
 $.fn.modal.Constructor.prototype.enforceFocus = function() {
   var modalThis = this;
