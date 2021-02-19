@@ -1,14 +1,14 @@
 <?php
-use Leafo\ScssPhp\Compiler;
+
+use ScssPhp\ScssPhp\Compiler;
+// use Leafo\ScssPhp\Compiler;
 
 class ScssController {
 
   var $scss = false;
   private $minimify = false;
 
-  public function __construct() {
-
-  }
+  public function __construct() { }
 
   /**
    * Compile scss file
@@ -20,11 +20,13 @@ class ScssController {
   public function compile( $scssFilePath, $resultFilePath, $moduleName, $scssTmpDir ) {
     // error_log( __METHOD__.' scssPath:'.$scssFilePath.', resPath:'.$resultFilePath.', module: '.$moduleName );
     $ret = true;
-/*
-    if( $this->scss === false ) {
-      $this->scss = new scssc();
-    }
-*/
+
+    /*
+      if( $this->scss === false ) {
+        $this->scss = new scssc();
+      }
+    */
+
     if( $this->scss === false ) {
       $this->scss = new Compiler();
     }
@@ -50,7 +52,7 @@ class ScssController {
         $m = '';
       }
 
-//echo "\n".'@import "'.$m.'/classes/view/templates/'.$scssFilePath.'";';
+      //echo "\n".'@import "'.$m.'/classes/view/templates/'.$scssFilePath.'";';
 
       $InitialScssToCompile =
         $this->getScssFromSetup() .
@@ -155,9 +157,8 @@ class ScssController {
         $arrAssoc = $this->isAssoc( $value );
         $arrResult = array();
         if( !$arrAssoc ) {
-          foreach( $value as $valueKey => $valueData ) {
+          foreach( $value as $valueData ) {
             if( is_array( $valueData ) ) {
-
               $arrResult = null;
               break;
             }
