@@ -1,17 +1,7 @@
 <?php
 
-
-/**
- * PHPMD: Suppress all warnings from these rules.
- * @SuppressWarnings(PHPMD.Superglobals)
- * @SuppressWarnings(PHPMD.ElseExpression)
- * @SuppressWarnings(PHPMD.StaticAccess)
- * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
- * @SuppressWarnings(PHPMD.CamelCaseVariableName)
- * @SuppressWarnings(PHPMD.CyclomaticComplexity)
- * @SuppressWarnings(PHPMD.NPathComplexity)
- * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
- **/
+// echo "\n\nScript  user: ".get_current_user();
+// echo "\n\nPHP run user: ".(posix_getpwuid(posix_geteuid()))['name']."\n\n";
 
 require_once( COGUMELO_LOCATION.'/coreClasses/CogumeloClass.php' );
 require_once( APP_BASE_PATH.'/Cogumelo.php' );
@@ -29,6 +19,11 @@ require_once( ModuleController::getRealFilePath('devel.php', 'devel') );
 require_once( ModuleController::getRealFilePath('classes/controller/DevelDBController.php', 'devel') );
 require_once( ModuleController::getRealFilePath('classes/controller/CacheUtilsController.php', 'mediaserver') );
 Cogumelo::load('coreController/ModuleController.php');
+
+
+if( !defined('DOCKER_ENV') ) {
+  define( 'DOCKER_ENV', false );
+}
 
 
 if( empty( $_SERVER['DOCUMENT_ROOT'] ) ) {
@@ -57,7 +52,6 @@ if( $argc > 1 ) {
       if( Cogumelo::getSetupValue('db:name') ) {
         ( IS_DEVEL_ENV ) ? setPermissionsDevel() : setPermissions();
         backupDB();
-
         createDB();
       }
       else {
@@ -68,7 +62,6 @@ if( $argc > 1 ) {
     case 'generateModel':
       if( Cogumelo::getSetupValue('db:name') ) {
         ( IS_DEVEL_ENV ) ? setPermissionsDevel() : setPermissions();
-
         backupDB();
         createRelSchemes();
         generateModel();
@@ -82,7 +75,6 @@ if( $argc > 1 ) {
     case 'deploy':
       if( Cogumelo::getSetupValue('db:name') ) {
         ( IS_DEVEL_ENV ) ? setPermissionsDevel() : setPermissions();
-
         backupDB();
         createRelSchemes();
         deploy();
@@ -112,7 +104,6 @@ if( $argc > 1 ) {
     case 'backupDB': // do the backup of the db
       if( Cogumelo::getSetupValue('db:name') ) {
         ( IS_DEVEL_ENV ) ? setPermissionsDevel() : setPermissions();
-
         $file = ( $argc > 2 ) ? $argv[2].'.sql' : false;
         backupDB( $file );
       }
@@ -126,6 +117,8 @@ if( $argc > 1 ) {
         if( $argc > 2 ) {
           $file = $argv[2]; //name of the backup file
           restoreDB( $file );
+          createRelSchemes();
+          flushAll();
         }
         else {
           echo "You must specify the file to restore\n";
@@ -225,7 +218,9 @@ if( $argc > 1 ) {
     //   break;
 
     case 'generateClientCaches':
+      ( IS_DEVEL_ENV ) ? setPermissionsDevel() : setPermissions();
       actionGenerateClientCaches();
+      ( IS_DEVEL_ENV ) ? setPermissionsDevel() : setPermissions();
       break;
 
     case 'garbageCollection':
@@ -264,7 +259,7 @@ function printOptions(){
 
     * deploy                  Deploy
       * createRelSchemes      Create JSON Model Rel Schemes
-      * simulateDeploy        Simulate deploy SQL codes
+    * simulateDeploy          Simulate deploy SQL codes
 
     * backupDB                Do a DB backup (optional arg: filename)
     * restoreDB               Restore a database
@@ -472,26 +467,12 @@ function compileForLoopScss( $resource, $path ) {
 }
 
 function createDB(){
-
   echo "\nDatabase configuration\n";
 
-  $user = false;
-
-  $fileConnectionsInfo = APP_BASE_PATH.'/conf/inc/default-connections-info.php';
-  if( file_exists( $fileConnectionsInfo ) ) {
-    include $fileConnectionsInfo;
-    if( defined( 'DDBB_PRIV_USER' ) && defined( 'DDBB_PRIV_PASS' ) ) {
-      $user = DDBB_PRIV_USER;
-      $passwd = DDBB_PRIV_PASS;
-    }
-  }
-
-  if( !$user ) {
-    $user = readStdin( "Enter an user with privileges:\n" );
-    fwrite( STDOUT, "Enter the password:\n" );
-    $passwd = getPassword( true );
-    fwrite( STDOUT, "\n--\n" );
-  }
+  $user = readStdin( "Enter an user with privileges:\n" );
+  fwrite( STDOUT, "Enter the password:\n" );
+  $passwd = getPassword( true );
+  fwrite( STDOUT, "\n--\n" );
 
   $develdbcontrol = new DevelDBController( $user, $passwd );
   $develdbcontrol->createSchemaDB();
@@ -516,7 +497,7 @@ function makeAppPaths() {
     Cogumelo::getSetupValue( 'mod:filedata:filePath' ),
     Cogumelo::getSetupValue( 'mod:filedata:cachePath' ),
     Cogumelo::getSetupValue( 'script:backupPath' ),
-    Cogumelo::getSetupValue( 'i18n:localePath' )
+    Cogumelo::getSetupValue( 'i18n:path' ), Cogumelo::getSetupValue( 'i18n:localePath' )
   );
 
   foreach( Cogumelo::getSetupValue( 'lang:available' ) as $lang ) {
@@ -543,8 +524,6 @@ function makeAppPaths() {
 function setPermissions( $devel = false ) {
   makeAppPaths();
 
-  # DOCKER_ENV
-
   $extPerms = $devel ? ',ugo+rX' : '';
   $sudo = 'sudo ';
   $sudoAllowed = Cogumelo::getSetupValue('script:sudoAllowed');
@@ -552,19 +531,19 @@ function setPermissions( $devel = false ) {
 
   echo( "setPermissions ".($devel ? 'Devel' : '')."\n" );
 
-  $dirsString =
-    WEB_BASE_PATH.' '.APP_BASE_PATH.' '.APP_TMP_PATH.' '.
-    Cogumelo::getSetupValue( 'smarty:configPath' ).' '.Cogumelo::getSetupValue( 'smarty:compilePath' ).' '.
-    Cogumelo::getSetupValue( 'smarty:cachePath' ).' '.Cogumelo::getSetupValue( 'smarty:tmpPath' ).' '.
-    Cogumelo::getSetupValue( 'mod:mediaserver:tmpCachePath' ).' '.
-    WEB_BASE_PATH.'/'.Cogumelo::getSetupValue( 'mod:mediaserver:cachePath' ).' '.
-    Cogumelo::getSetupValue( 'logs:path' ).' '.
-    Cogumelo::getSetupValue( 'mod:form:tmpPath' ).' '.
-    Cogumelo::getSetupValue( 'mod:filedata:filePath' ).' '.
-    Cogumelo::getSetupValue( 'i18n:localePath' )
-  ;
-
   if( IS_DEVEL_ENV || $sudoAllowed ) {
+    $dirsString =
+      WEB_BASE_PATH.' '.APP_BASE_PATH.' '.APP_TMP_PATH.' '.
+      Cogumelo::getSetupValue( 'smarty:configPath' ).' '.Cogumelo::getSetupValue( 'smarty:compilePath' ).' '.
+      Cogumelo::getSetupValue( 'smarty:cachePath' ).' '.Cogumelo::getSetupValue( 'smarty:tmpPath' ).' '.
+      Cogumelo::getSetupValue( 'mod:mediaserver:tmpCachePath' ).' '.
+      WEB_BASE_PATH.'/'.Cogumelo::getSetupValue( 'mod:mediaserver:cachePath' ).' '.
+      Cogumelo::getSetupValue( 'logs:path' ).' '.
+      Cogumelo::getSetupValue( 'mod:form:tmpPath' ).' '.
+      Cogumelo::getSetupValue( 'mod:filedata:filePath' ).' '.
+      Cogumelo::getSetupValue( 'i18n:path' ).' '.Cogumelo::getSetupValue( 'i18n:localePath' )
+    ;
+
     echo( " - Executamos chgrp general \n" );
     if( $prjLivePath ) {
       exec( $sudo.' chgrp www-data '.$prjLivePath );
@@ -604,7 +583,7 @@ function setPermissions( $devel = false ) {
       // Varios
       Cogumelo::getSetupValue( 'logs:path' ).' '.
       // Cogumelo::getSetupValue( 'session:savePath' ).' '.
-      // Cogumelo::getSetupValue( 'i18n:localePath' ).' '.
+      // Cogumelo::getSetupValue( 'i18n:path' ).' '.Cogumelo::getSetupValue( 'i18n:localePath' ).' '.
       ''
     ;
 
@@ -661,10 +640,13 @@ function backupDB( $file = false ) {
   $dir = Cogumelo::getSetupValue('script:backupPath');
 
   $params = '-h '.$confDB['hostname'].' -P '.$confDB['port'].' ';
-  $params .= '--hex-blob --complete-insert --skip-extended-insert ';
+  $params .= '-f ';
+  $params .= '--hex-blob ';
+  $params .= '--no-tablespaces ';
+  // $params .= '--complete-insert --skip-extended-insert ';
   $params .= '-u '.$confDB['user'].' -p'.$confDB['password'].' ';
-
-  $cmdBackup = 'mysqldump '.$params.' '.$confDB['name'].' > '.$dir.'/'.$file;
+  $cmdBackup = 'mysqldump '.$params.' '.$confDB['name'].' --result-file='.$dir.'/'.$file;
+  // echo "\n\n$cmdBackup\n";
 
   popen( $cmdBackup, 'r' );
   exec( 'gzip ' . $dir . '/' . $file );
