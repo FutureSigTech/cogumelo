@@ -628,7 +628,7 @@ class i18nScriptController {
         exec('rm '.$l.'/'.$this->textdomain.'_geozzy.po');
       }
       exec('rm '.$l.'/'.$this->textdomain.'_moduleApp.po');
-      exec('rm '.$l.'/'.$this->textdomain.'_app.po');
+      //exec('rm '.$l.'/'.$this->textdomain.'_app.po');
     }
   }
 
