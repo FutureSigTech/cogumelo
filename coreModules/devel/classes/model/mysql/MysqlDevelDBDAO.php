@@ -44,7 +44,8 @@ class MysqlDevelDBDAO extends MysqlDAO {
     $resultado[] = $this->execSQL( $connection, $createSQL, [] );
 
 
-    $perms = " SELECT,INSERT,UPDATE,DELETE,INDEX,LOCK TABLES,ALTER,ALTER ROUTINE,CREATE,DROP,SHOW VIEW,CREATE VIEW ";
+    $perms = ' SELECT, INSERT, UPDATE, DELETE, INDEX, LOCK TABLES, '.
+      'ALTER, ALTER ROUTINE, CREATE, DROP, SHOW VIEW, CREATE VIEW ';
 
     $grantHosts = [ $confDB['hostname'], 'localhost' ];
     if( !empty($confDB['moreGrantHosts']) ) {

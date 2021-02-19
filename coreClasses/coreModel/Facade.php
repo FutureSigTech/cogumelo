@@ -109,6 +109,8 @@ class Facade
    */
   function __call($name, $args){
 
+    $data = false;
+
     // set arguments as string
     $args_str = '';
     foreach($args as $akey =>$arg){
@@ -124,5 +126,4 @@ class Facade
 
     return $data;
   }
-
 }

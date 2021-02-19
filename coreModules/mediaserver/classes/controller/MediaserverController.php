@@ -175,8 +175,8 @@ class MediaserverController {
     // excluding file name to create parent dir
     $dirname = dirname($path);
 
-    if( !is_dir ( $dirname ) ) {
-      mkdir( dirname($path ), 0755, true );
+    if( !is_dir( $dirname ) ) {
+      mkdir( $dirname, 0755, true );
     }
   }
 

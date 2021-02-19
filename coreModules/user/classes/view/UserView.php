@@ -296,7 +296,7 @@ class UserView extends View {
    *
    * @param request(id)
    *
-   * @return Form Html
+   * @return FormController
    **/
   public function userChangePasswordFormDefine( $id, $modeRecovery = false ){
 

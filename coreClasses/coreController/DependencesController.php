@@ -39,15 +39,17 @@ Class DependencesController {
     $this->allDependencesManual = array();
     $this->allDependencesYarn= array();
 
-    $moduleControl = new ModuleController(false, true);
+    // $moduleControl = new ModuleController(false, true);
     //Cargamos las dependencias de los modulos
     global $C_ENABLED_MODULES;
     foreach ( $C_ENABLED_MODULES as $mod ){
+      $dependences = [];
       $modUrl = ModuleController::getRealFilePath( $mod.".php" , $mod );
       require_once($modUrl);
-      if(! class_exists('extClass'. $mod)){
+      if( !class_exists('extClass'.$mod) ) {
         eval('class extClass'. $mod .' extends '.$mod. '{}');
       }
+
       eval('$objMod'.$mod.' = new extClass'.$mod.'();');
       eval('$dependences = $objMod'.$mod.'->dependences;');
 
@@ -149,17 +151,17 @@ Class DependencesController {
     }
 
     $finalArrayDep = array( "require" => array(), "config" => array( "vendor-dir" => ltrim(str_replace( PRJ_BASE_PATH, '', $composerPath), '/')));
-    foreach( $dependences as $depKey => $dep ){
+    foreach( $dependences as $dep ){
       foreach( $dep as $params ){
         $finalArrayDep['require'][$params[0]] = $params[1];
-        echo "\n === Composer add dependence: ".$params[0].$params[1]." \n\n";
+        echo " === Composer add dependence: ".$params[0].$params[1]."\n";
       }
     }
 
-    $jsonencoded = json_encode( $finalArrayDep );
-    $fh = fopen( PRJ_BASE_PATH . '/composer.json', 'w' );
-      fwrite( $fh, $jsonencoded );
-    fclose( $fh );
+    $jsonencoded = json_encode( $finalArrayDep, JSON_PRETTY_PRINT );
+    $fComposer = fopen( PRJ_BASE_PATH . '/composer.json', 'w' );
+      fwrite( $fComposer, $jsonencoded );
+    fclose( $fComposer );
 
     echo "\n === Composer dependences: Done ===\n\n";
   }
@@ -176,18 +178,18 @@ Class DependencesController {
       }
 
       $jsonYarnRC = "--production --no-lockfile --modules-folder httpdocs/vendor/yarn/ \n";
-      $fh = fopen( PRJ_BASE_PATH . '/.yarnrc', 'w' );
-        fwrite( $fh, $jsonYarnRC );
-      fclose( $fh );
+      $fYarn = fopen( PRJ_BASE_PATH . '/.yarnrc', 'w' );
+        fwrite( $fYarn, $jsonYarnRC );
+      fclose( $fYarn );
 
 
       $jsonYarn = '{ "name": "cogumelo", "version": "1.0.0", '.
         ' "repository": "https://github.com/Innoto/cogumelo", "license": "Apache-2.0", "dependencies": {}, "author": "Innoto" }';
-      $fh = fopen( PRJ_BASE_PATH . '/package.json', 'w' );
-        fwrite( $fh, $jsonYarn );
-      fclose( $fh );
+      $fPackage = fopen( PRJ_BASE_PATH . '/package.json', 'w' );
+        fwrite( $fPackage, $jsonYarn );
+      fclose( $fPackage );
 
-      foreach( $dependences as $depKey => $dep ){
+      foreach( $dependences as $dep ){
         foreach( $dep as $params ) {
           if( count($params) > 1 ) {
             $allparam = "";
@@ -198,8 +200,8 @@ Class DependencesController {
           else {
             $allparam = $params[0];
           }
-          echo( "Exec... yarn add ".$allparam."   \n" );
-          exec( 'cd '.PRJ_BASE_PATH.' ; yarn add '.$allparam.'' );
+          echo( "Exec... yarnpkg add ".$allparam."   \n" );
+          exec( 'cd '.PRJ_BASE_PATH.' ; yarnpkg add '.$allparam.'' );
         } // end foreach
       } // end foreach
 
@@ -221,15 +223,15 @@ Class DependencesController {
 
     $jsonBowerRC = '{ "directory": "'.ltrim(str_replace( PRJ_BASE_PATH, '', $bowerPath), '/').'", '.
       ' "json": "'. PRJ_BASE_PATH . '/bower.json" }';
-    $fh = fopen( PRJ_BASE_PATH . '/.bowerrc', 'w' );
-      fwrite( $fh, $jsonBowerRC );
-    fclose( $fh );
+    $fBowerRC = fopen( PRJ_BASE_PATH . '/.bowerrc', 'w' );
+      fwrite( $fBowerRC, $jsonBowerRC );
+    fclose( $fBowerRC );
 
     $jsonBower = '{ "name": "cogumelo", "version": "1.0a", '.
       ' "homepage": "https://github.com/Innoto/cogumelo", "license": "GPLv2", "dependencies": {} }';
-    $fh = fopen( PRJ_BASE_PATH . '/bower.json', 'w' );
-      fwrite( $fh, $jsonBower );
-    fclose( $fh );
+    $fBower = fopen( PRJ_BASE_PATH . '/bower.json', 'w' );
+      fwrite( $fBower, $jsonBower );
+    fclose( $fBower );
 
     foreach( $dependences as $depKey => $dep ){
       foreach( $dep as $params ) {
@@ -242,8 +244,10 @@ Class DependencesController {
         else {
           $allparam = $params[0];
         }
-        echo( "Exec... bower install ".$depKey."=".$allparam." --quiet\n" );
-        exec( 'cd '.PRJ_BASE_PATH.' ; bower install '.$depKey.'='.$allparam.' --quiet --allow-root' );
+        // echo( "Exec... bower install ".$depKey."=".$allparam." --quiet\n" );
+        // exec( 'cd '.PRJ_BASE_PATH.' ; bower install '.$depKey.'='.$allparam.' --quiet --allow-root' );
+        echo( "Exec... bower install ".$depKey."=".$allparam." --silent\n" );
+        exec( 'cd '.PRJ_BASE_PATH.' ; bower install '.$depKey.'='.$allparam.' --silent --allow-root' );
       } // end foreach
     } // end foreach
 
@@ -253,8 +257,8 @@ Class DependencesController {
   public function installDependencesYarn( $dependences ) {
     if(!empty($dependences) && !empty(Cogumelo::getSetupValue( 'dependences:yarnPath' ))){
       echo "\n === Yarn dependences ===\n\n";
-      echo("Exec... yarn install \n");
-      echo exec('cd '.PRJ_BASE_PATH.' ; yarn install');
+      echo("Exec... yarnpkg install \n");
+      echo exec('cd '.PRJ_BASE_PATH.' ; yarnpkg install');
       echo "\n === Yarn dependences: Done ===\n\n";
     }
   }
@@ -279,7 +283,7 @@ Class DependencesController {
       }
     }
 
-    foreach( $dependences as $depKey => $dep ){
+    foreach( $dependences as $dep ){
       foreach( $dep as $params ) {
         echo "Installing ".$params[0]."\n";
         $manualCmd = 'cp -r '.Cogumelo::getSetupValue( 'dependences:manualRepositoryPath' ).'/'.$params[0].' '.$manualPath.'/';
@@ -352,7 +356,8 @@ Class DependencesController {
           $paramYarn = explode('@', $includeElement['params'][0]);
           if(empty($paramYarn[0])){
             $include_folder = '@'.$paramYarn[1];
-          }else{
+          }
+          else{
             $include_folder = $paramYarn[0];
           }
         }

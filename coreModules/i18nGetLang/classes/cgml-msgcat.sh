@@ -12,7 +12,6 @@ MIX=$0.tmp.mix
 # rm $MIX
 # touch $MIX
 truncate -s 0 $MIX
-# echo '' > $MIX
 
 
 for PO in "${@:2}"

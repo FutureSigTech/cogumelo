@@ -106,6 +106,7 @@ function cogumeloTable( tableId, tableUrl ) {
   that.load = function( doAction, res ) {
 
     var currentRange;
+    var action;
 
     // range
     if( !that.tableData ) {
@@ -196,7 +197,7 @@ function cogumeloTable( tableId, tableUrl ) {
       that.currentTab = { key: that.tableData.tabs.tabsKey, default:that.tableData.tabs.defaultKey};
 
       if( that.tableData.tabs != false ){
-        var el;
+        var sel;
         $.each( that.tableData.tabs.tabs , function(i,e)  {
           if(i == that.currentTab.default){
             sel = ' SELECTED ';
@@ -258,8 +259,8 @@ function cogumeloTable( tableId, tableUrl ) {
   that.getFilterValues = function() {
     that.extraFilters  = {};
     that.filtersContent.find('select, input').each( function(i,e) {
-      //cogumelo.log( $(e).attr('data-filter-id'), $(e).val() )
-//      eval('that.extraFilters.' + $(e).attr('data-filter-id') + ' = "' + $(e).val() + '"' );
+      // cogumelo.log( $(e).attr('data-filter-id'), $(e).val() );
+      // eval('that.extraFilters.' + $(e).attr('data-filter-id') + ' = "' + $(e).val() + '"' );
 
       eval( "that.extraFilters['" + $(e).attr('data-filter-id') + "'] = '" + $(e).val() + "'");
     });
@@ -389,9 +390,7 @@ function cogumeloTable( tableId, tableUrl ) {
     var orderDownImg = '<img src="'+cogumelo.publicConf.media+'/module/table/img/down.png">';
     var h = '<th><div class="selectAllPages" style="display:none">'+__('Select all pages')+'</div><div class="selectAll"><input class="headCheckBox" type="checkbox" '+checkBoxSelected+'><i class="dropSelectAll fas fa-align-left fa-fw"></div></th>';
 
-
     $.each(that.tableData.colsDef, function(i,e)  {
-
       var ord;
       if( that.getOrderValue(i) == 1 ) {
         ord = orderDownImg;
@@ -401,7 +400,6 @@ function cogumeloTable( tableId, tableUrl ) {
       }
 
       var colClasses;
-
       if( typeof $(that.tableData.colsClasses).attr( i )  != 'undefined' ) {
         colClasses = $(that.tableData.colsClasses).attr( i );
       }
@@ -421,7 +419,6 @@ function cogumeloTable( tableId, tableUrl ) {
     });
 
     that.tableContent.append('<tr>'+h+'</tr>');
-
 
     // select/unselect all checkbox
     $(that.headTableCheckBoxQstr).on("change", function(el) {
@@ -525,7 +522,6 @@ function cogumeloTable( tableId, tableUrl ) {
         that.currentPage = page;
       }
     }
-
 
 
     that.totalRows.html( that.tableData.totalRows );

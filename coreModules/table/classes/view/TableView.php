@@ -77,15 +77,18 @@ class TableView {
           <div class="tableNextPage"><img src="'.Cogumelo::getSetupValue('publicConf:vars:media').'/module/table/img/a-right.png" alt="next page"></div>
         </div>
       </div>
-
     </div>
-    <table class="tableClass clearfix">
 
-    <!-- Page elements -->
+
+    <table class="tableClass clearfix">
+      <!-- Page elements -->
     </table>
+
+
     <div class="tablePageElements">
       <div><input type="text" value="1"><div class="text"> '.__("elements in each page").'</div></div>
     </div>
+
     <!-- Paginador -->
     <div class="tablePaginator ">
       <div class="totalElements">

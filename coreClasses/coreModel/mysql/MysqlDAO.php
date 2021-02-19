@@ -48,10 +48,6 @@ class MysqlDAO extends DAO {
   }
 
 
-  //
-  //
-  //
-
   /**
    * Execute a SQL query command
    *
@@ -77,7 +73,6 @@ class MysqlDAO extends DAO {
     }
 
 
-
     //set prepare sql
     /*
     if( $connectionControl->stmt ) {
@@ -90,9 +85,7 @@ class MysqlDAO extends DAO {
     }
     */
     $connectionControl->stmt = $connectionControl->db->prepare( $sql );
-
     if( $connectionControl->stmt ) {  //set prepare sql
-
       $bind_vars_type = $this->getPrepareTypes($val_array);
 
       $bind_vars_str = "";
@@ -135,7 +128,6 @@ class MysqlDAO extends DAO {
       $ret = true;
       // Consumo los resultados sin guardarlos
       while( $connectionControl->db->more_results() ) {
-
         $connectionControl->db->next_result();
         $connectionControl->db->use_result();
       }
@@ -154,8 +146,8 @@ class MysqlDAO extends DAO {
    * @return string
    */
   public function getPrepareTypes( $values_array ) {
-
     $return_str = "";
+
     foreach( $values_array as $value ) {
       if(is_integer($value)) {
         $return_str.= 'i';
@@ -186,36 +178,26 @@ class MysqlDAO extends DAO {
    * @return string
    */
   public function getFilters( $filters ) {
-
     $where_str = "";
     $val_array = array();
 
 
     if($filters) {
-
       $VO = new $this->VO();
 
-
       foreach( $filters as $fkey => $filter_val ) {
-
         if( array_key_exists($fkey, $this->filters) ) {
           $fstr = " AND ".$this->filters[$fkey];
-
-
           $var_count = mb_substr_count( $fstr , '?' );
           for( $c=0; $c < $var_count; $c++ ) {
-
             if( is_array( $filter_val ) ) { // Value array for one filter
               foreach( $filter_val as $val ) {
                 $val_array[] = $val;
               }
-
-
             }
             else { // one value
               $val_array[] = $filter_val;
             }
-
           }
 
           // create n '?' separed by comma to filter by array values
@@ -225,10 +207,7 @@ class MysqlDAO extends DAO {
           }
 
           $where_str.=$fstr;
-
         }
-
-
       }
     }
 
@@ -253,6 +232,9 @@ class MysqlDAO extends DAO {
    * @return object
    */
   public function listItems( &$connectionControl, $filters, $range, $order, $fields, $joinType, $resolveDependences = false, $groupBy = false, $cacheParam = false ) {
+
+    // $tempo = microtime(true);
+
     // SQL Query
     $VO = new $this->VO();
 
@@ -270,12 +252,10 @@ class MysqlDAO extends DAO {
     $allWhereArrays = $joinWhereArrays;
     $allWhereArrays[] = $whereArray;
 
-
     $allWhereARraysValues = array();
     foreach( $allWhereArrays as $wa ) {
       $allWhereARraysValues = array_merge( $allWhereARraysValues, $wa['values'] );
     }
-
 
     // order string
     $orderSTR = ($order)? $this->orderByString($order): "";
@@ -286,11 +266,9 @@ class MysqlDAO extends DAO {
     // range string
     $rangeSTR = ($range != array() && is_array($range) )? sprintf(" LIMIT %s, %s ", $range[0], $range[1]): "";
 
-
     if($resolveDependences) {
       $this->execSQL($connectionControl,'SET group_concat_max_len='.Cogumelo::getSetupValue( 'db:mysqlGroupconcatMaxLen' ).';');
     }
-
 
     $extraArrayParam = [
       'strSQL'=>  ' WHERE '.$whereArray['string'] . $orderSTR . $rangeSTR . $groupBySTR,
@@ -368,6 +346,9 @@ class MysqlDAO extends DAO {
       }
     }
 
+    // $tempo2 = microtime(true);
+    // Cogumelo::log( __METHOD__.' TEMPO: '.sprintf( "%.3f ", $tempo2-$tempo).$_SERVER["REQUEST_URI"].' '.$strSQL, 'Tempos' );
+
     return $daoresult;
   }
 
@@ -378,9 +359,9 @@ class MysqlDAO extends DAO {
    * @return string
    */
   public function getKeysToString( $VO, $fields, $resolveDependences ) {
+    $procesedKeys = array();
 
     $keys = explode(', ', $VO->getKeysToString($fields, $resolveDependences ));
-    $procesedKeys = array();
     foreach( $keys as $key ) {
 
       $k1 = explode('.',$key);
@@ -390,7 +371,6 @@ class MysqlDAO extends DAO {
       else{
         $k = $key;
       }
-
 
       if( isset($VO::$cols[$k]) && $VO::$cols[$k]['type'] == 'GEOMETRY' ) {
         $procesedKeys[] = 'AsText('.$key.') as "'.$key.'" ';
@@ -424,7 +404,6 @@ class MysqlDAO extends DAO {
     $whereArray = $this->getFilters($filters);
     // SQL Query
 
-
     $extraArrayParam = [
       'strSQL'=>  ' WHERE ' . $whereArray['string'],
       'strWhere' =>  $whereArray['string'],
@@ -434,11 +413,9 @@ class MysqlDAO extends DAO {
     ];
 
     $strSQL = $VO->customSelectListCount( $extraArrayParam );
-
     if( $strSQL == False ) {
       $strSQL = "SELECT count(*) as number_elements FROM `" . $VO::$tableName . "` WHERE ".$whereArray['string'].";";
     }
-
 
     if( $cacheParam ) {
       $cacheCtrl = new Cache();
@@ -499,16 +476,13 @@ class MysqlDAO extends DAO {
       }
     }
 
-
     $campos = '`'.implode('`,`', array_keys($cols)) .'`';
-
 
     $valArray = array();
     $answrs = "";
     foreach( array_keys($cols) as $colName ) {
       $val = $VOobj->getter($colName);
       $valArray[] = $val;
-
 
       if( $VOobj->getter($colName) != false && isset( $VOobj::$cols[$colName] ) && $VOobj::$cols[$colName]['type'] == 'GEOMETRY' ) {
 
@@ -532,6 +506,7 @@ class MysqlDAO extends DAO {
     }
   }
 
+
   /**
    * Update record
    *
@@ -545,10 +520,8 @@ class MysqlDAO extends DAO {
     // primary key value
     $pkValue = $VOobj->getter( $VOobj->getFirstPrimarykeyId() );
 
-
     // add getter values to values array
     $setvalues = '';
-
 
     $valArray = array();
     foreach( $VOobj->data as $colk => $col ) {
@@ -580,6 +553,7 @@ class MysqlDAO extends DAO {
     }
   }
 
+
   /**
    * Delete from key
    *
@@ -603,6 +577,7 @@ class MysqlDAO extends DAO {
       return null;
     }
   }
+
 
   /**
    * Return list of question marks separated by comma
