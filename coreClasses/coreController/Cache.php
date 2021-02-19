@@ -1,13 +1,9 @@
 <?php
-
-
 /**
  * Cache Class
  *
  * This class encapsulates the memcached library
  */
-
-
 class Cache {
 
   private $cacheCtrl = null;
@@ -19,11 +15,19 @@ class Cache {
     if( !$this->cacheCtrl && !empty( $cacheSetup['redis'] ) ) {
       Cogumelo::load('coreController/CacheRedis.php');
       $this->cacheCtrl = new CacheRedis( $cacheSetup['redis'] );
+      if( !$this->cacheCtrl->isValid() ) {
+        unset( $this->cacheCtrl );
+        $this->cacheCtrl = null;
+      }
     }
 
     if( !$this->cacheCtrl && !empty( $cacheSetup['memcached'] ) ) {
       Cogumelo::load('coreController/CacheMemcached.php');
       $this->cacheCtrl = new CacheMemcached( $cacheSetup['memcached'] );
+      if( !$this->cacheCtrl->isValid() ) {
+        unset( $this->cacheCtrl );
+        $this->cacheCtrl = null;
+      }
     }
 
     if( !$this->cacheCtrl ) {
@@ -31,9 +35,14 @@ class Cache {
       if( !empty( $memcachedSetup ) ) {
         Cogumelo::load('coreController/CacheMemcached.php');
         $this->cacheCtrl = new CacheMemcached( $memcachedSetup );
+        if( !$this->cacheCtrl->isValid() ) {
+          unset( $this->cacheCtrl );
+          $this->cacheCtrl = null;
+        }
       }
     }
   }
+
 
   /**
    * Recupera un contenido
@@ -73,6 +82,7 @@ class Cache {
    * Borra todos nuestros contenidos cache
    */
   public function flush() {
+    Cogumelo::debug(__METHOD__);
     $result = null;
 
     if( $this->cacheCtrl ) {
