@@ -11,28 +11,40 @@
  */
 
 class MailController {
-  private $senderController = false;
+
+  private $senderController = null;
   private $bodyPlain = false;
   private $bodyHtml = false;
   private $mailFiles = false;
 
+
   public function __construct( $vars = false, $tplFile = false, $module = false ) {
-    switch( Cogumelo::getSetupValue( 'mail:type' ) ) {
-      case 'local':
-        Cogumelo::load('coreController/MailSenderLocal.php');
-        $this->senderController = new MailSenderLocal();
-        break;
-      case 'gmail':
-        Cogumelo::load('coreController/MailSenderGmail.php');
-        $this->senderController = new MailSenderGmail();
-        break;
-      default: // SMTP
-        Cogumelo::load('coreController/MailSenderSmtp.php');
-        $this->senderController = new MailSenderSmtp();
-        break;
+    $mailConf = Cogumelo::getSetupValue('mail');
+
+    if( !empty( $mailConf ) ) {
+      if( !isset( $mailConf['type'] ) ) {
+        $mailConf['type']='smtp';
+      }
+      switch( $mailConf['type'] ) {
+        case null:
+        case false:
+          break;
+        case 'local':
+          Cogumelo::load('coreController/MailSenderLocal.php');
+          $this->senderController = new MailSenderLocal();
+          break;
+        case 'gmail':
+          Cogumelo::load('coreController/MailSenderGmail.php');
+          $this->senderController = new MailSenderGmail();
+          break;
+        default: // smtp
+          Cogumelo::load('coreController/MailSenderSmtp.php');
+          $this->senderController = new MailSenderSmtp();
+          break;
+      }
     }
 
-    if( $tplFile ) {
+    if( $this->senderController && $tplFile ) {
       $this->parseMail($vars, $tplFile, $module);
     }
   }
@@ -41,10 +53,10 @@ class MailController {
    * Reestablece los valores iniciales
    **/
   public function clear() {
-    $senderController = false;
-    $bodyPlain = false;
-    $bodyHtml = false;
-    $mailFiles = false;
+    $this->senderController = null;
+    $this->bodyPlain = false;
+    $this->bodyHtml = false;
+    $this->mailFiles = false;
   }
 
   /**
@@ -119,7 +131,9 @@ class MailController {
 
 
   public function setReplyTo( $replyMail, $replyName = '' ) {
-    $this->senderController->setReplyTo( $replyMail, $replyName );
+    if( !empty( $this->senderController ) ) {
+      $this->senderController->setReplyTo( $replyMail, $replyName );
+    }
   }
 
 
@@ -134,12 +148,21 @@ class MailController {
     // send( $adresses, $subject, $bodyPlain = false, $bodyHtml = false, $files = false, $fromName = false, $fromMail = false )
     $mailSenderResult = false;
 
-    if( $this->bodyPlain || $this->bodyHtml ) {
-      $mailSenderResult = $this->senderController->send( $adresses, $subject,
-        $this->bodyPlain, $this->bodyHtml, $this->mailFiles, $fromName, $fromMail );
+    if( !empty( $this->senderController ) ) {
+      if( $this->bodyPlain || $this->bodyHtml ) {
+        Cogumelo::log( 'Lanzamos send: '. json_encode( [ 'subject' => $subject, 'adresses' => $adresses ] ), 'MailController' );
+        $mailSenderResult = $this->senderController->send( $adresses, $subject,
+          $this->bodyPlain, $this->bodyHtml, $this->mailFiles, $fromName, $fromMail );
+        Cogumelo::log( 'Resultado send: '. json_encode( $mailSenderResult ), 'MailController' );
+      }
+      else {
+        Cogumelo::log( 'Error sending mail: No body.' );
+        Cogumelo::log( 'Error sending mail: No body.', 'MailController' );
+      }
     }
     else {
-      Cogumelo::error( 'Error sending mail: No body.' );
+      Cogumelo::log( 'Error sending mail: No senderController.' );
+      Cogumelo::log( 'Error sending mail: No senderController.', 'MailController' );
     }
 
     return $mailSenderResult;

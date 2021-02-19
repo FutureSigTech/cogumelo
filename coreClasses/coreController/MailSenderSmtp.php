@@ -35,8 +35,13 @@ class MailSenderSmtp {
       $this->phpmailer->SMTPAuth = false;
     }
 
-    if( Cogumelo::getSetupValue( 'mail:secure' ) ) {
-      $this->phpmailer->SMTPSecure = Cogumelo::getSetupValue( 'mail:secure' );
+    $secure = Cogumelo::getSetupValue( 'mail:secure' );
+    if( $secure ) {
+      $this->phpmailer->SMTPSecure = $secure;
+    }
+    else {
+      $this->phpmailer->SMTPSecure = false;
+      $this->phpmailer->SMTPAutoTLS = false;
     }
   }
 
@@ -62,7 +67,7 @@ class MailSenderSmtp {
    *
    * @return boolean $mailResult
    **/
-  public function send( $adresses, $subject, $bodyPlain = false, $bodyHtml = false, $files = false, $fromName = false, $fromMail = false ) {
+  public function send( $adresses, $subject, $bodyPlain = '', $bodyHtml = false, $files = false, $fromName = false, $fromMail = false ) {
     $mailResult = false;
 
     if( !$fromName ){
@@ -76,7 +81,8 @@ class MailSenderSmtp {
     // If $adresses is an array of adresses include all into mail
     if( is_array($adresses) ) {
       foreach( $adresses as $adress ) {
-        $this->phpmailer->AddAddress($adress);
+        // Los destinatarios multiples se cargan en BCC
+        $this->phpmailer->addBCC($adress);
       }
     }
     else {
@@ -97,7 +103,7 @@ class MailSenderSmtp {
 
 
 
-    if( $files ) {
+    if( !empty( $files ) ) {
       if( is_array($files) ) {
         foreach( $files as $file ) {
           $this->phpmailer->AddAttachment($file);
@@ -113,7 +119,7 @@ class MailSenderSmtp {
     if( $bodyHtml ) {
       $this->phpmailer->isHTML( true );
       $this->phpmailer->Body = $bodyHtml;
-      if( $bodyPlain ) {
+      if( !empty($bodyPlain) ) {
         $this->phpmailer->AltBody = $bodyPlain;
       }
     }
@@ -121,7 +127,12 @@ class MailSenderSmtp {
       $this->phpmailer->Body = $bodyPlain;
     }
 
-    // $this->phpmailer->SMTPDebug = 2; // SOLO TEST - EL FORM NO FUNCIONA CON ESTO!!!
+
+    // DEBUG
+    // $this->phpmailer->SMTPDebug = 2;
+    // $this->phpmailer->Debugoutput = function($str, $level) { Cogumelo::log( 'SMTPDebug: ('.$level.') - '.$str, 'MailController' ); };
+
+
 
     $mailResult = false;
     try{
@@ -139,7 +150,7 @@ class MailSenderSmtp {
       Cogumelo::debug( 'Mail ERROR('.$this->phpmailer->MessageID.'): Adresses: '.var_export($adresses, true), 3 );
       Cogumelo::debug( 'Mail ERROR('.$this->phpmailer->MessageID.'): Subject: '.$subject, 3 );
       Cogumelo::debug( 'Mail ERROR('.$this->phpmailer->MessageID.'): ErrorInfo: '.$this->phpmailer->ErrorInfo, 3 );
-      Cogumelo::error( 'Error sending mail' );
+      Cogumelo::log( 'Error sending mail' );
     }
 
     $this->phpmailer->ClearAllRecipients();
