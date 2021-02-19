@@ -64,11 +64,13 @@ class FormValidators extends FormValidatorsExtender {
 
     $ruleMethod = 'val_'.$ruleName;
     if( method_exists( $this, $ruleMethod ) ) {
-      //error_log('FormValidators: is_callable $this->'.$ruleMethod );
+      //Cogumelo::log('FormValidators: method_exists $this->'.$ruleMethod , 'Form');
       $validate = $this->$ruleMethod( $fieldValue, $ruleParams );
     }
     else {
-      error_log('FormValidators: NO EXIST $this->'.$ruleMethod );
+      $msg = ' ERROR: No existe en validador '.$ruleMethod;
+      Cogumelo::log(__METHOD__.$msg, 'Form');
+      error_log(__METHOD__.$msg);
     }
 
     return $validate;
@@ -195,7 +197,9 @@ class FormValidators extends FormValidatorsExtender {
   }
 
 
-
+  public function val_movilEsp( $value ) {
+    return preg_match( '/^6\d{8}$/', $value ) === 1;
+  }
 
 
   public function val_digits( $value ) {
@@ -308,11 +312,13 @@ class FormValidators extends FormValidatorsExtender {
 
   // http://jqueryvalidation.org/minlength-method/
   public function val_minlength( $value, $param ) {
+    $value = str_replace( "\r\n", "\n", $value );
     return mb_strlen( $value ) >= $param;
   }
 
   // http://jqueryvalidation.org/maxlength-method/
   public function val_maxlength( $value, $param ) {
+    $value = str_replace( "\r\n", "\n", $value );
     return mb_strlen( $value ) <= $param;
   }
 
@@ -363,19 +369,19 @@ class FormValidators extends FormValidatorsExtender {
 
 
   public function val_maxfilesize( $value, $param ) {
-    // error_log('FormValidators: val_maxfilesize '. json_encode( $value ). '    PARAM:' .$param );
+    // Cogumelo::log(__METHOD__.' '. json_encode( $value ). '    PARAM:' .$param , 'Form');
     $result = true;
 
     if( !isset( $value['multiple'] ) ) {
-      cogumelo::debug('FormValidators: val_maxfilesize '.$value['validate']['size'].'<='.$param );
+      Cogumelo::log(__METHOD__.' '.$value['validate']['size'].'<='.$param , 'Form');
       $result = ( isset( $value['validate']['size'] ) && $value['validate']['size'] <= $param );
     }
     else {
       foreach( $value['multiple'] as $multiId => $fileInfo ) {
-        cogumelo::debug('FormValidators: val_maxfilesize multi '.$multiId.' status: '.$fileInfo['status'] );
+        Cogumelo::log(__METHOD__.' multiple '.$multiId.' status: '.$fileInfo['status'], 'Form');
 
         if( $fileInfo['status'] !== 'DELETE' ) {
-          cogumelo::debug('FormValidators: val_maxfilesize multi '.$multiId.': '.$fileInfo['validate']['size'].'<='.$param );
+          Cogumelo::log(__METHOD__.' multiple '.$multiId.': '.$fileInfo['validate']['size'].'<='.$param, 'Form');
           if( !isset( $fileInfo['validate']['size'] ) || $fileInfo['validate']['size'] > $param ) {
             $result = false;
             break;
@@ -389,20 +395,19 @@ class FormValidators extends FormValidatorsExtender {
 
 
   public function val_minfilesize( $value, $param ) {
-    // error_log('FormValidators: val_minfilesize '. json_encode( $value ). '    PARAM:' .$param );
-
+    // Cogumelo::log(__METHOD__.' '. json_encode( $value ). '    PARAM:' .$param, 'Form');
     $result = true;
 
     if( !isset( $value['multiple'] ) ) {
-      cogumelo::debug('FormValidators: val_minfilesize '.$value['validate']['size'].'>='.$param );
+      Cogumelo::log(__METHOD__.' '.$value['validate']['size'].'>='.$param, 'Form');
       $result = ( isset( $value['validate']['size'] ) && $value['validate']['size'] >= $param );
     }
     else {
       foreach( $value['multiple'] as $multiId => $fileInfo ) {
-        cogumelo::debug('FormValidators: val_minfilesize multi '.$multiId.' status: '.$fileInfo['status'] );
+        Cogumelo::log(__METHOD__.' multiple '.$multiId.' status: '.$fileInfo['status'], 'Form');
 
         if( $fileInfo['status'] !== 'DELETE' ) {
-          cogumelo::debug('FormValidators: val_minfilesize multi '.$multiId.': '.$fileInfo['validate']['size'].'<='.$param );
+          Cogumelo::log(__METHOD__.' multiple '.$multiId.': '.$fileInfo['validate']['size'].'>='.$param, 'Form');
           if( !isset( $fileInfo['validate']['size'] ) || $fileInfo['validate']['size'] < $param ) {
             $result = false;
             break;
@@ -416,12 +421,12 @@ class FormValidators extends FormValidatorsExtender {
 
 
   public function val_multipleMax( $value, $param ) {
-    // error_log('FormValidators: val_multipleMax '. json_encode( $value ). '    PARAM:' .$param );
-
+    // Cogumelo::log(__METHOD__.' '. json_encode( $value ). '    PARAM:' .$param, 'Form');
     $numFiles = 0;
+
     if( isset( $value['multiple'] ) && is_array( $value['multiple'] ) && count( $value['multiple'] ) ) {
       foreach( $value['multiple'] as $multiId => $fileInfo ) {
-        cogumelo::debug('FormValidators: val_multipleMax multi '.$multiId.' status: '.$fileInfo['status'] );
+        Cogumelo::log(__METHOD__.' multiple '.$multiId.' status: '.$fileInfo['status'], 'Form');
         $numFiles += ( $fileInfo['status'] !== 'DELETE' ) ? 1 : 0;
       }
     }
@@ -431,8 +436,7 @@ class FormValidators extends FormValidatorsExtender {
 
 
   public function val_multipleMin( $value, $param ) {
-    // error_log('FormValidators: val_multipleMin '. json_encode( $value ). '    PARAM:' .$param );
-
+    // Cogumelo::log(__METHOD__.' '. json_encode( $value ). '    PARAM:' .$param, 'Form');
     $result = false;
 
     if( !empty( $value['multiple']['0']['validate']['partial'] ) ) {
@@ -443,7 +447,7 @@ class FormValidators extends FormValidatorsExtender {
       $numFiles = 0;
       if( isset( $value['multiple'] ) && is_array( $value['multiple'] ) && count( $value['multiple'] ) ) {
         foreach( $value['multiple'] as $multiId => $fileInfo ) {
-          cogumelo::debug('FormValidators: val_multipleMin multi '.$multiId.' status: '.$fileInfo['status'] );
+          Cogumelo::log(__METHOD__.' multiple '.$multiId.' status: '.$fileInfo['status'], 'Form');
           $numFiles += ( $fileInfo['status'] !== 'DELETE' ) ? 1 : 0;
         }
       }
@@ -455,31 +459,35 @@ class FormValidators extends FormValidatorsExtender {
 
 
   public function val_fileRequired( $value, $param ) {
-    cogumelo::debug('FormValidators: val_fileRequired '. json_encode( $value ). '    PARAM:' .$param );
-
+    Cogumelo::log(__METHOD__.' '. json_encode( $value ). ' PARAM:' .$param, 'Form');
     $result = false;
 
-    if( !isset( $value['multiple'] ) ) {
-      cogumelo::debug('FormValidators: val_fileRequired (size) '.$value['validate']['size'] );
-      $result = isset( $value['validate']['size'] );
-    }
-    else {
-      if( !empty( $value['multiple']['0']['validate']['partial'] ) ) {
-        // Contenido parcial. No puede aplicarse este validador
-        cogumelo::debug('FormValidators: val_fileRequired (Contenido parcial)' );
-        $result = true;
+    if( !empty( $param ) ) {
+      if( !isset( $value['multiple'] ) ) {
+        Cogumelo::log(__METHOD__.' (size) '.$value['validate']['size'], 'Form');
+        $result = isset( $value['validate']['size'] );
       }
       else {
-        $numFiles = 0;
-        if( isset( $value['multiple'] ) && is_array( $value['multiple'] ) && count( $value['multiple'] ) ) {
-          foreach( $value['multiple'] as $multiId => $fileInfo ) {
-            cogumelo::debug('FormValidators: val_fileRequired multi '.$multiId.' status: '.$fileInfo['status'] );
-            $numFiles += ( $fileInfo['status'] !== 'DELETE' ) ? 1 : 0;
-          }
+        if( !empty( $value['multiple']['0']['validate']['partial'] ) ) {
+          // Contenido parcial. No puede aplicarse este validador
+          Cogumelo::log(__METHOD__.' (Contenido parcial)', 'Form');
+          $result = true;
         }
-        cogumelo::debug('FormValidators: val_fileRequired (numFiles) '.$numFiles );
-        $result = ( $numFiles > 0 );
+        else {
+          $numFiles = 0;
+          if( isset( $value['multiple'] ) && is_array( $value['multiple'] ) && count( $value['multiple'] ) ) {
+            foreach( $value['multiple'] as $multiId => $fileInfo ) {
+              Cogumelo::log(__METHOD__.' multiple '.$multiId.' status: '.$fileInfo['status'], 'Form');
+              $numFiles += ( $fileInfo['status'] !== 'DELETE' ) ? 1 : 0;
+            }
+          }
+          Cogumelo::log(__METHOD__.' (numFiles) '.$numFiles, 'Form');
+          $result = ( $numFiles > 0 );
+        }
       }
+    }
+    else {
+      $result = true;
     }
 
     return $result;
@@ -491,7 +499,7 @@ class FormValidators extends FormValidatorsExtender {
 
   // http://jqueryvalidation.org/accept-method
   public function val_accept( $value, $param ) {
-    // error_log('FormValidators: val_accept' );
+    // Cogumelo::log(__METHOD__.' '. json_encode( $value ). '    PARAM:' .$param, 'Form');
     $result = true;
 
     if( !is_array( $param ) ) {
@@ -506,7 +514,7 @@ class FormValidators extends FormValidatorsExtender {
       $fileResult = false;
 
       if( $fileInfo['status'] !== 'DELETE' ) {
-        cogumelo::debug('FormValidators: val_accept '.json_encode($fileInfo['validate']).':'.json_encode($param) );
+        Cogumelo::log(__METHOD__.' '.json_encode($fileInfo['validate']).':'.json_encode($param), 'Form');
 
         foreach( $param as $test ) {
           if( $test === $fileInfo['validate']['type'] ) {
@@ -536,13 +544,14 @@ class FormValidators extends FormValidatorsExtender {
 
   // http://jqueryvalidation.org/extension-method
   public function val_extension( $value, $param ) {
+    $tmpExt = '';
+
     if( !is_array( $param ) ) {
       // Split param on commas in case we have multiple extensions we can accept
       $param = str_replace( ' ', '', $param );
       $param = explode( ',', $param );
     }
 
-    $tmpExt = '';
     $tmpExtPos = mb_strrpos( $value['validate'][ 'name' ], '.' );
     if( $tmpExtPos > 0 ) { // Not FALSE or 0
       $tmpExt = mb_substr( $value['validate']['name'], 1+$tmpExtPos );
