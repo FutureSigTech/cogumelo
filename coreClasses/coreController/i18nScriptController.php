@@ -4,16 +4,6 @@ require_once( Cogumelo::getSetupValue( 'dependences:manualPath' ).'/Gettext/src/
 
 /**
  * i18nScriptController Class
- *
- * PHPMD: Suppress all warnings from these rules.
- * @SuppressWarnings(PHPMD.Superglobals)
- * @SuppressWarnings(PHPMD.ElseExpression)
- * @SuppressWarnings(PHPMD.StaticAccess)
- * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
- * @SuppressWarnings(PHPMD.CamelCaseVariableName)
- * @SuppressWarnings(PHPMD.CyclomaticComplexity)
- * @SuppressWarnings(PHPMD.NPathComplexity)
- * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
  **/
 class i18nScriptController {
 
@@ -89,7 +79,7 @@ class i18nScriptController {
       }
     }
     //geozzy distModules
-   if( $this->dir_modules_dist && ($dh = opendir($this->dir_modules_dist))) {
+    if( $this->dir_modules_dist && ($dh = opendir($this->dir_modules_dist))) {
       while (($module = readdir($dh)) !== false) {
         if (is_dir($this->dir_modules_dist . $module) && $module!="." && $module!=".."){
           $this->getModulePo($this->dir_modules_dist.$module);
@@ -263,7 +253,6 @@ class i18nScriptController {
 
     $filesModule = array();
     foreach($files as $file){
-
       $parts = explode('.',$file);
       switch($parts[1]){
         case 'php':
@@ -507,41 +496,39 @@ class i18nScriptController {
 
     // Adaptamos código para que no aparezcan los nombres de los proyectos
 
-    /*
-    // Se hai arquivos temporais, borrámolos
-    if(count(scandir(Cogumelo::getSetupValue( 'smarty:tmpPath' )))>2){
-      exec('rm '.Cogumelo::getSetupValue( 'smarty:tmpPath' ).'/*');
-    }
+    // // Se hai arquivos temporais, borrámolos
+    // if(count(scandir(Cogumelo::getSetupValue( 'smarty:tmpPath' )))>2){
+    //   exec('rm '.Cogumelo::getSetupValue( 'smarty:tmpPath' ).'/*');
+    // }
 
-    // copiamos os ficheiros nun dir temporal
+    // // copiamos os ficheiros nun dir temporal
 
-    foreach ($filesTpl as $a){
-      echo $a."\n";
-      $a_parts = explode(APP_BASE_PATH,$a);
-      $name = str_replace('/','_',$a_parts[1]);
-      if($name){
-        exec('cp '.$a.' '.Cogumelo::getSetupValue( 'smarty:tmpPath' ).'/'.$name);
-      }
+    // foreach ($filesTpl as $a){
+    //   echo $a."\n";
+    //   $a_parts = explode(APP_BASE_PATH,$a);
+    //   $name = str_replace('/','_',$a_parts[1]);
+    //   if($name){
+    //     exec('cp '.$a.' '.Cogumelo::getSetupValue( 'smarty:tmpPath' ).'/'.$name);
+    //   }
 
-      $a_cogumelo_parts = explode($this->dir_modules_c,$a);
-      if(count($a_cogumelo_parts)>1){
-        $cogumelo_name = str_replace('/','_',$a_cogumelo_parts[1]);
-        exec('cp '.$a.' '.Cogumelo::getSetupValue( 'smarty:tmpPath' ).'/'.$cogumelo_name);
-      }
+    //   $a_cogumelo_parts = explode($this->dir_modules_c,$a);
+    //   if(count($a_cogumelo_parts)>1){
+    //     $cogumelo_name = str_replace('/','_',$a_cogumelo_parts[1]);
+    //     exec('cp '.$a.' '.Cogumelo::getSetupValue( 'smarty:tmpPath' ).'/'.$cogumelo_name);
+    //   }
 
-      if( $this->dir_modules_dist ) {
-        $a_geozzy_parts = explode($this->dir_modules_dist,$a);
-        if(count($a_geozzy_parts)>1){
-          $geozzy_name = str_replace('/','_',$a_geozzy_parts[1]);
-          exec('cp '.$a.' '.Cogumelo::getSetupValue( 'smarty:tmpPath' ).'/'.$geozzy_name);
-        }
-      }
-    }
+    //   if( $this->dir_modules_dist ) {
+    //     $a_geozzy_parts = explode($this->dir_modules_dist,$a);
+    //     if(count($a_geozzy_parts)>1){
+    //       $geozzy_name = str_replace('/','_',$a_geozzy_parts[1]);
+    //       exec('cp '.$a.' '.Cogumelo::getSetupValue( 'smarty:tmpPath' ).'/'.$geozzy_name);
+    //     }
+    //   }
+    // }
 
-    foreach( $this->lang as $l => $lang ) {
-      exec($smartygettext.' -o '.$module.'/'.$this->textdomain.'_'.$l.'_tpl.po '.Cogumelo::getSetupValue( 'smarty:tmpPath' ));
-    }
-    */
+    // foreach( $this->lang as $l => $lang ) {
+    //   exec($smartygettext.' -o '.$moduleTranslations.'/'.$this->textdomain.'_'.$l.'_tpl.po '.Cogumelo::getSetupValue( 'smarty:tmpPath' ));
+    // }
   }
 
 
