@@ -38,6 +38,15 @@ $.validator.addMethod(
 
 
 
+$.validator.addMethod(
+  "movilEsp",
+  function( value, element ) {
+    regexPatt=new RegExp('^6\\d{8}?$');
+    return ( value==='' && this.optional( element ) ) || regexPatt.test( value );
+  },
+  $.validator.format( __("Please enter a valid mobile phone number.") )
+);
+
 
 
 $.validator.addMethod(
@@ -647,38 +656,42 @@ $.validator.addMethod(
 // Accept a value from a file input based on size
 $.validator.addMethod(
   "fileRequired",
-  function( value, element ) {
+  function( value, element, param ) {
     var valueResponse = false;
 
-    cogumelo.log( ' * * * formValidators::fileRequired ', $( element ) );
-    var $fileField = $( element );
-    var groupFiles = false;
-    var groupId = $fileField.attr('data-fm_group_id');
+    if( param ) {
+      cogumelo.log( ' * * * formValidators::fileRequired ', $( element ) );
+      var $fileField = $( element );
+      var groupFiles = false;
+      var groupId = $fileField.attr('data-fm_group_id');
 
-    if( groupId ) {
-      var idForm = $fileField.attr('form');
-      var formCtlr = cogumelo.formControllerInfo.getFormInfo( idForm, 'controller' );
-      // cogumelo.log( ' * * * formValidators::multipleMax Form ', idForm, formCtlr );
+      if( groupId ) {
+        var idForm = $fileField.attr('form');
+        var formCtlr = cogumelo.formControllerInfo.getFormInfo( idForm, 'controller' );
+        // cogumelo.log( ' * * * formValidators::multipleMax Form ', idForm, formCtlr );
 
-      if( formCtlr && typeof formCtlr.fileGroup[ groupId ] !== 'undefined' ) {
-        groupFiles = formCtlr.fileGroup[ groupId ];
+        if( formCtlr && typeof formCtlr.fileGroup[ groupId ] !== 'undefined' ) {
+          groupFiles = formCtlr.fileGroup[ groupId ];
+        }
+      }
+      // cogumelo.log( ' * * * formValidators::multipleMin IDs', groupId, groupFiles, groupFiles.length );
+
+      var validateFiles = $fileField.data('validateFiles');
+      // cogumelo.log( ' * * * formValidators::multipleMin validateFiles=', validateFiles, validateFiles.length );
+
+      var countFiles = ( validateFiles ) ? validateFiles.length : 0;
+      if( groupFiles ) {
+        countFiles += groupFiles.length;
+      }
+      cogumelo.log( ' * * * formValidators::fileRequired countFiles=', countFiles );
+
+      if( countFiles > 0 ) {
+        valueResponse = true;
       }
     }
-    // cogumelo.log( ' * * * formValidators::multipleMin IDs', groupId, groupFiles, groupFiles.length );
-
-    var validateFiles = $fileField.data('validateFiles');
-    // cogumelo.log( ' * * * formValidators::multipleMin validateFiles=', validateFiles, validateFiles.length );
-
-    var countFiles = ( validateFiles ) ? validateFiles.length : 0;
-    if( groupFiles ) {
-      countFiles += groupFiles.length;
-    }
-    cogumelo.log( ' * * * formValidators::fileRequired countFiles=', countFiles );
-
-    if( countFiles > 0 ) {
+    else {
       valueResponse = true;
     }
-
 
     return valueResponse;
   },
