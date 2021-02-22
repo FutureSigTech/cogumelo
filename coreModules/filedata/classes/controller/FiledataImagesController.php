@@ -1,6 +1,4 @@
 <?php
-
-
 class FiledataImagesController {
 
 
@@ -663,7 +661,8 @@ class FiledataImagesController {
 
 
   public function sendImage( $imgInfo ) {
-    // error_log( 'FiledataImagesController: sendImage '. print_r( $imgInfo, true ) );
+    // error_log( __METHOD__.' '.print_r( $imgInfo, true ) );
+    Cogumelo::debug( __METHOD__.' '.print_r( $imgInfo, true ) );
 
     $result = false;
 
@@ -700,9 +699,22 @@ class FiledataImagesController {
         // Cogumelo::debug( __METHOD__.' - unlink '.$imgInfo['route'] );
         // unlink( $imgInfo['route'] );
 
-        $cacheRouteInfo = pathinfo( $imgInfo['route'] );
-        Cogumelo::debug( __METHOD__.' NO Cache - rmdirRec unlink '.$cacheRouteInfo['dirname'].'/' );
-        $this->rmdirRec( $cacheRouteInfo['dirname'].'/' );        
+        $info = pathinfo( $imgInfo['route'] );
+        $cacheDir = $info['dirname'].'/';
+
+        if( !empty( $this->filesCachePath ) && strpos( $cacheDir, $this->filesCachePath ) !== false ) {
+          Cogumelo::debug( __METHOD__.' NO Cache - rmdirRec unlink '.$cacheDir );
+          $this->rmdirRec( $cacheDir );
+        }
+        else {
+          Cogumelo::error( __METHOD__.' ERROR: PELIGRO!!! Intento de borrado de ficheros fuera de "cachePath"' );
+          Cogumelo::debug( __METHOD__.' ERROR: PELIGRO!!! Intento de borrado de ficheros fuera de "cachePath"' );
+          Cogumelo::debug( __METHOD__.' filesCachePath '.$this->filesCachePath );
+          Cogumelo::debug( __METHOD__.' cacheDir '.$cacheDir );
+          error_log( __METHOD__.' ERROR: PELIGRO!!! Intento de borrado de ficheros fuera de "cachePath"' );
+          error_log( __METHOD__.' filesCachePath '.$this->filesCachePath );
+          error_log( __METHOD__.' cacheDir '.$cacheDir );
+        }
       }
 
       $result = true;
