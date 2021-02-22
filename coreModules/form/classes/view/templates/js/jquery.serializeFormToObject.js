@@ -1,7 +1,8 @@
 $.fn.serializeFormToObject = function () {
-  var ser = {};
+  var formDataObj = {};
 
-  var fa = this.serializeArray();
+  var formDataArray = this.serializeArray();
+  cogumelo.log( 'serializeFormToObject: formDataArray', formDataArray );
 
   var getDataInfo = function getDataInfo( elem ) {
     // PELIGRO: Los valores recuperados por .data() no son fiables!!!
@@ -20,34 +21,37 @@ $.fn.serializeFormToObject = function () {
     return dataInfo;
   };
 
-  $.each( fa, function () {
-    if( ser[ this.name ] === undefined ) {
-      ser[ this.name ] = {};
-      ser[ this.name ].value = this.value || '';
+  $.each( formDataArray, function () {
+    if( formDataObj[ this.name ] === undefined ) {
+      formDataObj[ this.name ] = {};
+      formDataObj[ this.name ].value = this.value || '';
     }
     else {
-      if( !ser[ this.name ].value.push ) {
-        ser[ this.name ].value = [ ser[ this.name ].value ];
+      if( !formDataObj[ this.name ].value.push ) {
+        formDataObj[ this.name ].value = [ formDataObj[ this.name ].value ];
       }
-      ser[ this.name ].value.push( this.value || '' );
+      formDataObj[ this.name ].value.push( this.value || '' );
     }
   });
 
 
   $( ':input[form="' + this.attr( 'id' ) + '"]' ).each(
+    // eslint-disable-next-line complexity
     function( i, elem ) {
       if( elem.name !== undefined && elem.name !== '' ) {
-        $elem = $( elem );
+        var $elem = $( elem );
 
         // Set false value
-        if( ser[ elem.name ] === undefined ) {
-          ser[ elem.name ] = {};
-          ser[ elem.name ].value = false;
+        if( formDataObj[ elem.name ] === undefined ) {
+          formDataObj[ elem.name ] = {};
+          formDataObj[ elem.name ].value = false;
         }
+
         // Order select values
-        if( elem.multiple === true && $elem.hasClass( 'cgmMForm-order' ) && ser[ elem.name ].value.push ) { // Array de options
-          cogumelo.log( 'Ordenando '+ elem.name, ser[ elem.name ] );
-          ser[ elem.name ].value = $elem.find( 'option' ).filter( ':selected').toArray()
+        if( elem.nodeName==='SELECT' && elem.multiple===true && $elem.hasClass('cgmMForm-order') && formDataObj[ elem.name ].value.push ) {
+          cogumelo.log( 'Ordenando '+ elem.name, formDataObj[ elem.name ] );
+          // Array de options
+          formDataObj[ elem.name ].value = $elem.find( 'option' ).filter( ':selected').toArray()
             .sort( function( a, b ) { return( parseInt( $( a ).data( 'order' ) ) - parseInt( $( b ).data( 'order' ) ) ); } )
             .map( function( e ) { return( e.value ); } );
         }
@@ -55,13 +59,13 @@ $.fn.serializeFormToObject = function () {
         // Cargamos la informacion del los atributos "data-*"
         var dataInfo = getDataInfo( elem );
         if( dataInfo ) {
-          ser[ elem.name ].dataInfo = dataInfo;
+          formDataObj[ elem.name ].dataInfo = dataInfo;
         }
 
         // Cargamos la informacion del los atributos "data-*" en campos con opciones
         if( $elem.is('select') ) {
           var dataMultiInfo = {};
-          $elem.find(":selected").each( function() {
+          $elem.find(':selected').each( function() {
             var dataInfo = getDataInfo( this );
             if( dataInfo ) {
               dataMultiInfo[ this.value ] = dataInfo;
@@ -69,7 +73,7 @@ $.fn.serializeFormToObject = function () {
           } );
           cogumelo.log(dataMultiInfo.elements);
           if( !jQuery.isEmptyObject( dataMultiInfo ) ) {
-            ser[ elem.name ].dataMultiInfo = dataMultiInfo;
+            formDataObj[ elem.name ].dataMultiInfo = dataMultiInfo;
           }
         }
       }
@@ -82,11 +86,11 @@ $.fn.serializeFormToObject = function () {
     function( i, elem ) {
       if( elem.name !== undefined && elem.name !== '' ) {
         // Set value
-        if( ser[ elem.name ] === undefined ) {
-          ser[ elem.name ] = {};
+        if( formDataObj[ elem.name ] === undefined ) {
+          formDataObj[ elem.name ] = {};
         }
-        if( ser[ elem.name ].value === undefined ) {
-          ser[ elem.name ].value = elem.value;
+        if( formDataObj[ elem.name ].value === undefined ) {
+          formDataObj[ elem.name ].value = elem.value;
         }
         grecaptcha.reset();
       }
@@ -94,6 +98,6 @@ $.fn.serializeFormToObject = function () {
   );
 
 
-  cogumelo.log( 'serializeFormToObject: ', ser );
-  return ser;
+  cogumelo.log( 'serializeFormToObject: formDataObj', formDataObj );
+  return formDataObj;
 };
