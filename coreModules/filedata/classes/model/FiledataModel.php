@@ -53,8 +53,9 @@ class FiledataModel extends Model {
 
 
   static $extraFilters = array(
+    'idIn' => ' filedata_filedata.id IN (?) ',
     'notInId' => ' filedata_filedata.id NOT IN (?) ',
-    'idIn' => ' filedata_filedata.id IN (?) '
+    'idNotIn' => ' filedata_filedata.id NOT IN (?) ',
   );
 
 
@@ -86,7 +87,7 @@ class FiledataModel extends Model {
   );
 
 
-  public function __construct( $datarray = array(), $otherRelObj = false ) {
+  public function __construct( $datarray = [], $otherRelObj = false ) {
     parent::__construct( $datarray, $otherRelObj );
   }
 
@@ -112,7 +113,7 @@ class FiledataModel extends Model {
    *
    * @return boolean
    */
-  public function delete( array $parameters = array() ) {
+  public function delete( array $parameters = [] ) {
     Cogumelo::debug( __METHOD__ );
 
     // Eliminamos ficheros en disco
@@ -126,5 +127,75 @@ class FiledataModel extends Model {
     $result = $this->dataFacade->deleteFromKey( $this->getFirstPrimarykeyId(), $this->getter( $this->getFirstPrimarykeyId() ) );
 
     return( $result === true );
+  }
+
+
+  /**
+   * Delete items by ids
+   *
+   * @param array $filedataIds array of filters
+   */
+  public function deleteById( $filedataIds ) {
+    Cogumelo::debug( __METHOD__ );
+
+    $filedataList = false;
+
+    if( !empty( $filedataIds ) ) {
+      if( is_array( $filedataIds ) ) {
+        $filedataList = $this->listItems( [ 'filters' => [ 'idIn' => $filedataIds ] ] );
+      }
+      else {
+        $filedataList = $this->listItems( [ 'filters' => [ 'id' => $filedataIds ] ] );
+      }
+
+      if( is_object( $filedataList ) ) {
+        while( $fileObj = $filedataList->fetch() ) {
+          error_log( __METHOD__.' Vamos a eliminar filedata id:'.$fileObj->getter('id').' name:'.$fileObj->getter('originalName') );
+          $fileObj->delete();
+        }
+      }
+    }
+  }
+
+
+  public function getFileIdsFromObj( $modelObj ) {
+    error_log( __METHOD__ );
+    // error_log( print_r( $modelObj::$cols, true ) );
+    $ids = [
+      'FiledataModel' => [],
+      'FilegroupModel' => []
+    ];
+
+    if( !empty( $modelObj::$cols ) ) {
+      foreach( $modelObj::$cols as $colName => $colDef ) {
+        if( !empty( $colDef['vo'] ) ) {
+          switch ($colDef['vo']) {
+            case 'FiledataModel':
+              $filedataId = $modelObj->getter($colName);
+              if( !empty( $filedataId ) ) {
+                $ids['FiledataModel'][] = $filedataId;
+              }
+              break;
+            case 'FilegroupModel':
+              $filegroupId = $modelObj->getter($colName);
+              if( !empty( $filegroupId ) ) {
+                $ids['FilegroupModel'][] = $filegroupId;
+              }
+              break;
+          } // switch
+        }
+      }
+    }
+
+    if( !empty( $ids['FilegroupModel'] ) ) {
+      $fgroupModel = new FilegroupModel();
+      $moreIds = $fgroupModel->getFiledataIds( $ids['FilegroupModel'] );
+      if( !empty( $moreIds ) ) {
+        // error_log( __METHOD__.' moreIds: '.print_r( $moreIds, true ) );
+        $ids['FiledataModel'] = array_merge( $ids['FiledataModel'], $moreIds );
+      }
+    }
+
+    return( $ids );
   }
 }

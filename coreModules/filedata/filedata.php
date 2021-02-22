@@ -5,12 +5,12 @@ Cogumelo::load("coreController/Module.php");
 class filedata extends Module {
 
   public $name = 'filedata';
-  public $version = 2;
-  public $dependences = array();
-  public $includesCommon = array(
+  public $version = 3;
+  public $dependences = [];
+  public $includesCommon = [
     'controller/FiledataController.php',
     'model/FiledataModel.php'
-  );
+  ];
 
 
   public function __construct() {
@@ -23,4 +23,21 @@ class filedata extends Module {
     // $this->addUrlPatterns( '#^cgmlfilewd/(\d+).*$#', 'view:FiledataWeb::webDownload' );
   }
 
+
+  /**
+    Busca elementos abandonados
+    @param array $params Parametros
+    @return bool
+   */
+  public function garbageCollection() {
+    Cogumelo::debug( __METHOD__ );
+    error_log( __METHOD__ );
+
+    filedata::load( 'controller/FiledataController.php' );
+    $garbageCtrl = new FiledataController();
+
+    $result = $garbageCtrl->garbageCollection();
+
+    return $result;
+  } // function garbageCollection()
 }
