@@ -66,7 +66,10 @@ class FiledataImagesView extends View {
       if( !$this->disableRawUrlProfile || $fileName === $fileInfo['name'] ) {
         if( !$this->verifyAKeyUrl || $aKey === $fileInfo['aKey'] ) {
           if( $fileInfo['validatedAccess'] ) {
-            $imgInfo = [ 'type' => $fileInfo['type'] ];
+            $imgInfo = [
+              'fileId' => $fileId,
+              'type' => $fileInfo['type']
+            ];
 
             if( isset( $urlParams['profile']  ) ) {
               $urlParams['profile'] = mb_substr( mb_strrchr( $urlParams['profile'], '/' ), 1 );
