@@ -37,7 +37,7 @@ class detectMobile extends Module {
           [ 'mod:detectMobile:isMobile', 'mod:detectMobile:isTablet' ] );
     }
     else {
-      Cogumelo::error('Mobile_detect.php dpendence not found. Execute ./cogumelo installDependences to install it.');
+      Cogumelo::error('Mobile_detect.php dependence not found. Execute ./cogumelo installDependences to install it.');
     }
   }
 

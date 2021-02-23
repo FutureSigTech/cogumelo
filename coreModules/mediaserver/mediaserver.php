@@ -34,7 +34,7 @@ class mediaserver extends Module {
 
     array(
       'id' => 'minify',
-      'params' => array('matthiasmullie/minify', '1.3.61'),
+      'params' => array('matthiasmullie/minify', '1.3.65'),
       'installer' => 'composer',
       'includes' => array(
         '../minify/src/Minify.php',
