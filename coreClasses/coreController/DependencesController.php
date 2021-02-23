@@ -44,16 +44,22 @@ Class DependencesController {
     global $C_ENABLED_MODULES;
     foreach ( $C_ENABLED_MODULES as $mod ){
       $dependences = [];
-      $modUrl = ModuleController::getRealFilePath( $mod.".php" , $mod );
-      require_once($modUrl);
-      if( !class_exists('extClass'.$mod) ) {
-        eval('class extClass'. $mod .' extends '.$mod. '{}');
+      $modPath = ModuleController::getRealFilePath( $mod.".php" , $mod );
+
+      if( file_exists( $modPath ) ) {
+        require_once( $modPath );
+        if( !class_exists('extClass'.$mod) ) {
+          eval('class extClass'. $mod .' extends '.$mod. '{}');
+        }
+
+        eval('$objMod'.$mod.' = new extClass'.$mod.'();');
+        eval('$dependences = $objMod'.$mod.'->dependences;');
+
+        $this->pushDependences($dependences);
       }
-
-      eval('$objMod'.$mod.' = new extClass'.$mod.'();');
-      eval('$dependences = $objMod'.$mod.'->dependences;');
-
-      $this->pushDependences($dependences);
+      else {
+        Cogumelo::error( 'ERROR: Imposible cargar el modulo '.$mod );
+      }
     }
 
     //Cargamos dependencias de Cogumelo class
