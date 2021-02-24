@@ -455,20 +455,19 @@ class CogumeloClass extends Singleton {
   }
 
   public static function getUserInfo() {
-    if(class_exists('UserSessionController')) {
-      require_once(ModuleController::getRealFilePath('classes/controller/UserSessionController.php', 'user'));
+    $login = '';
+
+    if( class_exists('UserSessionController') ) {
+      require_once( ModuleController::getRealFilePath('classes/controller/UserSessionController.php', 'user') );
       $userSessionControl = new UserSessionController();
-      if($user = $userSessionControl->getUser()) {
-        $res = $user['data']['login'];
-      }
-      else{
-        $res = "";
+      $user = $userSessionControl->getUser();
+
+      if( !empty($user['data']['login']) ) {
+        $login = $user['data']['login'];
       }
     }
-    else {
-      $res = "";
-    }
-    return $res;
+
+    return $login;
   }
 
 
