@@ -425,7 +425,7 @@ class TableController{
       $retFilters[ $this->searchId ] = $this->clientData['search'];
     }
 
-    if($this->currentTab != '*'){
+    if( $this->currentTab != '*' && !empty( $this->tabs['tabsKey'] ) ) {
       $retFilters[ $this->tabs['tabsKey'] ] = $this->currentTab;
     }
 
