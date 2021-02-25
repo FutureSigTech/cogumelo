@@ -5,7 +5,8 @@ Cogumelo::load('coreModel/Model.php');
 define('LOGIN_FAILED', 0);
 define('LOGIN_OK', 1);
 define('LOGIN_BAN', 2);
-define('LOGIN_USERDISABLED', 3);
+define('LOGIN_USERDISABLED', 3); // Parece un fallo de nomes
+define('LOGIN_DISABLED', 3);     // Parece un fallo de nomes
 define('LOGIN_USERUNKOWN', 4);
 
 
@@ -137,12 +138,12 @@ class UserModel extends Model
   );
 
   static $extraFilters = array(
-    'find' => "UPPER(user_user.surname)  LIKE CONCAT('%',UPPER(?),'%') OR user_user.login LIKE CONCAT('%', UPPER(?), '%')",
+    'find' => "UPPER( user_user.surname )  LIKE CONCAT('%',UPPER(?),'%') OR user_user.login LIKE CONCAT('%', UPPER(?), '%')",
     'tableSearch' => " ( UPPER( user_user.name ) LIKE CONCAT( '%', UPPER(?), '%' ) OR UPPER( user_user.surname ) LIKE CONCAT( '%', UPPER(?), '%' ) OR UPPER( user_user.login ) LIKE CONCAT( '%', UPPER(?), '%' ) OR user_user.id = ? )",
     'idIn' => ' user_user.id IN (?) ',
-    // 'login' => "login = CONCAT('', ? ,'')"
-    // 'edadmax' => "edad <= ?",
-    // 'edadmin' => "edad >= ?"
+    // 'login' => "user_user.login = CONCAT('', ? ,'')"
+    // 'edadmax' => "user_user.edad <= ?",
+    // 'edadmin' => "user_user.edad >= ?"
   );
 
 
@@ -155,8 +156,8 @@ class UserModel extends Model
   }
 
   public function equalPassword( $password ) {
-  	//return ($this->getter('password') === sha1($password));
-  	return password_verify($password, $this->getter('password') );
+    //return ($this->getter('password') === sha1($password));
+    return password_verify($password, $this->getter('password') );
   }
 
   public function setPassword( $password ){
@@ -165,8 +166,10 @@ class UserModel extends Model
   }
 
   public function authenticateUser( $login, $password ) {
-    $userO = $this->listItems( array('filters' => array('login' => $login), 'affectsDependences' => array( 'UserPermissionModel') ))->fetch();
     $data = [];
+
+    $userO = $this->listItems( array('filters' => array('login' => $login), 'affectsDependences' => array( 'UserPermissionModel') ))->fetch();
+
     if( $userO ){
       $loginTimeBan = $userO->getter('loginTimeBan');
       $confTimeBan = 15; //minutes banned
@@ -179,7 +182,8 @@ class UserModel extends Model
             'advancedstatus' => LOGIN_BAN,
             'restTimeBan' => $diffTimeBan
           ];
-        }else{
+        }
+        else{
           $userO->setter('loginTimeBan', NULL);
           $userO->setter('loginFailAttempts', 0);
           $userO->save();
@@ -187,7 +191,7 @@ class UserModel extends Model
       }
 
       if(empty($data)){
-        if(!password_verify($password, $userO->getter('password'))){
+        if( !password_verify( $password, $userO->getter('password') ) ) {
           $this->userLoginFailed($userO);
           $data = [
             'status' => false,
@@ -201,7 +205,7 @@ class UserModel extends Model
         if($userO->getter('active') !== 1){
           $data = [
             'status' => false,
-            'advancedstatus' => LOGIN_DISABLED
+            'advancedstatus' => LOGIN_DISABLED // Parece un fallo de nomes
           ];
         }
       }
@@ -213,8 +217,7 @@ class UserModel extends Model
       ];
     }
 
-    if(empty($data)) {
-
+    if( empty($data) ) {
       $data = [
         'status' => true,
         'advancedstatus' => LOGIN_OK,
@@ -224,6 +227,7 @@ class UserModel extends Model
     else {
       Cogumelo::log("authenticateUser FAILED with login=".$login.". User NOT authenticated", "UserLog");
     }
+
     return $data;
   }
 
@@ -256,19 +260,21 @@ class UserModel extends Model
   }
 
   public function loginIsOk( $userO ) {
+    $data = [];
+
     Cogumelo::log("authenticateUser SUCCEED with login=".$userO->getter('login'), "UserLog");
 
     $userPermissionArray = $userO->getterDependence('id', 'UserPermissionModel');
     $uPermArray = array();
     if($userPermissionArray) {
-      foreach( $userPermissionArray as $key => $uPerm ) {
+      foreach( $userPermissionArray as $uPerm ) {
         $uPermArray[] = $uPerm->getter('permission');
       }
     }
     $userO->setter('loginFailAttempts', 0);
     $userO->setter('timeLastLogin' , date("Y-m-d H:i:s", time()));
     $userO->save();
-    $data = array();
+
     $userAllData = $userO->getAllData();
     unset($userAllData['data']['password']);
 
@@ -278,14 +284,16 @@ class UserModel extends Model
     return $data;
   }
 
-  public function updatePassword( $id, $password ) {
-    $data = $this->data->updatePassword($id, $password);
+  public function updatePassword( $userId, $password ) {
+    $data = $this->data->updatePassword($userId, $password);
+
     if($data) {
-      Cogumelo::log("UpdatePassword SUCCEED with ID=".$id, "UserLog");
+      Cogumelo::log("UpdatePassword SUCCEED with ID=".$userId, "UserLog");
     }
     else{
-      Cogumelo::log("UpdatePassword FAILED with ID=".$id, "UserLog");
+      Cogumelo::log("UpdatePassword FAILED with ID=".$userId, "UserLog");
     }
+
     return $data;
   }
 }
