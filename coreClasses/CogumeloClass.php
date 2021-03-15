@@ -343,6 +343,16 @@ class CogumeloClass extends Singleton {
     }
   }
 
+  /**
+   * Informacion no importante, solo para seguir los procesos
+   *
+   * @param mixed $description
+   * @return void
+   */
+  public static function trace( $description ) {
+    self::log( $description, 'trace' );
+  }
+
   public static function log( $texto, $logLabel = 'cogumelo' ) {
     global $COGUMELO_DISABLE_LOGS;
 
@@ -394,9 +404,8 @@ class CogumeloClass extends Singleton {
                 $logLevel = LOG_ERR;
                 break;
               case 'debug':
-                $logLevel = LOG_DEBUG;
-                break;
               case 'debug_sql':
+              case 'trace':
                 $logLevel = LOG_DEBUG;
                 break;
               case 'cogumelo':
