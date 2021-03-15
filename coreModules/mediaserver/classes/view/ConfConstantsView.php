@@ -141,7 +141,7 @@ class ConfConstantsView {
     }
 
     if( $jsValue === null ) {
-      Cogumelo::debug( 'ConfConstantsView->valueToJs: No hemos convertido este valor de tipo '.gettype( $value ) );
+      Cogumelo::trace( 'ConfConstantsView->valueToJs: No hemos convertido este valor de tipo '.gettype( $value ) );
       // Cogumelo::debug( print_r( $value, true ) );
     }
     return $jsValue;

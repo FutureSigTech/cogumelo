@@ -41,7 +41,7 @@ class CogumeloSessionView extends View {
     );
     // phpinfo();
 
-    error_log( __METHOD__.' tokenSessionID = '.$info['TokenSessionID'] );
+    // error_log( __METHOD__.' tokenSessionID = '.$info['TokenSessionID'] );
 
     $this->sendJsonResponse( $info );
   }

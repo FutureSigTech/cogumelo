@@ -132,7 +132,7 @@ class FiledataImagesController {
   }
 
   public function getRouteProfile( $profile ) {
-    Cogumelo::debug( __METHOD__ ." - ( $profile )" );
+    Cogumelo::trace( __METHOD__ ." - ( $profile )" );
     $imgRoute = false;
     $imgRouteOriginal = false;
     $urlId = false;
@@ -145,7 +145,7 @@ class FiledataImagesController {
 
       if( $this->setProfile( $profile ) ) {
         $imgRoute = $this->filesCachePath .'/'. $urlId .'/'. $this->profile['idName'] .'/'. $this->fileInfo['name'];
-        Cogumelo::debug( __METHOD__." - imgRoute: $imgRoute" );
+        Cogumelo::trace( __METHOD__." - imgRoute: $imgRoute" );
 
 
 
@@ -173,11 +173,11 @@ class FiledataImagesController {
           }
 
           if( $imgRouteProfile && file_exists( $imgRouteProfile ) ) {
-            Cogumelo::debug( __METHOD__.' - imgRouteProfile OK' );
+            Cogumelo::trace( __METHOD__.' - imgRouteProfile OK' );
             $imgRoute = $imgRouteProfile;
           }
         }
-        Cogumelo::debug( __METHOD__." - imgRouteProfile: $imgRouteProfile" );
+        Cogumelo::trace( __METHOD__." - imgRouteProfile: $imgRouteProfile" );
 
 
 
@@ -191,7 +191,7 @@ class FiledataImagesController {
             // unlink( $imgRoute );
 
             $cacheRouteInfo = pathinfo( $imgRoute );
-            Cogumelo::debug( __METHOD__.' NO Cache - rmdirRec unlink '.$cacheRouteInfo['dirname'].'/' );
+            Cogumelo::trace( __METHOD__.' NO Cache - rmdirRec unlink '.$cacheRouteInfo['dirname'].'/' );
             $this->rmdirRec( $cacheRouteInfo['dirname'].'/' );
           }
           $imgRoute = $this->createImageProfile( $imgRouteOriginal, $imgRoute );
@@ -201,13 +201,13 @@ class FiledataImagesController {
         // Original
 
         $imgRoute = $this->filesCachePath .'/'. $urlId .'/'. $this->fileInfo['name'];
-        Cogumelo::debug( __METHOD__." - ( NONE ): $imgRoute" );
+        Cogumelo::trace( __METHOD__." - ( NONE ): $imgRoute" );
 
         if( !file_exists( $imgRoute ) ) {
           $toRouteDir = pathinfo( $imgRoute, PATHINFO_DIRNAME );
-          Cogumelo::debug( __METHOD__." - toRouteDir = $toRouteDir" );
+          Cogumelo::trace( __METHOD__." - toRouteDir = $toRouteDir" );
           if( !file_exists( $toRouteDir ) ) {
-            Cogumelo::debug( __METHOD__.' - mkdir '.$toRouteDir );
+            Cogumelo::trace( __METHOD__.' - mkdir '.$toRouteDir );
             $maskPrev = umask( 0 );
             mkdir( $toRouteDir, 0775, true );
             umask( $maskPrev );
@@ -216,7 +216,7 @@ class FiledataImagesController {
           // Si se puede, aseguramos un acceso al directorio sin aKey
           $linkDirId = $this->filesCachePath .'/'. $this->fileInfo['id'];
           if( !$this->verifyAKeyUrl && !file_exists( $linkDirId ) ) {
-            Cogumelo::debug( __METHOD__.' - symlink-0 '.$urlId.' , '.$linkDirId );
+            Cogumelo::trace( __METHOD__.' - symlink-0 '.$urlId.' , '.$linkDirId );
             symlink( $urlId, $linkDirId );
           }
 
@@ -238,34 +238,34 @@ class FiledataImagesController {
         // Si se puede, aseguramos un acceso al directorio sin aKey
         $linkDirId = $this->filesCachePath .'/'. $this->fileInfo['id'];
         if( !$this->verifyAKeyUrl && !file_exists( $linkDirId ) ) {
-          Cogumelo::debug( __METHOD__.' - symlink-1 '.$urlId.' , '.$linkDirId );
+          Cogumelo::trace( __METHOD__.' - symlink-1 '.$urlId.' , '.$linkDirId );
           symlink( $urlId, $linkDirId );
         }
 
         // RealName link
         $linkRealNameFile = $imgRouteInfo['dirname'] .'/'. $this->fileInfo['name'];
         if( !file_exists( $linkRealNameFile ) ) {
-          Cogumelo::debug( __METHOD__.' - symlink-2 '.$imgRouteInfo['basename'].' , '.$linkRealNameFile );
+          Cogumelo::trace( __METHOD__.' - symlink-2 '.$imgRouteInfo['basename'].' , '.$linkRealNameFile );
           symlink( $imgRouteInfo['basename'], $linkRealNameFile );
         }
 
         // Si se puede, aseguramos un acceso al fichero usando ID como nombre
         $linkIdNameFile = $imgRouteInfo['dirname'] .'/'. $this->fileInfo['id'] .'.'. $imgRouteInfo['extension'];
         if( !$this->disableRawUrlProfile && !file_exists( $linkIdNameFile ) ) {
-          Cogumelo::debug( __METHOD__.' - symlink-3 '.$imgRouteInfo['basename'].' , '.$linkIdNameFile );
+          Cogumelo::trace( __METHOD__.' - symlink-3 '.$imgRouteInfo['basename'].' , '.$linkIdNameFile );
           symlink( $imgRouteInfo['basename'], $linkIdNameFile );
         }
 
       }
     }
 
-    Cogumelo::debug( __METHOD__." - RET = $imgRoute" );
+    Cogumelo::trace( __METHOD__." - RET = $imgRoute" );
     return $imgRoute;
   }
 
 
   public function createImageProfile( $fromRoute, $toRoute, $toEncode = false ) {
-    Cogumelo::debug( __METHOD__.' - REQUEST_URI '. $_SERVER["REQUEST_URI"]  );
+    Cogumelo::trace( __METHOD__.' - REQUEST_URI '. $_SERVER["REQUEST_URI"]  );
     // error_log( __METHOD__.' '. debug_backtrace( DEBUG_BACKTRACE_PROVIDE_OBJECT, 1 )[0]['file'] );
     // error_log( '---' );error_log( '---' );error_log( '---' );
     // error_log( 'FiledataImagesController: createImageProfile(): ' );
@@ -297,7 +297,7 @@ class FiledataImagesController {
 
     $toRouteInfo = pathinfo( $toRoute );
     if( file_exists( $toRoute ) ) {
-      Cogumelo::debug( __METHOD__.' - toRoute' );
+      Cogumelo::trace( __METHOD__.' - toRoute' );
       $result = $toRoute;
     }
     elseif( !empty($toRoute) ) {
@@ -310,7 +310,7 @@ class FiledataImagesController {
       }
 
       if( $toRouteReal && file_exists( $toRouteReal ) ) {
-        Cogumelo::debug( __METHOD__.' - toRouteReal' );
+        Cogumelo::trace( __METHOD__.' - toRouteReal' );
         $toRoute = $toRouteReal;
         $result = $toRoute;
       }
@@ -319,9 +319,9 @@ class FiledataImagesController {
     if( $this->profile && $mimeTypeOrg && ( $result !== $toRoute || $toEncode ) ) {
 
       $tmpFlag = ( file_exists( $toRoute ) ) ? 'SI' : 'NON';
-      Cogumelo::debug( __METHOD__.' - file_exists '. $tmpFlag );
+      Cogumelo::trace( __METHOD__.' - file_exists '. $tmpFlag );
       $tmpFlag = ( $toEncode ) ? 'SI' : 'NON';
-      Cogumelo::debug( __METHOD__.' - toEncode '.$tmpFlag );
+      Cogumelo::trace( __METHOD__.' - toEncode '.$tmpFlag );
 
 
 
@@ -351,12 +351,12 @@ class FiledataImagesController {
       $imageOrientation = $im->getImageOrientation();
       switch( $imageOrientation ) {
         case Imagick::ORIENTATION_BOTTOMRIGHT: //value (integer): 3
-          $im->rotateimage( '#fff', 180 );  //rotate 180º 
+          $im->rotateimage( '#fff', 180 );  //rotate 180º
           break;
         case Imagick::ORIENTATION_RIGHTTOP: //value (integer): 6
           $im->rotateimage( '#fff', 90 ); //rotate 90º
           break;
-        case Imagick::ORIENTATION_LEFTBOTTOM: //value (integer): 8 
+        case Imagick::ORIENTATION_LEFTBOTTOM: //value (integer): 8
           $im->rotateimage( '#fff', 270 );  //rotate 270º
           break;
       }
@@ -521,7 +521,7 @@ class FiledataImagesController {
           }
           //$im->setImageCompressionQuality(90);
           //error_log( 'FiledataImagesController: createImageProfile: writeImage '.$toRoute );
-          Cogumelo::debug( __METHOD__.' - writeImage '.$toRoute );
+          Cogumelo::trace( __METHOD__.' - writeImage '.$toRoute );
           $im->writeImage( $toRoute );
         }
         else {
@@ -539,21 +539,21 @@ class FiledataImagesController {
           $urlId = $this->fileInfo['id'].'-a'.$this->fileInfo['aKey'];
           if( !$this->verifyAKeyUrl && !file_exists( $linkDirId ) ) {
             // error_log( 'symlink de '.$urlId.' como '.$linkDirId );
-            Cogumelo::debug( __METHOD__.' - symlink-1 '.$urlId.', '.$linkDirId );
+            Cogumelo::trace( __METHOD__.' - symlink-1 '.$urlId.', '.$linkDirId );
             symlink( $urlId, $linkDirId );
           }
 
           // RealName link
           $linkRealNameFile = $imgRouteInfo['dirname'] .'/'. $this->fileInfo['name'];
           if( !file_exists( $linkRealNameFile ) ) {
-            Cogumelo::debug( __METHOD__.' - symlink-2 '.$imgRouteInfo['basename'].', '.$linkRealNameFile );
+            Cogumelo::trace( __METHOD__.' - symlink-2 '.$imgRouteInfo['basename'].', '.$linkRealNameFile );
             symlink( $imgRouteInfo['basename'], $linkRealNameFile );
           }
 
           // Si se puede, aseguramos un acceso al fichero usando ID como nombre
           $linkIdNameFile = $imgRouteInfo['dirname'] .'/'. $this->fileInfo['id'] .'.'. $imgRouteInfo['extension'];
           if( !$this->disableRawUrlProfile && !file_exists( $linkIdNameFile ) ) {
-            Cogumelo::debug( __METHOD__.' - symlink-3 '.$imgRouteInfo['basename'].', '.$linkIdNameFile );
+            Cogumelo::trace( __METHOD__.' - symlink-3 '.$imgRouteInfo['basename'].', '.$linkIdNameFile );
             symlink( $imgRouteInfo['basename'], $linkIdNameFile );
           }
         }
@@ -570,7 +570,7 @@ class FiledataImagesController {
         }
 
         $result = 'data:image/jpg;base64,'.base64_encode( $im->getImageBlob() );
-        Cogumelo::debug( __METHOD__.' - jpg base64 SRC Encode strlen: '.mb_strlen($result) );
+        Cogumelo::trace( __METHOD__.' - jpg base64 SRC Encode strlen: '.mb_strlen($result) );
       }
 
 
@@ -662,7 +662,7 @@ class FiledataImagesController {
 
   public function sendImage( $imgInfo ) {
     // error_log( __METHOD__.' '.print_r( $imgInfo, true ) );
-    Cogumelo::debug( __METHOD__.' '.print_r( $imgInfo, true ) );
+    Cogumelo::trace( __METHOD__.' '.print_r( $imgInfo, true ) );
 
     $result = false;
 
@@ -703,7 +703,7 @@ class FiledataImagesController {
         $cacheDir = $info['dirname'].'/';
 
         if( !empty( $this->filesCachePath ) && strpos( $cacheDir, $this->filesCachePath ) !== false ) {
-          Cogumelo::debug( __METHOD__.' NO Cache - rmdirRec unlink '.$cacheDir );
+          Cogumelo::trace( __METHOD__.' NO Cache - rmdirRec unlink '.$cacheDir );
           $this->rmdirRec( $cacheDir );
         }
         else {
@@ -729,7 +729,7 @@ class FiledataImagesController {
 
 
   public function clearCache( $fileId ) {
-    Cogumelo::debug( __METHOD__.' - ' . $fileId );
+    Cogumelo::trace( __METHOD__.' - ' . $fileId );
 
     if( is_integer( $fileId ) && $fileId > 0 ) {
       $imgCacheRoute = $this->filesCachePath .'/'. $fileId;
@@ -738,13 +738,13 @@ class FiledataImagesController {
         if( strpos( $realDir, '/' ) !== 0 ) {
           $realDir = pathinfo( $imgCacheRoute, PATHINFO_DIRNAME ).'/'.$realDir;
         }
-        Cogumelo::debug( __METHOD__.' - unlink Dir '. $imgCacheRoute );
+        Cogumelo::trace( __METHOD__.' - unlink Dir '. $imgCacheRoute );
         unlink( $imgCacheRoute );
-        Cogumelo::debug( __METHOD__.' - rmdirRec-1 unlink '. $realDir );
+        Cogumelo::trace( __METHOD__.' - rmdirRec-1 unlink '. $realDir );
         $this->rmdirRec( $realDir );
       }
       else {
-        Cogumelo::debug( __METHOD__.' - rmdirRec-2 unlink '. $imgCacheRoute );
+        Cogumelo::trace( __METHOD__.' - rmdirRec-2 unlink '. $imgCacheRoute );
         $this->rmdirRec( $imgCacheRoute );
       }
     }
@@ -752,7 +752,7 @@ class FiledataImagesController {
 
 
   public function rmdirRec( $dir ) {
-    Cogumelo::debug( __METHOD__.' - '. $dir );
+    Cogumelo::trace( __METHOD__.' - '. $dir );
 
     $dir = rtrim( $dir, '/' );
     if( is_dir( $dir ) ) {

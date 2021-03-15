@@ -82,7 +82,7 @@ class Cache {
    * Borra todos nuestros contenidos cache
    */
   public function flush() {
-    Cogumelo::debug(__METHOD__);
+    Cogumelo::trace(__METHOD__);
     $result = null;
 
     if( $this->cacheCtrl ) {

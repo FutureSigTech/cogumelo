@@ -25,13 +25,13 @@ class filedata extends Module {
 
 
   /**
-    Busca elementos abandonados
-    @param array $params Parametros
-    @return bool
+   * Busca elementos abandonados
+   *
+   * @param array $params Parametros
+   * @return bool
    */
   public function garbageCollection() {
-    Cogumelo::debug( __METHOD__ );
-    error_log( __METHOD__ );
+    Cogumelo::trace( __METHOD__ );
 
     filedata::load( 'controller/FiledataController.php' );
     $garbageCtrl = new FiledataController();

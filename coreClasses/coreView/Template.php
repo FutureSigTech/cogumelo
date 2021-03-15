@@ -125,7 +125,7 @@ class Template extends Smarty {
 
 
   /**
-   Establece el contenido de un Fragmento
+   * Establece el contenido de un Fragmento
    *
    * @param string $fragmentName
    * @param string $fragmentObject
@@ -136,7 +136,7 @@ class Template extends Smarty {
   }
 
   /**
-   Añade otro template al contenido de un Fragmento
+   * Añade otro template al contenido de un Fragmento
    *
    * @param string $fragmentName
    * @param string $fragmentObject
@@ -157,17 +157,17 @@ class Template extends Smarty {
 
   // Metodos "ALIAS" que hay que dejar de usar
   public function setBlock( $fragmentName, $fragmentObject ) {
-    error_log( '---DEPRECATED--- Cambiar setBlock por setFragment en '. debug_backtrace( DEBUG_BACKTRACE_PROVIDE_OBJECT, 1 )[0]['file'] );
+    Cogumelo::trace( '---DEPRECATED--- Cambiar setBlock por setFragment en '. debug_backtrace( DEBUG_BACKTRACE_PROVIDE_OBJECT, 1 )[0]['file'] );
     $this->setFragment( $fragmentName, $fragmentObject );
   }
   public function addToBlock( $fragmentName, $fragmentObject ) {
-    error_log( '---DEPRECATED--- Cambiar addToBlock por addToFragment en '. debug_backtrace( DEBUG_BACKTRACE_PROVIDE_OBJECT, 1 )[0]['file'] );
+    Cogumelo::trace( '---DEPRECATED--- Cambiar addToBlock por addToFragment en '. debug_backtrace( DEBUG_BACKTRACE_PROVIDE_OBJECT, 1 )[0]['file'] );
     $this->addToFragment( $fragmentName, $fragmentObject );
   }
 
 
   /**
-   Añade un script JS para cargar en el HTML
+   * Añade un script JS para cargar en el HTML
    *
    * @param string $file_path
    * @param string $module
@@ -218,7 +218,7 @@ class Template extends Smarty {
   }
 
   /**
-   Añade un CSS para cargar en el HTML
+   * Añade un CSS para cargar en el HTML
    *
    * @param string $file_path
    * @param string $module
@@ -395,7 +395,7 @@ class Template extends Smarty {
     }
 
     // Carga recursivamente los estilos de los fragmentos
-    foreach( $this->fragments as $fragmentName => $fragmentObjects ) {
+    foreach( $this->fragments as $fragmentObjects ) {
       foreach( $fragmentObjects as $fragmentTemplate ) {
         $itemsToInclude = array_merge( $itemsToInclude, $fragmentTemplate->getClientStylesArray( $ignoreAutoincludes ) );
       }
@@ -407,7 +407,7 @@ class Template extends Smarty {
 
 
   /**
-   Establece el template a utilizar
+   * Establece el template a utilizar
    *
    * @param string $file_name
    * @param string $module
@@ -444,7 +444,7 @@ class Template extends Smarty {
   }
 
   /**
-   Crea el HTML a partir de los datos y plantillas indicados y lo devuelve como STRING
+   * Crea el HTML a partir de los datos y plantillas indicados y lo devuelve como STRING
    *
    * @return string HTML generado
    **/
@@ -461,7 +461,7 @@ class Template extends Smarty {
   */
 
   /**
-   Crea el resultado Minimizado a partir de los datos y plantillas indicados
+   * Crea el resultado Minimizado a partir de los datos y plantillas indicados
    *
    * @param bool $toString
    *
@@ -496,7 +496,7 @@ class Template extends Smarty {
   }
 
   /**
-   Crea el HTML a partir de los datos y plantillas indicados
+   * Crea el HTML a partir de los datos y plantillas indicados
    *
    * @param bool $toString
    *
@@ -539,7 +539,7 @@ class Template extends Smarty {
       //$clientIncludes .= '<script src="http://addyosmani.com/basket.js/dist/basket.min.js"></script>' . "\n";
       $mainClientIncludes .= '<script src="'.$this->cgmMediaserverHost.'vendor/manual/rsvp/rsvp-3.2.1.min.js"></script>' . "\n";
       $mainClientIncludes .= '<script src="'.$this->cgmMediaserverHost.'vendor/manual/basket/basket-v0.5.2.min.js"></script>' . "\n";
-      $mainClientIncludes .= '<script src="'.Cogumelo::getSetupValue( 'publicConf:vars:mediaJs' ).'/module/common/js/cogumeloLog.js"></script>' . "\n";      
+      $mainClientIncludes .= '<script src="'.Cogumelo::getSetupValue( 'publicConf:vars:mediaJs' ).'/module/common/js/cogumeloLog.js"></script>' . "\n";
       $mainClientIncludes .= '<script src="'.$langUrl.'/media/jsConfConstants.js"></script>' . "\n";
       $mainClientIncludes .= '<script src="'.$langUrl.'/jsTranslations/getJson.js"></script>' . "\n";
     //  $mainClientIncludes .= $this->getClientStylesHtml();
@@ -651,7 +651,7 @@ class Template extends Smarty {
   }
 
   /**
-   Crea el HTML a partir de los datos y plantillas indicados sin esqueleto
+   * Crea el HTML a partir de los datos y plantillas indicados sin esqueleto
    *
    * @return string $htmlCode
    **/

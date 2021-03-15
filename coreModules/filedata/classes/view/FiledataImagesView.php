@@ -45,7 +45,7 @@ class FiledataImagesView extends View {
     Mostramos una imagen de Form
   */
   public function showImg( $urlParams = false ) {
-    Cogumelo::debug( __METHOD__.' - fileId '.$urlParams['fileId'] );
+    Cogumelo::trace( __METHOD__.' - fileId '.$urlParams['fileId'] );
     // error_log( 'FiledataImagesView: showImg(): ' . print_r( $urlParams, true ) );
 
     $fileInfo = false;
@@ -86,7 +86,7 @@ class FiledataImagesView extends View {
 
             if( false !== $imageCtrl->profile['cache'] && file_exists( $imgInfo['route'] ) && mb_strpos( $imgInfo['route'], $this->filesCachePath ) === 0 ) {
               $urlRedirect = mb_substr( $imgInfo['route'], mb_strlen( $this->webBasePath ) );
-              Cogumelo::debug( __METHOD__.' - redirect => '.$urlRedirect );
+              Cogumelo::trace( __METHOD__.' - redirect => '.$urlRedirect );
               Cogumelo::redirect( SITE_HOST . $urlRedirect );
               //
               // IMPORTANTE - AQUI NO SE LLEGA: redirect() HACE EXIT CORTANDO EL FLUJO DE EJECUCION
@@ -95,7 +95,7 @@ class FiledataImagesView extends View {
             else {
               $imgInfo['name'] = !empty( $fileName ) ? $fileName : $fileInfo['name'];
               // $imgInfo['name'] = !empty( $fileName ) ? $fileName : $fileInfo['originalName'];
-              Cogumelo::debug( __METHOD__.' - imageCtrl->sendImage()' );
+              Cogumelo::trace( __METHOD__.' - imageCtrl->sendImage()' );
               if( !$imageCtrl->sendImage( $imgInfo ) ) {
                 $error = 'NS'; // ERROR ejecutando imageCtrl->sendImage
               }

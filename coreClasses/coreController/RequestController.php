@@ -149,7 +149,7 @@ class RequestController {
 
     if( $alternative ) {
       if( $alternative[ 'code' ] === 'alias' ) {
-        Cogumelo::debug( 'RequestController::notAppUrl Alias-viewUrl '.$alternative[ 'url' ] );
+        Cogumelo::trace( 'RequestController::notAppUrl Alias-viewUrl '.$alternative[ 'url' ] );
         global $_C;
         $_C->viewUrl( $alternative[ 'url' ] );
         /**
@@ -158,7 +158,7 @@ class RequestController {
         */
       }
       else {
-        Cogumelo::debug( 'RequestController::notAppUrl Redirect '.$alternative[ 'code' ].' a '.$alternative[ 'url' ] );
+        Cogumelo::trace( 'RequestController::notAppUrl Redirect '.$alternative[ 'code' ].' a '.$alternative[ 'url' ] );
         $this->redirect( $alternative[ 'url' ], $alternative[ 'code' ] );
       }
     }

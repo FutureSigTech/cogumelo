@@ -116,13 +116,13 @@ class FormConnectorFiles {
           $fich['type'] = $fileTypePhp;
 
           $msg = ' ALERTA: MIME_TYPE de navegador y PHP difieren: '.$fich['type'].' != '.$fileTypePhp.' Usamos PHP.';
-          error_log(__METHOD__.$msg );
+          // error_log(__METHOD__.$msg );
           Cogumelo::log(__METHOD__.$msg, 'Form');
         }
       }
       else {
         $msg = ' ALERTA: MIME_TYPE PHP del fichero desconocido. Usamos el de Navegador: '.$fich['type'];
-        error_log(__METHOD__.$msg );
+        // error_log(__METHOD__.$msg );
         Cogumelo::log(__METHOD__.$msg, 'Form');
       }
     }

@@ -169,7 +169,7 @@ class MediaserverController {
 
   public function serveFile() {
 
-    Cogumelo::debug("Mediaserver, serving file: ".$this->realFilePath);
+    Cogumelo::trace("Mediaserver, serving file: ".$this->realFilePath);
 
     if( !Cogumelo::getSetupValue( 'mod:mediaserver:productionMode' ) || ( mb_substr($this->urlPath , -3) == '.js' &&  Cogumelo::getSetupValue( 'mod:mediaserver:notCacheJs' ) ) )  {
       // js file

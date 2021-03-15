@@ -98,7 +98,7 @@ class FilegroupModel extends Model {
 
 
   public function garbageCollector() {
-    Cogumelo::debug( __METHOD__ );
+    Cogumelo::trace( __METHOD__ );
 
     Cogumelo::load( 'coreModel/VOUtils.php' );
 
